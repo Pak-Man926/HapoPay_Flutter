@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../shared/widgets/action_card.dart';
-import '../auth/providers/auth_provider.dart';
+import 'package:hapo_pay/features/auth/providers/auth_provider.dart';
+import 'package:hapo_pay/shared/widgets/action_card.dart';
+
 
 class StudentDashboardScreen extends ConsumerWidget {
   const StudentDashboardScreen({super.key});
