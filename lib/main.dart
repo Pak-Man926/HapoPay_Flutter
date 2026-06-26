@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hapo_pay/app.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'core/config/env_config.dart';
+import 'core/theme/app_theme.dart';
+import 'core/router/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Supabase if keys are provided (placeholder keys will fail gracefully)
   try {
-    const supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
-    const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
-
-    if (supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty) {
+    if (EnvConfig.supabaseUrl.isNotEmpty && EnvConfig.supabaseAnonKey.isNotEmpty) {
       await Supabase.initialize(
-        url: supabaseUrl,
-        publishableKey: supabaseAnonKey,
+        url: EnvConfig.supabaseUrl,
+        anonKey: EnvConfig.supabaseAnonKey,
       );
     }
   } catch (e) {
@@ -28,6 +27,18 @@ void main() async {
   );
 }
 
+class HapoPayApp extends ConsumerWidget {
+  const HapoPayApp({super.key});
 
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(appRouterProvider);
 
-
+    return MaterialApp.router(
+      title: 'HapoPay',
+      theme: AppTheme.darkTheme,
+      routerConfig: router,
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}

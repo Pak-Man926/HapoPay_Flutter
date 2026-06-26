@@ -49,6 +49,10 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>HapoPay needs camera access to scan merchant QR codes for payments.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>HapoPay uses FaceID to securely authorize your transactions.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
