@@ -51,7 +51,7 @@ class AppPrimaryButtonWidget extends StatelessWidget {
                     ),
                   ),
                   horizontalSpaceTiny,
-                  Icon(icon, color: theme.colorScheme.onSurface),
+                  Icon(icon, color: Colors.white),
                 ],
               ),
             ),
