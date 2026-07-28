@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/widgets/action_card.dart';
+import '../../../shared/widgets/theme_toggle.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/rewards_provider.dart';
 import '../providers/student_account_provider.dart';
@@ -25,10 +26,16 @@ class StudentDashboardScreen extends ConsumerWidget {
     final user = ref.watch(authProvider.select((s) => s.user));
     final accountAsync = ref.watch(studentAccountProvider);
 
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Student Dashboard'),
         actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: ThemeToggle(),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => ref.read(authProvider.notifier).logout(),
@@ -42,12 +49,12 @@ class StudentDashboardScreen extends ConsumerWidget {
           children: [
             Text(
               'Hey, ${user?.fullName ?? 'Student'}!',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Ready to make a payment?',
-              style: TextStyle(color: Colors.white70),
+              style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
             ),
             const SizedBox(height: 32),
 
@@ -182,22 +189,22 @@ class _RewardsSummaryCard extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Rewards',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                   ),
                   Text(
                     'Tap to view your achievements',
-                    style: TextStyle(color: Colors.white54, fontSize: 13),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 13),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.white54),
+            Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
           ],
         ),
       ),
@@ -236,17 +243,18 @@ class _RewardsSummaryCard extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Rewards',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         Text(
                           '$earned / $total achievements unlocked',
-                          style: const TextStyle(
-                            color: Colors.white54,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                             fontSize: 12,
                           ),
                         ),
@@ -296,7 +304,7 @@ class _RewardsSummaryCard extends ConsumerWidget {
                     nextPts != null
                         ? '${nextPts - reward.totalPoints} pts to next tier'
                         : '🏆 Max tier!',
-                    style: const TextStyle(color: Colors.white38, fontSize: 11),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11),
                   ),
                 ],
               ),
@@ -309,7 +317,7 @@ class _RewardsSummaryCard extends ConsumerWidget {
                   curve: Curves.easeOutCubic,
                   builder: (_, val, __) => LinearProgressIndicator(
                     value: val,
-                    backgroundColor: Colors.white12,
+                    backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
                     valueColor: AlwaysStoppedAnimation(tierColor),
                     minHeight: 6,
                   ),
@@ -329,11 +337,12 @@ class _RewardsSummaryCard extends ConsumerWidget {
     Color? borderColor,
     Color? glowColor,
   }) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor ?? Colors.white12),
+        border: Border.all(color: borderColor ?? theme.colorScheme.onSurface.withValues(alpha: 0.12)),
         boxShadow: glowColor != null
             ? [BoxShadow(color: glowColor, blurRadius: 12, spreadRadius: 1)]
             : null,
@@ -402,16 +411,17 @@ class _BalanceInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
+          style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7), fontSize: 12),
         ),
         Text(
           value,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: theme.colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),

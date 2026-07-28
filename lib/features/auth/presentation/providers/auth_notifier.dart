@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/auth_event_bus.dart';
+import '../../data/dto/register_request_dto.dart';
 import '../../data/providers.dart';
+import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/i_auth_repository.dart';
 import 'auth_state.dart';
 
@@ -73,17 +75,37 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   /// Registers a new user account.
-  ///
-  /// The UI layer is responsible for constructing a [RegisterRequestDto] and
-  /// calling this method.
-  Future<void> register(covariant Object params) async {
-    // Signature uses covariant Object to allow the data layer's RegisterRequestDto
-    // to be passed without importing it directly in all callers.
-    // Cast is safe because the caller controls the type.
-    // ignore: avoid_dynamic_calls
+  Future<void> register({
+    required String email,
+    required String password,
+    required String fullName,
+    required UserRole role,
+  }) async {
     state = state.copyWith(isLoading: true, clearError: true);
-    // Delegate to the public register method once register screen is built.
-    // Intentionally left as a thin stub — expand when the register flow is added.
+
+    final result = await _repository.register(
+      RegisterRequestDto(
+        email: email,
+        password: password,
+        fullName: fullName,
+        role: role,
+      ),
+    );
+
+    result.when(
+      success: (session) {
+        state = AuthState(
+          status: AuthStatus.authenticated,
+          user: session.user,
+        );
+      },
+      failure: (error) {
+        state = AuthState(
+          status: AuthStatus.unauthenticated,
+          errorMessage: error.message,
+        );
+      },
+    );
   }
 
   /// Logs out the current user.

@@ -86,9 +86,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen>
     final rewardsAsync = ref.watch(rewardsProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E1E),
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
@@ -421,14 +419,14 @@ class _TierLadder extends StatelessWidget {
                             ? color.withValues(alpha: 0.2)
                             : isUnlocked
                                 ? color.withValues(alpha: 0.08)
-                                : const Color(0xFF1E1E1E),
+                                : Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isActive
                               ? color
                               : isUnlocked
                                   ? color.withValues(alpha: 0.3)
-                                  : Colors.white12,
+                                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
                           width: isActive ? 2 : 1,
                         ),
                       ),
@@ -537,12 +535,13 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
       ),
       child: Column(
         children: [
@@ -550,8 +549,8 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: theme.colorScheme.onSurface,
               fontWeight: FontWeight.bold,
               fontSize: 15,
             ),
@@ -559,8 +558,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(color: Colors.white54, fontSize: 10),
-            textAlign: TextAlign.center,
+            style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 10),
           ),
         ],
       ),

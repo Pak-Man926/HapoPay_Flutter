@@ -34,9 +34,9 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Spending limits updated successfully.'),
-            backgroundColor: Color(0xFF1B5E20),
+          SnackBar(
+            content: const Text('Spending limits updated successfully.'),
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
         Navigator.pop(context);
@@ -62,6 +62,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
   @override
   Widget build(BuildContext context) {
     final accountAsync = ref.watch(studentAccountProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -69,7 +70,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
       ),
       body: accountAsync.when(
         loading: () => const Center(
-            child: CircularProgressIndicator(color: Color(0xFFBB86FC))),
+            child: CircularProgressIndicator()),
         error: (err, _) => Center(
           child: Text('Error loading limits: $err',
               style: const TextStyle(color: Colors.red)),
@@ -82,14 +83,14 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Manage Student Card Controls',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Instantly adjust spending limits or freeze the debit card to prevent unauthorized purchases.',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                  style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 14),
                 ),
                 const SizedBox(height: 32),
 
@@ -99,12 +100,12 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                   decoration: BoxDecoration(
                     color: _isCardLocked
                         ? Colors.red.withValues(alpha: 0.08)
-                        : const Color(0xFF1E1E1E),
+                        : theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: _isCardLocked
                           ? Colors.redAccent.withValues(alpha: 0.4)
-                          : Colors.white10,
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.12),
                     ),
                   ),
                   child: Row(
@@ -114,17 +115,17 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                         decoration: BoxDecoration(
                           color: _isCardLocked
                               ? Colors.redAccent.withValues(alpha: 0.12)
-                              : Colors.white10,
+                              : theme.colorScheme.onSurface.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           _isCardLocked ? Icons.lock : Icons.lock_open,
                           color:
-                              _isCardLocked ? Colors.redAccent : Colors.white70,
+                              _isCardLocked ? Colors.redAccent : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                       const SizedBox(width: 16),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -133,14 +134,14 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: theme.colorScheme.onSurface,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               'Suspend all payments immediately',
                               style: TextStyle(
-                                  color: Colors.white54, fontSize: 12),
+                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 12),
                             ),
                           ],
                         ),
@@ -168,14 +169,14 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E1E1E),
+                        color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white10),
+                        border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
@@ -183,25 +184,25 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: theme.colorScheme.onSurface,
                                 ),
                               ),
-                              Icon(Icons.speed, color: Colors.white30),
+                              Icon(Icons.speed, color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
                             ],
                           ),
-                          const Divider(height: 24, color: Colors.white12),
+                          Divider(height: 24, color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
                           const SizedBox(height: 8),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Limit Value',
-                                  style: TextStyle(color: Colors.white70)),
+                              Text('Limit Value',
+                                  style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7))),
                               Text(
                                 '\$${_currentSliderValue.toStringAsFixed(2)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFFBB86FC),
+                                  color: theme.colorScheme.primary,
                                 ),
                               ),
                             ],
@@ -212,8 +213,8 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                             min: 5.0,
                             max: 200.0,
                             divisions: 39,
-                            activeColor: const Color(0xFFBB86FC),
-                            inactiveColor: Colors.white12,
+                            activeColor: theme.colorScheme.primary,
+                            inactiveColor: theme.colorScheme.onSurface.withValues(alpha: 0.12),
                             label: '\$${_currentSliderValue.round()}',
                             onChanged: (double value) {
                               setState(() {
@@ -221,15 +222,15 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                               });
                             },
                           ),
-                          const Row(
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('\$5.00',
                                   style: TextStyle(
-                                      color: Colors.white38, fontSize: 12)),
+                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
                               Text('\$200.00',
                                   style: TextStyle(
-                                      color: Colors.white38, fontSize: 12)),
+                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
                             ],
                           ),
                         ],
@@ -246,8 +247,8 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                   height: 56,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6200EE),
-                      foregroundColor: Colors.white,
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),

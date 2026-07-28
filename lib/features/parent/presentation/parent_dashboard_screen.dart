@@ -4,17 +4,24 @@ import 'package:go_router/go_router.dart';
 import '../../../shared/widgets/action_card.dart';
 import '../../auth/providers/auth_provider.dart';
 
+import '../../../shared/widgets/theme_toggle.dart';
+
 class ParentDashboardScreen extends ConsumerWidget {
   const ParentDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider.select((s) => s.user));
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Parent Dashboard'),
         actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: ThemeToggle(),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => ref.read(authProvider.notifier).logout(),
@@ -28,12 +35,12 @@ class ParentDashboardScreen extends ConsumerWidget {
           children: [
             Text(
               'Hello, ${user?.fullName ?? 'Parent'}',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Manage your family accounts',
-              style: TextStyle(color: Colors.white70),
+              style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
             ),
             const SizedBox(height: 32),
             ActionCard(

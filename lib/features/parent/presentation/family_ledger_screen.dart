@@ -23,19 +23,20 @@ class FamilyLedgerScreen extends ConsumerWidget {
       ),
       body: accountAsync.when(
         loading: () => const Center(
-            child: CircularProgressIndicator(color: Color(0xFFBB86FC))),
+            child: CircularProgressIndicator()),
         error: (err, _) => Center(
           child: Text('Error loading transactions: $err',
               style: const TextStyle(color: Colors.red)),
         ),
         data: (account) {
           final txs = account.transactions;
+          final theme = Theme.of(context);
 
           if (txs.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 'No transactions recorded yet.',
-                style: TextStyle(color: Colors.white70, fontSize: 16),
+                style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 16),
               ),
             );
           }
@@ -53,9 +54,9 @@ class FamilyLedgerScreen extends ConsumerWidget {
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E1E),
+                  color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white10),
+                  border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
                 ),
                 child: Row(
                   children: [
@@ -80,17 +81,17 @@ class FamilyLedgerScreen extends ConsumerWidget {
                         children: [
                           Text(
                             tx.description,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: theme.colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             formattedTime,
-                            style: const TextStyle(
-                                color: Colors.white54, fontSize: 12),
+                            style: TextStyle(
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 12),
                           ),
                         ],
                       ),

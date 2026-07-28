@@ -90,10 +90,11 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
     double amount,
     String description,
   ) {
+    final theme = Theme.of(context);
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: theme.colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
@@ -108,52 +109,52 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                 width: 48,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.white24,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.24),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Confirm Payment',
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                    color: theme.colorScheme.onSurface),
               ),
               const SizedBox(height: 32),
               // Transaction details box
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white12),
+                  border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
                 ),
                 child: Column(
                   children: [
                     Text(
                       '\$${amount.toStringAsFixed(2)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'to $recipient',
                       style:
-                          const TextStyle(fontSize: 16, color: Colors.white70),
+                          TextStyle(fontSize: 16, color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
                     ),
-                    const Divider(height: 32, color: Colors.white12),
+                    Divider(height: 32, color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Purpose',
-                            style: TextStyle(color: Colors.white54)),
+                        Text('Purpose',
+                            style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5))),
                         Text(description,
-                            style: const TextStyle(
-                                color: Colors.white,
+                            style: TextStyle(
+                                color: theme.colorScheme.onSurface,
                                 fontWeight: FontWeight.w500)),
                       ],
                     ),
@@ -167,8 +168,8 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                 height: 56,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6200EE),
-                    foregroundColor: Colors.white,
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -201,8 +202,8 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                     Navigator.pop(context);
                     _resumeScanner();
                   },
-                  child: const Text('Cancel',
-                      style: TextStyle(color: Colors.white54, fontSize: 16)),
+                  child: Text('Cancel',
+                      style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 16)),
                 ),
               ),
             ],
@@ -253,8 +254,8 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
     showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(color: Color(0xFFBB86FC)),
+      builder: (context) => Center(
+        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
       ),
     );
 
@@ -286,12 +287,13 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
   }
 
   void _showSuccessScreen() {
+    final theme = Theme.of(context);
     showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (context) {
         return Dialog(
-          backgroundColor: const Color(0xFF1E1E1E),
+          backgroundColor: theme.colorScheme.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -302,30 +304,30 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF1B5E20),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade900,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.check,
-                    color: Color(0xFF81C784),
+                    color: Colors.green.shade300,
                     size: 48,
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'Payment Successful',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
+                Text(
                   'Your transaction has been securely processed and recorded.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white70),
+                  style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
                 ),
                 const SizedBox(height: 32),
                 SizedBox(
@@ -333,8 +335,8 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                   height: 48,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6200EE),
-                      foregroundColor: Colors.white,
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -356,13 +358,14 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
   }
 
   void _showErrorDialog(String title, String message) {
+    final theme = Theme.of(context);
     showDialog<void>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E1E1E),
-          title: Text(title, style: const TextStyle(color: Colors.white)),
-          content: Text(message, style: const TextStyle(color: Colors.white70)),
+          backgroundColor: theme.colorScheme.surface,
+          title: Text(title, style: TextStyle(color: theme.colorScheme.onSurface)),
+          content: Text(message, style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7))),
           actions: [
             TextButton(
               onPressed: () {
@@ -370,7 +373,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                 _resumeScanner();
               },
               child:
-                  const Text('OK', style: TextStyle(color: Color(0xFFBB86FC))),
+                  Text('OK', style: TextStyle(color: theme.colorScheme.primary)),
             ),
           ],
         );
@@ -403,9 +406,9 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
           // High-end UI overlay (scanning target layout)
           Positioned.fill(
             child: Container(
-              decoration: const ShapeDecoration(
+              decoration: ShapeDecoration(
                 shape: QrScannerOverlayShape(
-                  borderColor: Color(0xFFBB86FC),
+                  borderColor: Theme.of(context).colorScheme.primary,
                   borderRadius: 16,
                   borderLength: 30,
                   borderWidth: 6,
