@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hapopay/core/constants/constants.dart';
 
 import '../../../shared/widgets/app_primary_button.dart';
 import '../../../shared/widgets/theme_toggle.dart';
-import '../providers/auth_provider.dart'; // re-exports authProvider, AppUser, UserRole
+import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -33,8 +34,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     final authState = ref.read(authProvider);
     if (authState.isAuthenticated) {
-      // The router's redirect will navigate automatically; no manual push
-      // needed. Explicit navigation is kept as a fast-path fallback.
       context.go(authState.user?.isParent == true ? '/parent' : '/student');
     } else if (authState.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -45,8 +44,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(authProvider.select((s) => s.isLoading));
     final theme = Theme.of(context);
+    final isLoading = ref.watch(authProvider.select((s) => s.isLoading));
 
     return Scaffold(
       body: SafeArea(
@@ -84,7 +83,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
-              const SizedBox(height: 40),
+              verticalSpaceXXLarge,
               TextField(
                 controller: _emailController,
                 decoration: const InputDecoration(
@@ -94,7 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
               ),
-              const SizedBox(height: 16),
+              verticalSpaceMedium,
               TextField(
                 controller: _passwordController,
                 decoration: const InputDecoration(
@@ -104,7 +103,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 obscureText: true,
                 textInputAction: TextInputAction.done,
               ),
-              const SizedBox(height: 32),
+              verticalSpaceXXLarge,
               AppPrimaryButton(
                 label: 'Login',
                 isLoading: isLoading,

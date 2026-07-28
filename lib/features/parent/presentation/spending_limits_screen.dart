@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hapopay/core/constants/constants.dart';
 import '../../student/providers/student_account_provider.dart';
 
 class SpendingLimitsScreen extends ConsumerStatefulWidget {
@@ -69,11 +70,11 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
         title: const Text('Spending Controls'),
       ),
       body: accountAsync.when(
-        loading: () => const Center(
-            child: CircularProgressIndicator()),
+        loading: () => Center(
+            child: CircularProgressIndicator(color: theme.colorScheme.primary)),
         error: (err, _) => Center(
           child: Text('Error loading limits: $err',
-              style: const TextStyle(color: Colors.red)),
+              style: TextStyle(color: theme.colorScheme.error)),
         ),
         data: (account) {
           _initializeState(account.dailyLimit);
@@ -87,12 +88,12 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                   'Manage Student Card Controls',
                   style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 8),
+                verticalSpaceSmall,
                 Text(
                   'Instantly adjust spending limits or freeze the debit card to prevent unauthorized purchases.',
                   style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 14),
                 ),
-                const SizedBox(height: 32),
+                verticalSpaceXXLarge,
 
                 // Card Freeze Container
                 Container(
@@ -124,7 +125,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                               _isCardLocked ? Colors.redAccent : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      horizontalSpaceMedium,
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +148,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                         ),
                       ),
                       Switch(
-                        activeThumbColor: Colors.redAccent,
+                        activeThumbColor: theme.colorScheme.error,
                         value: _isCardLocked,
                         onChanged: (val) {
                           setState(() {
@@ -159,7 +160,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                verticalSpaceXLarge,
 
                 // Limit Settings Container (Disabled when locked)
                 Opacity(
@@ -191,7 +192,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                             ],
                           ),
                           Divider(height: 24, color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
-                          const SizedBox(height: 8),
+                          verticalSpaceSmall,
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -207,7 +208,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
+                          verticalSpaceMedium,
                           Slider(
                             value: _currentSliderValue,
                             min: 5.0,
@@ -239,7 +240,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 48),
+                verticalSpaceXVILarge,
 
                 // Save button
                 SizedBox(

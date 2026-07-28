@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hapopay/core/constants/constants.dart';
 import '../../../shared/widgets/action_card.dart';
 import '../../../shared/widgets/theme_toggle.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -23,9 +24,8 @@ class StudentDashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authProvider.select((s) => s.user));
+    final user = ref.watch(authProvider).user;
     final accountAsync = ref.watch(studentAccountProvider);
-
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -38,6 +38,7 @@ class StudentDashboardScreen extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
+            color: theme.colorScheme.onSurface,
             onPressed: () => ref.read(authProvider.notifier).logout(),
           ),
         ],
@@ -56,7 +57,7 @@ class StudentDashboardScreen extends ConsumerWidget {
               'Ready to make a payment?',
               style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
             ),
-            const SizedBox(height: 32),
+            verticalSpaceXXLarge,
 
             // ── Balance card ──────────────────────────────────────────────
             Container(
@@ -71,16 +72,18 @@ class StudentDashboardScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     'Available Balance',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(
+                        color: theme.colorScheme.onSurface, fontSize: 16),
                   ),
-                  const SizedBox(height: 8),
+                  verticalSpaceSmall,
                   accountAsync.when(
-                    loading: () => const SizedBox(
+                    loading: () => SizedBox(
                       height: 86,
                       child: Center(
-                        child: CircularProgressIndicator(color: Colors.white),
+                        child: CircularProgressIndicator(
+                            color: theme.colorScheme.onSurface),
                       ),
                     ),
                     error: (err, _) => SizedBox(
@@ -88,8 +91,8 @@ class StudentDashboardScreen extends ConsumerWidget {
                       child: Center(
                         child: Text(
                           'Error loading balance',
-                          style:
-                              TextStyle(color: Colors.red[100], fontSize: 14),
+                          style: TextStyle(
+                              color: theme.colorScheme.error, fontSize: 14),
                         ),
                       ),
                     ),
@@ -97,13 +100,13 @@ class StudentDashboardScreen extends ConsumerWidget {
                       children: [
                         Text(
                           '\$${account.balance.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurface,
                             fontSize: 36,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        verticalSpaceLarge,
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -128,7 +131,7 @@ class StudentDashboardScreen extends ConsumerWidget {
               ),
             ),
 
-            const SizedBox(height: 32),
+            verticalSpaceXXLarge,
 
             // ── Action cards ──────────────────────────────────────────────
             ActionCard(
@@ -167,6 +170,7 @@ class _RewardsSummaryCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final rewardsAsync = ref.watch(rewardsProvider);
+    final theme = Theme.of(context);
 
     return rewardsAsync.when(
       // While loading, show a shimmering placeholder that matches the card shape
@@ -188,23 +192,23 @@ class _RewardsSummaryCard extends ConsumerWidget {
                 size: 24,
               ),
             ),
-            const SizedBox(width: 16),
+const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Rewards',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                   ),
-                  Text(
-                    'Tap to view your achievements',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 13),
-                  ),
+Text(
+                      'Tap to view your achievements',
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 13),
+                    ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
           ],
         ),
       ),

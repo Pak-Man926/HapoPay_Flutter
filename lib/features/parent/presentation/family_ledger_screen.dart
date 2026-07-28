@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hapopay/core/constants/constants.dart';
 import 'package:intl/intl.dart';
 import '../../student/providers/student_account_provider.dart';
 
@@ -9,6 +10,7 @@ class FamilyLedgerScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accountAsync = ref.watch(studentAccountProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -22,21 +24,21 @@ class FamilyLedgerScreen extends ConsumerWidget {
         ],
       ),
       body: accountAsync.when(
-        loading: () => const Center(
-            child: CircularProgressIndicator()),
+        loading: () => Center(
+            child: CircularProgressIndicator(color: theme.colorScheme.primary)),
         error: (err, _) => Center(
           child: Text('Error loading transactions: $err',
-              style: const TextStyle(color: Colors.red)),
+              style: TextStyle(color: theme.colorScheme.error)),
         ),
         data: (account) {
           final txs = account.transactions;
-          final theme = Theme.of(context);
 
           if (txs.isEmpty) {
             return Center(
               child: Text(
                 'No transactions recorded yet.',
-                style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 16),
+                style: TextStyle(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 16),
               ),
             );
           }
@@ -44,7 +46,7 @@ class FamilyLedgerScreen extends ConsumerWidget {
           return ListView.separated(
             padding: const EdgeInsets.all(24.0),
             itemCount: txs.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            separatorBuilder: (context, index) => verticalSpaceSmall,
             itemBuilder: (context, index) {
               final tx = txs[index];
               final isDebit = tx.type == 'debit';
@@ -64,13 +66,15 @@ class FamilyLedgerScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: isDebit
-                            ? Colors.red.withValues(alpha: 0.12)
-                            : Colors.green.withValues(alpha: 0.12),
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.onSurfaceVariant,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         isDebit ? Icons.arrow_outward : Icons.call_received,
-                        color: isDebit ? Colors.redAccent : Colors.greenAccent,
+                        color: isDebit
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.onSurfaceVariant,
                         size: 20,
                       ),
                     ),
@@ -101,7 +105,7 @@ class FamilyLedgerScreen extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: isDebit ? Colors.redAccent : Colors.greenAccent,
+                        color: isDebit ? theme.colorScheme.error : theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],

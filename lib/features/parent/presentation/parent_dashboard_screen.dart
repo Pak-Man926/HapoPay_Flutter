@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hapopay/core/constants/constants.dart';
 import '../../../shared/widgets/action_card.dart';
-import '../../auth/providers/auth_provider.dart';
-
 import '../../../shared/widgets/theme_toggle.dart';
+import '../../auth/providers/auth_provider.dart';
 
 class ParentDashboardScreen extends ConsumerWidget {
   const ParentDashboardScreen({super.key});
@@ -24,6 +24,7 @@ class ParentDashboardScreen extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
+            color: theme.colorScheme.onSurface,
             onPressed: () => ref.read(authProvider.notifier).logout(),
           ),
         ],
@@ -37,32 +38,32 @@ class ParentDashboardScreen extends ConsumerWidget {
               'Hello, ${user?.fullName ?? 'Parent'}',
               style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            verticalSpaceSmall,
             Text(
               'Manage your family accounts',
               style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
             ),
-            const SizedBox(height: 32),
+            verticalSpaceXXLarge,
             ActionCard(
               title: 'Family Ledger',
               subtitle: 'View all student transactions',
               icon: Icons.history,
               onTap: () => context.push('/parent/ledger'),
             ),
-            const SizedBox(height: 16),
+            verticalSpaceMedium,
             ActionCard(
               title: 'Spending Limits',
               subtitle: 'Set daily and weekly caps',
               icon: Icons.speed,
               onTap: () => context.push('/parent/limits'),
             ),
-            const SizedBox(height: 16),
+            verticalSpaceMedium,
             ActionCard(
               title: 'Card Lock',
               subtitle: 'Suspend payment capabilities',
               icon: Icons.lock_outline,
               onTap: () => context.push('/parent/limits'),
-              color: Colors.redAccent,
+              color: theme.colorScheme.error,
             ),
           ],
         ),

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hapopay/core/constants/constants.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../student/providers/student_account_provider.dart';
@@ -99,6 +100,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (context) {
+        final theme = Theme.of(context);
         return Padding(
           padding: EdgeInsets.fromLTRB(
               24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 24),
@@ -113,7 +115,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: 24),
+              verticalSpaceLarge,
               Text(
                 'Confirm Payment',
                 style: TextStyle(
@@ -121,7 +123,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurface),
               ),
-              const SizedBox(height: 32),
+              verticalSpaceXXLarge,
               // Transaction details box
               Container(
                 padding: const EdgeInsets.all(20),
@@ -140,7 +142,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                         color: theme.colorScheme.onSurface,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    verticalSpaceSmall,
                     Text(
                       'to $recipient',
                       style:
@@ -161,7 +163,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              verticalSpaceXXLarge,
               // Glowing confirm button
               SizedBox(
                 width: double.infinity,
@@ -231,11 +233,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
       if (canCheck || isSupported) {
         final bool didAuthenticate = await _localAuth.authenticate(
           localizedReason: 'Scan fingerprint to authorize transaction',
-          options: const AuthenticationOptions(
-            biometricOnly:
-                false, // Fallback to PIN/pattern if biometric unavailable
-            stickyAuth: true,
-          ),
+          biometricOnly: false,
         );
 
         if (!didAuthenticate) {
@@ -292,6 +290,8 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) {
+        final theme = Theme.of(context);
+
         return Dialog(
           backgroundColor: theme.colorScheme.surface,
           shape: RoundedRectangleBorder(
@@ -314,7 +314,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                     size: 48,
                   ),
                 ),
-                const SizedBox(height: 24),
+                verticalSpaceLarge,
                 Text(
                   'Payment Successful',
                   style: TextStyle(
@@ -323,13 +323,13 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                     color: theme.colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 12),
+                verticalSpaceSmall,
                 Text(
                   'Your transaction has been securely processed and recorded.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
                 ),
-                const SizedBox(height: 32),
+                verticalSpaceXXLarge,
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -391,6 +391,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scan QR Code'),
@@ -408,7 +409,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
             child: Container(
               decoration: ShapeDecoration(
                 shape: QrScannerOverlayShape(
-                  borderColor: Theme.of(context).colorScheme.primary,
+                  borderColor: theme.colorScheme.primary,
                   borderRadius: 16,
                   borderLength: 30,
                   borderWidth: 6,
@@ -426,14 +427,14 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.6),
+                color: theme.colorScheme.surface.withValues(alpha: 0.6),
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: const Text(
+              child: Text(
                 'Align the merchant QR code within the frame',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: theme.colorScheme.onSurface,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
