@@ -69,13 +69,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               verticalSpaceXIVLLarge,
               TextField(
                 controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email', labelStyle: TextStyle(color: theme.colorScheme.onSurface)),
+                decoration: InputDecoration(
+                    labelText: 'Email',
+                    labelStyle: TextStyle(color: theme.colorScheme.onSurface)),
                 keyboardType: TextInputType.emailAddress,
               ),
               verticalSpaceMedium,
               TextField(
                 controller: _passwordController,
-                decoration:  InputDecoration(labelText: 'Password', labelStyle: TextStyle(color: theme.colorScheme.onSurface)),
+                decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: TextStyle(color: theme.colorScheme.onSurface)),
                 obscureText: true,
               ),
               verticalSpaceXXLarge,
