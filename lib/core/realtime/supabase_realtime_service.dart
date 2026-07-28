@@ -44,8 +44,7 @@ class SupabaseRealtimeService {
             },
           )
           .subscribe();
-    } catch (_) {
-    }
+    } catch (_) {}
   }
 
   void unsubscribe() {
@@ -65,7 +64,8 @@ class SupabaseRealtimeService {
   }
 }
 
-final supabaseRealtimeServiceProvider = Provider<SupabaseRealtimeService>((ref) {
+final supabaseRealtimeServiceProvider =
+    Provider<SupabaseRealtimeService>((ref) {
   final service = SupabaseRealtimeService.instance;
   ref.onDispose(() => service.dispose());
   return service;

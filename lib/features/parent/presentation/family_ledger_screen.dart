@@ -38,7 +38,8 @@ class FamilyLedgerScreen extends ConsumerWidget {
               child: Text(
                 'No transactions recorded yet.',
                 style: TextStyle(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 16),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontSize: 16),
               ),
             );
           }
@@ -58,7 +59,9 @@ class FamilyLedgerScreen extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
+                  border: Border.all(
+                      color:
+                          theme.colorScheme.onSurface.withValues(alpha: 0.12)),
                 ),
                 child: Row(
                   children: [
@@ -95,7 +98,9 @@ class FamilyLedgerScreen extends ConsumerWidget {
                           Text(
                             formattedTime,
                             style: TextStyle(
-                                color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 12),
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.5),
+                                fontSize: 12),
                           ),
                         ],
                       ),
@@ -105,7 +110,9 @@ class FamilyLedgerScreen extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: isDebit ? theme.colorScheme.error : theme.colorScheme.onSurfaceVariant,
+                        color: isDebit
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],

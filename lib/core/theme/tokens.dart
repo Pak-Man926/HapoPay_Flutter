@@ -185,5 +185,4 @@ class AppTokens {
     height: 1.4545454545454546,
     letterSpacing: 0.5,
   );
-
 }

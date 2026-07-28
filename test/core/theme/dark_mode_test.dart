@@ -34,7 +34,8 @@ void main() {
 
     test('dark theme AppBar background matches surface color', () {
       final appBarTheme = AppTheme.darkTheme.appBarTheme;
-      expect(appBarTheme.backgroundColor, equals(AppTheme.darkTheme.colorScheme.surface));
+      expect(appBarTheme.backgroundColor,
+          equals(AppTheme.darkTheme.colorScheme.surface));
     });
 
     test('light theme AppBar background is light', () {

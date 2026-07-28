@@ -19,8 +19,7 @@ class AppPrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final effectiveOnPressed =
-        (isLoading || isDisabled) ? null : onPressed;
+    final effectiveOnPressed = (isLoading || isDisabled) ? null : onPressed;
 
     return Container(
       width: double.infinity,
@@ -28,7 +27,10 @@ class AppPrimaryButton extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
-          colors: [theme.colorScheme.primary, theme.colorScheme.primary.withValues(alpha: 0.8)],
+          colors: [
+            theme.colorScheme.primary,
+            theme.colorScheme.primary.withValues(alpha: 0.8)
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

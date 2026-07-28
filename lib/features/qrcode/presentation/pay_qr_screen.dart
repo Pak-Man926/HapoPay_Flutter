@@ -130,7 +130,9 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
+                  border: Border.all(
+                      color:
+                          theme.colorScheme.onSurface.withValues(alpha: 0.12)),
                 ),
                 child: Column(
                   children: [
@@ -145,15 +147,22 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                     verticalSpaceSmall,
                     Text(
                       'to $recipient',
-                      style:
-                          TextStyle(fontSize: 16, color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.7)),
                     ),
-                    Divider(height: 32, color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
+                    Divider(
+                        height: 32,
+                        color: theme.colorScheme.onSurface
+                            .withValues(alpha: 0.12)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Purpose',
-                            style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5))),
+                            style: TextStyle(
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.5))),
                         Text(description,
                             style: TextStyle(
                                 color: theme.colorScheme.onSurface,
@@ -205,7 +214,10 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                     _resumeScanner();
                   },
                   child: Text('Cancel',
-                      style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 16)),
+                      style: TextStyle(
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.5),
+                          fontSize: 16)),
                 ),
               ),
             ],
@@ -253,7 +265,8 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => Center(
-        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+        child: CircularProgressIndicator(
+            color: Theme.of(context).colorScheme.primary),
       ),
     );
 
@@ -327,7 +340,9 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
                 Text(
                   'Your transaction has been securely processed and recorded.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
+                  style: TextStyle(
+                      color:
+                          theme.colorScheme.onSurface.withValues(alpha: 0.7)),
                 ),
                 verticalSpaceXXLarge,
                 SizedBox(
@@ -364,16 +379,19 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: theme.colorScheme.surface,
-          title: Text(title, style: TextStyle(color: theme.colorScheme.onSurface)),
-          content: Text(message, style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7))),
+          title:
+              Text(title, style: TextStyle(color: theme.colorScheme.onSurface)),
+          content: Text(message,
+              style: TextStyle(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7))),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
                 _resumeScanner();
               },
-              child:
-                  Text('OK', style: TextStyle(color: theme.colorScheme.primary)),
+              child: Text('OK',
+                  style: TextStyle(color: theme.colorScheme.primary)),
             ),
           ],
         );

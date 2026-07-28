@@ -86,12 +86,15 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
               children: [
                 Text(
                   'Manage Student Card Controls',
-                  style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 verticalSpaceSmall,
                 Text(
                   'Instantly adjust spending limits or freeze the debit card to prevent unauthorized purchases.',
-                  style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 14),
+                  style: TextStyle(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      fontSize: 14),
                 ),
                 verticalSpaceXXLarge,
 
@@ -116,13 +119,16 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                         decoration: BoxDecoration(
                           color: _isCardLocked
                               ? Colors.redAccent.withValues(alpha: 0.12)
-                              : theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                              : theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           _isCardLocked ? Icons.lock : Icons.lock_open,
-                          color:
-                              _isCardLocked ? Colors.redAccent : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: _isCardLocked
+                              ? Colors.redAccent
+                              : theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.7),
                         ),
                       ),
                       horizontalSpaceMedium,
@@ -142,7 +148,9 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                             Text(
                               'Suspend all payments immediately',
                               style: TextStyle(
-                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 12),
+                                  color: theme.colorScheme.onSurface
+                                      .withValues(alpha: 0.5),
+                                  fontSize: 12),
                             ),
                           ],
                         ),
@@ -172,7 +180,9 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
+                        border: Border.all(
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.12)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,16 +198,23 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                                   color: theme.colorScheme.onSurface,
                                 ),
                               ),
-                              Icon(Icons.speed, color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
+                              Icon(Icons.speed,
+                                  color: theme.colorScheme.onSurface
+                                      .withValues(alpha: 0.3)),
                             ],
                           ),
-                          Divider(height: 24, color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
+                          Divider(
+                              height: 24,
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.12)),
                           verticalSpaceSmall,
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('Limit Value',
-                                  style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7))),
+                                  style: TextStyle(
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.7))),
                               Text(
                                 '\$${_currentSliderValue.toStringAsFixed(2)}',
                                 style: TextStyle(
@@ -215,7 +232,8 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                             max: 200.0,
                             divisions: 39,
                             activeColor: theme.colorScheme.primary,
-                            inactiveColor: theme.colorScheme.onSurface.withValues(alpha: 0.12),
+                            inactiveColor: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.12),
                             label: '\$${_currentSliderValue.round()}',
                             onChanged: (double value) {
                               setState(() {
@@ -228,10 +246,14 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                             children: [
                               Text('\$5.00',
                                   style: TextStyle(
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.4),
+                                      fontSize: 12)),
                               Text('\$200.00',
                                   style: TextStyle(
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.4),
+                                      fontSize: 12)),
                             ],
                           ),
                         ],

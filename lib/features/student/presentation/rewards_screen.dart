@@ -430,7 +430,10 @@ class _TierLadder extends StatelessWidget {
                               ? color
                               : isUnlocked
                                   ? color.withValues(alpha: 0.3)
-                                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.12),
                           width: isActive ? 2 : 1,
                         ),
                       ),
@@ -545,7 +548,8 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
+        border: Border.all(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
       ),
       child: Column(
         children: [
@@ -562,7 +566,9 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 10),
+            style: TextStyle(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                fontSize: 10),
           ),
         ],
       ),

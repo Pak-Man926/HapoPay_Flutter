@@ -50,12 +50,14 @@ class StudentDashboardScreen extends ConsumerWidget {
           children: [
             Text(
               'Hey, ${user?.fullName ?? 'Student'}!',
-              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               'Ready to make a payment?',
-              style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+              style: TextStyle(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
             ),
             verticalSpaceXXLarge,
 
@@ -192,23 +194,35 @@ class _RewardsSummaryCard extends ConsumerWidget {
                 size: 24,
               ),
             ),
-const SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'Rewards',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface),
                   ),
-Text(
-                      'Tap to view your achievements',
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 13),
-                    ),
+                  Text(
+                    'Tap to view your achievements',
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.5),
+                        fontSize: 13),
+                  ),
                 ],
               ),
             ),
-Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+            Icon(Icons.chevron_right,
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.5)),
           ],
         ),
       ),
@@ -258,7 +272,10 @@ Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withVal
                         Text(
                           '$earned / $total achievements unlocked',
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.5),
                             fontSize: 12,
                           ),
                         ),
@@ -308,7 +325,12 @@ Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withVal
                     nextPts != null
                         ? '${nextPts - reward.totalPoints} pts to next tier'
                         : '🏆 Max tier!',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11),
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.4),
+                        fontSize: 11),
                   ),
                 ],
               ),
@@ -321,7 +343,10 @@ Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withVal
                   curve: Curves.easeOutCubic,
                   builder: (_, val, __) => LinearProgressIndicator(
                     value: val,
-                    backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
+                    backgroundColor: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.12),
                     valueColor: AlwaysStoppedAnimation(tierColor),
                     minHeight: 6,
                   ),
@@ -346,7 +371,9 @@ Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withVal
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor ?? theme.colorScheme.onSurface.withValues(alpha: 0.12)),
+        border: Border.all(
+            color: borderColor ??
+                theme.colorScheme.onSurface.withValues(alpha: 0.12)),
         boxShadow: glowColor != null
             ? [BoxShadow(color: glowColor, blurRadius: 12, spreadRadius: 1)]
             : null,
@@ -420,7 +447,9 @@ class _BalanceInfo extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7), fontSize: 12),
+          style: TextStyle(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              fontSize: 12),
         ),
         Text(
           value,

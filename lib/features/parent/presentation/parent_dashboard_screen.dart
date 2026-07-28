@@ -36,12 +36,14 @@ class ParentDashboardScreen extends ConsumerWidget {
           children: [
             Text(
               'Hello, ${user?.fullName ?? 'Parent'}',
-              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             verticalSpaceSmall,
             Text(
               'Manage your family accounts',
-              style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+              style: TextStyle(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
             ),
             verticalSpaceXXLarge,
             ActionCard(
