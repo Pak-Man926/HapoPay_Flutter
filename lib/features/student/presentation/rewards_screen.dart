@@ -64,14 +64,13 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen>
     if (_claimingId != null) return;
     setState(() => _claimingId = achievement.id);
     try {
-      await ref
-          .read(rewardsProvider.notifier)
-          .claimAchievement(achievement.id);
+      await ref.read(rewardsProvider.notifier).claimAchievement(achievement.id);
       if (!mounted) return;
       HapticFeedback.lightImpact();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Claimed ${achievement.name} (+${achievement.points} pts)'),
+          content:
+              Text('Claimed ${achievement.name} (+${achievement.points} pts)'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -229,8 +228,8 @@ class _HeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final onHero = Colors.white;
-    final gradientColors =
-        rewardTierGradients[reward.tier] ?? [Colors.purple, Colors.purpleAccent];
+    final gradientColors = rewardTierGradients[reward.tier] ??
+        [Colors.purple, Colors.purpleAccent];
     final progress = reward.tierProgressFraction;
     final nextPoints = reward.nextMilestonePoints;
 
@@ -267,7 +266,8 @@ class _HeroCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Text(reward.tier.badge, style: const TextStyle(fontSize: 16)),
+                    Text(reward.tier.badge,
+                        style: const TextStyle(fontSize: 16)),
                     horizontalSpaceTiny,
                     Text(
                       reward.tier.label,
@@ -379,7 +379,8 @@ class _StreakPanel extends StatelessWidget {
             children: [
               Icon(
                 Icons.local_fire_department_rounded,
-                color: streakDays > 0 ? Colors.deepOrangeAccent : scheme.outline,
+                color:
+                    streakDays > 0 ? Colors.deepOrangeAccent : scheme.outline,
                 size: 28,
               ),
               const SizedBox(width: 10),
@@ -572,7 +573,8 @@ class _TierLadder extends StatelessWidget {
                                   ? color
                                   : isUnlocked
                                       ? color.withValues(alpha: 0.85)
-                                      : scheme.onSurface.withValues(alpha: 0.35),
+                                      : scheme.onSurface
+                                          .withValues(alpha: 0.35),
                               fontSize: 10,
                               fontWeight: isActive
                                   ? FontWeight.bold
@@ -734,9 +736,8 @@ class _AchievementCard extends StatelessWidget {
         color: cardBg,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isEarned
-              ? accent.withValues(alpha: 0.45)
-              : scheme.outlineVariant,
+          color:
+              isEarned ? accent.withValues(alpha: 0.45) : scheme.outlineVariant,
           width: isEarned ? 1.5 : 1,
         ),
         boxShadow: isEarned

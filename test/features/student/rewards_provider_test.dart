@@ -74,7 +74,8 @@ void main() {
     expect(reward.tier, RewardTier.silver);
   });
 
-  test('claimAchievement optimistically bumps points then reconciles', () async {
+  test('claimAchievement optimistically bumps points then reconciles',
+      () async {
     await container.read(rewardsProvider.future);
     final before = container.read(rewardsProvider).requireValue;
 
