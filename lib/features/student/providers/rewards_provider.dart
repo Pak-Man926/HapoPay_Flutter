@@ -3,10 +3,10 @@
 /// Exposes refresh() and claimAchievement() for UI actions.
 library;
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/reward_model.dart';
+import '../models/rewards_catalog.dart';
 import '../repository/rewards_repository.dart';
 
 part 'rewards_provider.g.dart';
@@ -19,63 +19,56 @@ part 'rewards_provider.g.dart';
 class Rewards extends _$Rewards {
   @override
   Future<RewardModel> build() async {
-    // Derive student ID from authenticated user; fall back to 'demo' so the
-    // UI always renders during development.
     final user = ref.watch(authProvider).user;
-    final studentId = user?.id ?? '';
+    final studentId = user?.id;
+    if (studentId == null || studentId.isEmpty) {
+      throw StateError('Sign in to view rewards');
+    }
     return ref.read(rewardsRepositoryProvider).fetchRewards(studentId);
   }
 
-  // -------------------------------------------------------------------------
-  // Force a fresh fetch (e.g. after a payment transaction closes).
-  // -------------------------------------------------------------------------
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => _fetch());
   }
 
-  // -------------------------------------------------------------------------
-  // Claim an earned achievement.
-  // Uses optimistic local update before awaiting the server response.
-  // -------------------------------------------------------------------------
+  /// Claim an earned achievement.
+  /// Optimistically bumps points/tier, then reconciles with the server.
+  /// On failure restores prior data (does not wipe to [AsyncError]).
   Future<void> claimAchievement(String achievementId) async {
     final previous = state;
+    final current = previous.asData?.value;
+    if (current == null) return;
 
-    // Optimistic update: mark the achievement as claimed locally.
-    state = previous.whenData((reward) {
-      final updated = reward.achievements.map((a) {
-        if (a.id == achievementId && a.earned && !a.claimed) {
-          return a.copyWith(claimed: true);
-        }
-        return a;
-      }).toList();
-      return reward.copyWith(achievements: updated);
-    });
+    state = AsyncData(RewardsCatalog.applyClaim(current, achievementId));
 
-    // Confirm with backend; on error roll back.
     try {
       final user = ref.read(authProvider).user;
-      final studentId = user?.id ?? 'demo';
+      final studentId = user?.id;
+      if (studentId == null || studentId.isEmpty) {
+        throw StateError('Sign in to claim rewards');
+      }
       final updated = await ref
           .read(rewardsRepositoryProvider)
           .claimAchievement(studentId, achievementId);
+      if (!ref.mounted) return;
       state = AsyncData(updated);
-    } catch (e, st) {
-      state = previous; // roll back optimistic update
-      state = AsyncError(e, st);
+    } catch (e) {
+      if (!ref.mounted) rethrow;
+      state = previous;
+      rethrow;
     }
   }
 
   Future<RewardModel> _fetch() async {
     final user = ref.read(authProvider).user;
-    final studentId = user?.id ?? '';
+    final studentId = user?.id;
+    if (studentId == null || studentId.isEmpty) {
+      throw StateError('Sign in to view rewards');
+    }
     return ref.read(rewardsRepositoryProvider).fetchRewards(studentId);
   }
 }
-
-// ---------------------------------------------------------------------------
-// Convenience selector: earned achievements count (used by dashboard card)
-// ---------------------------------------------------------------------------
 
 @riverpod
 int earnedAchievementsCount(Ref ref) {

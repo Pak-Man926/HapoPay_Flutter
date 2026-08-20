@@ -3,32 +3,13 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hapopay/core/constants/constants.dart';
 import '../models/reward_model.dart';
+import '../models/rewards_catalog.dart';
 import '../providers/rewards_provider.dart';
-
-// ---------------------------------------------------------------------------
-// Tier colour palette
-// ---------------------------------------------------------------------------
-
-const _tierColors = {
-  RewardTier.bronze: Color(0xFFCD7F32),
-  RewardTier.silver: Color(0xFFC0C0C0),
-  RewardTier.gold: Color(0xFFFFD700),
-  RewardTier.platinum: Color(0xFF00E5FF),
-};
-
-const _tierGradients = {
-  RewardTier.bronze: [Color(0xFF8B4513), Color(0xFFCD7F32)],
-  RewardTier.silver: [Color(0xFF708090), Color(0xFFC0C0C0)],
-  RewardTier.gold: [Color(0xFFB8860B), Color(0xFFFFD700)],
-  RewardTier.platinum: [Color(0xFF006064), Color(0xFF00E5FF)],
-};
-
-// ---------------------------------------------------------------------------
-// Icon mapping from string keys stored in AchievementModel
-// ---------------------------------------------------------------------------
+import 'reward_theme.dart';
 
 IconData _iconFromString(String name) {
   const map = {
@@ -46,10 +27,6 @@ IconData _iconFromString(String name) {
   return map[name] ?? Icons.emoji_events;
 }
 
-// ===========================================================================
-// Screen
-// ===========================================================================
-
 class RewardsScreen extends ConsumerStatefulWidget {
   const RewardsScreen({super.key});
 
@@ -61,6 +38,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _heroController;
   late final Animation<double> _heroFade;
+  String? _claimingId;
 
   @override
   void initState() {
@@ -82,10 +60,38 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen>
     super.dispose();
   }
 
+  Future<void> _onClaim(AchievementModel achievement) async {
+    if (_claimingId != null) return;
+    setState(() => _claimingId = achievement.id);
+    try {
+      await ref
+          .read(rewardsProvider.notifier)
+          .claimAchievement(achievement.id);
+      if (!mounted) return;
+      HapticFeedback.lightImpact();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Claimed ${achievement.name} (+${achievement.points} pts)'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not claim: $e'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _claimingId = null);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final rewardsAsync = ref.watch(rewardsProvider);
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -110,16 +116,18 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen>
       body: rewardsAsync.when(
         loading: () => const _LoadingSkeleton(),
         error: (e, _) => _ErrorBody(
-          onRetry: () {
-            ref.read(rewardsProvider.notifier).refresh();
-          },
+          onRetry: () => ref.read(rewardsProvider.notifier).refresh(),
         ),
         data: (reward) => RefreshIndicator(
-          color: _tierColors[reward.tier] ?? Colors.amber,
+          color: rewardTierColors[reward.tier] ?? Colors.amber,
           onRefresh: () => ref.read(rewardsProvider.notifier).refresh(),
           child: FadeTransition(
             opacity: _heroFade,
-            child: _RewardsBody(reward: reward),
+            child: _RewardsBody(
+              reward: reward,
+              claimingId: _claimingId,
+              onClaim: _onClaim,
+            ),
           ),
         ),
       ),
@@ -127,45 +135,50 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen>
   }
 }
 
-// ===========================================================================
-// Main body — rendered once we have data
-// ===========================================================================
-
-class _RewardsBody extends ConsumerWidget {
+class _RewardsBody extends StatelessWidget {
   final RewardModel reward;
+  final String? claimingId;
+  final Future<void> Function(AchievementModel) onClaim;
 
-  const _RewardsBody({required this.reward});
+  const _RewardsBody({
+    required this.reward,
+    required this.claimingId,
+    required this.onClaim,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final achievements = reward.achievements;
+
     return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
       slivers: [
-        // 1. Hero card
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
             child: _HeroCard(reward: reward),
           ),
         ),
-
-        // 2. Tier ladder
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+            child: _StreakPanel(streakDays: reward.streakDays),
+          ),
+        ),
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
             child: _TierLadder(currentTier: reward.tier),
           ),
         ),
-
-        // 3. Stats row
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
             child: _StatsRow(reward: reward),
           ),
         ),
-
-        // 4. Section header
         const SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.fromLTRB(20, 32, 20, 16),
@@ -175,38 +188,37 @@ class _RewardsBody extends ConsumerWidget {
             ),
           ),
         ),
-
-        // 5. Achievement grid
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-          sliver: SliverGrid(
-            delegate: SliverChildBuilderDelegate(
-              (context, i) => _AchievementCard(
-                achievement: reward.achievements[i],
-                onClaim: () {
-                  ref
-                      .read(rewardsProvider.notifier)
-                      .claimAchievement(reward.achievements[i].id);
-                },
-              ),
-              childCount: reward.achievements.length,
+        if (achievements.isEmpty)
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20, 0, 20, 40),
+              child: _EmptyAchievements(),
             ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 14,
-              childAspectRatio: 0.82,
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+            sliver: SliverGrid(
+              delegate: SliverChildBuilderDelegate(
+                (context, i) => _AchievementCard(
+                  achievement: achievements[i],
+                  claiming: claimingId == achievements[i].id,
+                  onClaim: () => onClaim(achievements[i]),
+                ),
+                childCount: achievements.length,
+              ),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 14,
+                crossAxisSpacing: 14,
+                childAspectRatio: 0.78,
+              ),
             ),
           ),
-        ),
       ],
     );
   }
 }
-
-// ===========================================================================
-// Hero card — points + tier + progress arc
-// ===========================================================================
 
 class _HeroCard extends StatelessWidget {
   final RewardModel reward;
@@ -216,8 +228,9 @@ class _HeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final onHero = Colors.white;
     final gradientColors =
-        _tierGradients[reward.tier] ?? [Colors.purple, Colors.purpleAccent];
+        rewardTierGradients[reward.tier] ?? [Colors.purple, Colors.purpleAccent];
     final progress = reward.tierProgressFraction;
     final nextPoints = reward.nextMilestonePoints;
 
@@ -241,9 +254,7 @@ class _HeroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Tier badge row
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -256,62 +267,31 @@ class _HeroCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Text(
-                      reward.tier.badge,
-                      style: const TextStyle(fontSize: 16),
-                    ),
+                    Text(reward.tier.badge, style: const TextStyle(fontSize: 16)),
                     horizontalSpaceTiny,
                     Text(
                       reward.tier.label,
                       style: TextStyle(
-                        color: theme.colorScheme.onSurface,
+                        color: onHero,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
+                        shadows: theme.brightness == Brightness.light
+                            ? const [
+                                Shadow(blurRadius: 2, color: Colors.black26),
+                              ]
+                            : null,
                       ),
                     ),
                   ],
                 ),
               ),
-              // Streak badge
-              if (reward.streakDays > 0)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black26,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.local_fire_department,
-                        color: Colors.orangeAccent,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${reward.streakDays}-day streak',
-                        style: TextStyle(
-                          color: theme.colorScheme.onSurface,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
             ],
           ),
-
           verticalSpaceLarge,
-
-          // Points display
           Text(
             'Total Points',
             style: TextStyle(
-              color: theme.colorScheme.onSurface,
+              color: onHero.withValues(alpha: 0.9),
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -320,7 +300,7 @@ class _HeroCard extends StatelessWidget {
           Text(
             '${reward.totalPoints}',
             style: TextStyle(
-              color: theme.colorScheme.onSurface,
+              color: onHero,
               fontSize: 48,
               fontWeight: FontWeight.w900,
               height: 1,
@@ -330,15 +310,12 @@ class _HeroCard extends StatelessWidget {
           Text(
             'pts',
             style: TextStyle(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              color: onHero.withValues(alpha: 0.75),
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
           ),
-
           verticalSpaceLarge,
-
-          // Progress bar toward next tier
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -348,14 +325,13 @@ class _HeroCard extends StatelessWidget {
                   Text(
                     nextPoints != null
                         ? 'Next tier in ${nextPoints - reward.totalPoints} pts'
-                        : '🏆 Max tier reached!',
-                    style: TextStyle(
-                        color: theme.colorScheme.onSurface, fontSize: 12),
+                        : 'Max tier reached!',
+                    style: TextStyle(color: onHero, fontSize: 12),
                   ),
                   Text(
                     '${(progress * 100).toInt()}%',
                     style: TextStyle(
-                      color: theme.colorScheme.onSurface,
+                      color: onHero,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
@@ -378,17 +354,163 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
-// ===========================================================================
-// Tier ladder strip
-// ===========================================================================
+class _StreakPanel extends StatelessWidget {
+  final int streakDays;
+
+  const _StreakPanel({required this.streakDays});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final filledDots = streakDays.clamp(0, 7);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.local_fire_department_rounded,
+                color: streakDays > 0 ? Colors.deepOrangeAccent : scheme.outline,
+                size: 28,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      streakDays > 0
+                          ? '$streakDays-day streak'
+                          : 'No active streak',
+                      style: TextStyle(
+                        color: scheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      'Stay under budget to keep the fire going',
+                      style: TextStyle(
+                        color: scheme.onSurface.withValues(alpha: 0.55),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(7, (i) {
+              final filled = i < filledDots;
+              return Column(
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: filled
+                          ? Colors.deepOrangeAccent
+                          : scheme.surfaceContainerHighest,
+                      border: Border.all(
+                        color: filled
+                            ? Colors.deepOrangeAccent
+                            : scheme.outlineVariant,
+                      ),
+                    ),
+                    child: filled
+                        ? const Icon(Icons.check, size: 14, color: Colors.white)
+                        : null,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'D${i + 1}',
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: scheme.onSurface.withValues(alpha: 0.45),
+                    ),
+                  ),
+                ],
+              );
+            }),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: RewardsCatalog.streakMilestones.map((m) {
+              final reached = streakDays >= m;
+              return Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: reached
+                      ? Colors.deepOrangeAccent.withValues(alpha: 0.15)
+                      : scheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: reached
+                        ? Colors.deepOrangeAccent.withValues(alpha: 0.4)
+                        : scheme.outlineVariant,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      reached
+                          ? Icons.check_circle_rounded
+                          : Icons.radio_button_unchecked,
+                      size: 14,
+                      color: reached
+                          ? Colors.deepOrangeAccent
+                          : scheme.onSurface.withValues(alpha: 0.35),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$m days',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: reached
+                            ? Colors.deepOrangeAccent
+                            : scheme.onSurface.withValues(alpha: 0.55),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _TierLadder extends StatelessWidget {
   final RewardTier currentTier;
 
-  const _TierLadder({required this.currentTier});
+  const _TierLadder({
+    required this.currentTier,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     const tiers = RewardTier.values;
     final currentIndex = tiers.indexOf(currentTier);
 
@@ -397,7 +519,7 @@ class _TierLadder extends StatelessWidget {
       children: [
         const _SectionHeader(
           title: 'Tier Progress',
-          subtitle: 'Your journey to the top',
+          subtitle: 'Point bands from Bronze to Platinum',
         ),
         const SizedBox(height: 16),
         Row(
@@ -405,7 +527,8 @@ class _TierLadder extends StatelessWidget {
             final tier = tiers[i];
             final isActive = i == currentIndex;
             final isUnlocked = i <= currentIndex;
-            final color = _tierColors[tier] ?? Colors.grey;
+            final color = rewardTierColors[tier] ?? Colors.grey;
+            final range = RewardsCatalog.rangeLabel(tier);
 
             return Expanded(
               child: Row(
@@ -416,24 +539,21 @@ class _TierLadder extends StatelessWidget {
                       curve: Curves.easeOut,
                       padding: const EdgeInsets.symmetric(
                         vertical: 10,
-                        horizontal: 6,
+                        horizontal: 4,
                       ),
                       decoration: BoxDecoration(
                         color: isActive
                             ? color.withValues(alpha: 0.2)
                             : isUnlocked
                                 ? color.withValues(alpha: 0.08)
-                                : Theme.of(context).colorScheme.surface,
+                                : scheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isActive
                               ? color
                               : isUnlocked
                                   ? color.withValues(alpha: 0.3)
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.12),
+                                  : scheme.outlineVariant,
                           width: isActive ? 2 : 1,
                         ),
                       ),
@@ -441,21 +561,31 @@ class _TierLadder extends StatelessWidget {
                         children: [
                           Text(
                             tier.badge,
-                            style: TextStyle(fontSize: isActive ? 22 : 18),
+                            style: TextStyle(fontSize: isActive ? 20 : 16),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             tier.label,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: isActive
                                   ? color
                                   : isUnlocked
-                                      ? color.withValues(alpha: 0.7)
-                                      : Colors.white30,
-                              fontSize: 11,
+                                      ? color.withValues(alpha: 0.85)
+                                      : scheme.onSurface.withValues(alpha: 0.35),
+                              fontSize: 10,
                               fontWeight: isActive
                                   ? FontWeight.bold
                                   : FontWeight.normal,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            range,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: scheme.onSurface.withValues(alpha: 0.45),
+                              fontSize: 8,
                             ),
                           ),
                         ],
@@ -467,8 +597,8 @@ class _TierLadder extends StatelessWidget {
                       Icons.chevron_right,
                       color: isUnlocked
                           ? color.withValues(alpha: 0.5)
-                          : Colors.white12,
-                      size: 18,
+                          : scheme.outlineVariant,
+                      size: 16,
                     ),
                 ],
               ),
@@ -479,10 +609,6 @@ class _TierLadder extends StatelessWidget {
     );
   }
 }
-
-// ===========================================================================
-// Stats row — earned achievements + streak
-// ===========================================================================
 
 class _StatsRow extends StatelessWidget {
   final RewardModel reward;
@@ -517,7 +643,7 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _StatCard(
             icon: Icons.workspace_premium_rounded,
-            iconColor: _tierColors[reward.tier] ?? Colors.white,
+            iconColor: rewardTierColors[reward.tier] ?? Colors.grey,
             label: 'Tier',
             value: reward.tier.label,
           ),
@@ -548,8 +674,7 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
@@ -567,8 +692,9 @@ class _StatCard extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                fontSize: 10),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+              fontSize: 10,
+            ),
           ),
         ],
       ),
@@ -576,39 +702,47 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-// ===========================================================================
-// Achievement card
-// ===========================================================================
-
 class _AchievementCard extends StatelessWidget {
   final AchievementModel achievement;
+  final bool claiming;
   final VoidCallback onClaim;
 
-  const _AchievementCard({required this.achievement, required this.onClaim});
+  const _AchievementCard({
+    required this.achievement,
+    required this.claiming,
+    required this.onClaim,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final isEarned = achievement.earned;
     final isClaimed = achievement.claimed;
     final canClaim = isEarned && !isClaimed;
     final progress = achievement.progressFraction;
-
-    // Glow colour for earned cards
-    const glowColor = Color(0xFFFFD700);
+    final accent = isEarned ? const Color(0xFFFFD700) : scheme.outline;
+    final cardBg = isEarned
+        ? Color.alphaBlend(
+            accent.withValues(alpha: 0.12),
+            scheme.surface,
+          )
+        : scheme.surface;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
-        color: isEarned ? const Color(0xFF2A2A1A) : const Color(0xFF1A1A1A),
+        color: cardBg,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isEarned ? glowColor.withValues(alpha: 0.4) : Colors.white10,
+          color: isEarned
+              ? accent.withValues(alpha: 0.45)
+              : scheme.outlineVariant,
           width: isEarned ? 1.5 : 1,
         ),
         boxShadow: isEarned
             ? [
                 BoxShadow(
-                  color: glowColor.withValues(alpha: 0.12),
+                  color: accent.withValues(alpha: 0.12),
                   blurRadius: 16,
                   spreadRadius: 1,
                 ),
@@ -620,7 +754,6 @@ class _AchievementCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon + claim button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -628,17 +761,28 @@ class _AchievementCard extends StatelessWidget {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: isEarned
-                        ? glowColor.withValues(alpha: 0.15)
-                        : Colors.white.withValues(alpha: 0.05),
+                        ? accent.withValues(alpha: 0.15)
+                        : scheme.onSurface.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     _iconFromString(achievement.icon),
-                    color: isEarned ? glowColor : Colors.white30,
+                    color: isEarned
+                        ? accent
+                        : scheme.onSurface.withValues(alpha: 0.35),
                     size: 22,
                   ),
                 ),
-                if (canClaim)
+                if (claiming)
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: accent,
+                    ),
+                  )
+                else if (canClaim)
                   GestureDetector(
                     onTap: onClaim,
                     child: Container(
@@ -663,47 +807,43 @@ class _AchievementCard extends StatelessWidget {
                     ),
                   )
                 else if (isClaimed)
-                  const Icon(
+                  Icon(
                     Icons.check_circle_rounded,
-                    color: Colors.greenAccent,
+                    color: Colors.green.shade400,
                     size: 20,
                   )
                 else
-                  const Icon(
+                  Icon(
                     Icons.lock_rounded,
-                    color: Colors.white24,
+                    color: scheme.onSurface.withValues(alpha: 0.25),
                     size: 18,
                   ),
               ],
             ),
-
             const SizedBox(height: 12),
-
-            // Name
             Text(
               achievement.name,
               style: TextStyle(
-                color: isEarned ? Colors.white : Colors.white54,
+                color: isEarned
+                    ? scheme.onSurface
+                    : scheme.onSurface.withValues(alpha: 0.55),
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-
             const SizedBox(height: 4),
-
-            // Description
             Text(
               achievement.description,
-              style: const TextStyle(color: Colors.white38, fontSize: 11),
+              style: TextStyle(
+                color: scheme.onSurface.withValues(alpha: 0.45),
+                fontSize: 11,
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-
             const Spacer(),
-
-            // Progress bar (if applicable)
             if (achievement.hasProgress && !isEarned) ...[
               const SizedBox(height: 8),
               Row(
@@ -711,33 +851,36 @@ class _AchievementCard extends StatelessWidget {
                 children: [
                   Text(
                     '${achievement.progress} / ${achievement.goal}',
-                    style: const TextStyle(color: Colors.white38, fontSize: 10),
+                    style: TextStyle(
+                      color: scheme.onSurface.withValues(alpha: 0.45),
+                      fontSize: 10,
+                    ),
                   ),
                   Text(
                     '${((progress ?? 0) * 100).toInt()}%',
-                    style: const TextStyle(color: Colors.white54, fontSize: 10),
+                    style: TextStyle(
+                      color: scheme.onSurface.withValues(alpha: 0.55),
+                      fontSize: 10,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 4),
               _AnimatedProgressBar(
                 value: progress ?? 0,
-                backgroundColor: Colors.white12,
-                foregroundColor: const Color(0xFFBB86FC),
+                backgroundColor: scheme.onSurface.withValues(alpha: 0.08),
+                foregroundColor: scheme.primary,
                 height: 5,
                 borderRadius: 3,
               ),
             ],
-
             const SizedBox(height: 10),
-
-            // Points pill
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: isEarned
-                    ? glowColor.withValues(alpha: 0.1)
-                    : Colors.white.withValues(alpha: 0.05),
+                    ? accent.withValues(alpha: 0.1)
+                    : scheme.onSurface.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -746,13 +889,17 @@ class _AchievementCard extends StatelessWidget {
                   Icon(
                     Icons.bolt,
                     size: 12,
-                    color: isEarned ? glowColor : Colors.white30,
+                    color: isEarned
+                        ? accent
+                        : scheme.onSurface.withValues(alpha: 0.35),
                   ),
                   const SizedBox(width: 3),
                   Text(
                     '+${achievement.points} pts',
                     style: TextStyle(
-                      color: isEarned ? glowColor : Colors.white30,
+                      color: isEarned
+                          ? accent
+                          : scheme.onSurface.withValues(alpha: 0.35),
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
@@ -767,12 +914,48 @@ class _AchievementCard extends StatelessWidget {
   }
 }
 
-// ===========================================================================
-// Animated progress bar
-// ===========================================================================
+class _EmptyAchievements extends StatelessWidget {
+  const _EmptyAchievements();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.emoji_events_outlined, size: 40, color: scheme.outline),
+          const SizedBox(height: 12),
+          Text(
+            'No achievements yet',
+            style: TextStyle(
+              color: scheme.onSurface,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Make payments and stay on budget to unlock badges.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: scheme.onSurface.withValues(alpha: 0.55),
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _AnimatedProgressBar extends StatefulWidget {
-  final double value; // 0.0 – 1.0
+  final double value;
   final Color backgroundColor;
   final Color foregroundColor;
   final double height;
@@ -846,10 +1029,6 @@ class _AnimatedProgressBarState extends State<_AnimatedProgressBar>
   }
 }
 
-// ===========================================================================
-// Loading skeleton
-// ===========================================================================
-
 class _LoadingSkeleton extends StatefulWidget {
   const _LoadingSkeleton();
 
@@ -882,13 +1061,14 @@ class _LoadingSkeletonState extends State<_LoadingSkeleton>
   }
 
   Widget _box({double height = 20, double? width, double radius = 10}) {
+    final base = Theme.of(context).colorScheme.onSurface;
     return AnimatedBuilder(
       animation: _anim,
       builder: (_, __) => Container(
         height: height,
         width: width,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: _anim.value * 0.2),
+          color: base.withValues(alpha: _anim.value * 0.12),
           borderRadius: BorderRadius.circular(radius),
         ),
       ),
@@ -902,57 +1082,28 @@ class _LoadingSkeletonState extends State<_LoadingSkeleton>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _box(height: 180, radius: 28), // hero
+          _box(height: 180, radius: 28),
           const SizedBox(height: 24),
-          _box(height: 16, width: 140), // section header
+          _box(height: 120, radius: 20),
+          const SizedBox(height: 24),
+          _box(height: 16, width: 140),
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: _box(height: 80, radius: 12)),
+              Expanded(child: _box(height: 90, radius: 12)),
               const SizedBox(width: 8),
-              Expanded(child: _box(height: 80, radius: 12)),
+              Expanded(child: _box(height: 90, radius: 12)),
               const SizedBox(width: 8),
-              Expanded(child: _box(height: 80, radius: 12)),
+              Expanded(child: _box(height: 90, radius: 12)),
               const SizedBox(width: 8),
-              Expanded(child: _box(height: 80, radius: 12)),
+              Expanded(child: _box(height: 90, radius: 12)),
             ],
-          ),
-          const SizedBox(height: 24),
-          _box(height: 16, width: 120),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(child: _box(height: 70, radius: 12)),
-              const SizedBox(width: 12),
-              Expanded(child: _box(height: 70, radius: 12)),
-              const SizedBox(width: 12),
-              Expanded(child: _box(height: 70, radius: 12)),
-            ],
-          ),
-          const SizedBox(height: 28),
-          _box(height: 16, width: 150),
-          const SizedBox(height: 12),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            mainAxisSpacing: 14,
-            crossAxisSpacing: 14,
-            childAspectRatio: 0.82,
-            children: List.generate(
-              4,
-              (_) => _box(height: double.infinity, radius: 20),
-            ),
           ),
         ],
       ),
     );
   }
 }
-
-// ===========================================================================
-// Error body
-// ===========================================================================
 
 class _ErrorBody extends StatelessWidget {
   final VoidCallback onRetry;
@@ -961,6 +1112,7 @@ class _ErrorBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -970,29 +1122,32 @@ class _ErrorBody extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.redAccent.withValues(alpha: 0.1),
+                color: scheme.error.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.wifi_off_rounded,
-                color: Colors.redAccent,
+                color: scheme.error,
                 size: 48,
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Could not load rewards',
               style: TextStyle(
-                color: Colors.white,
+                color: scheme.onSurface,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Check your connection and try again.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white54, fontSize: 14),
+              style: TextStyle(
+                color: scheme.onSurface.withValues(alpha: 0.55),
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 28),
             ElevatedButton.icon(
@@ -1000,8 +1155,8 @@ class _ErrorBody extends StatelessWidget {
               icon: const Icon(Icons.refresh_rounded),
               label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFBB86FC),
-                foregroundColor: Colors.black,
+                backgroundColor: scheme.primary,
+                foregroundColor: scheme.onPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -1018,10 +1173,6 @@ class _ErrorBody extends StatelessWidget {
   }
 }
 
-// ===========================================================================
-// Section header
-// ===========================================================================
-
 class _SectionHeader extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -1030,13 +1181,14 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: scheme.onSurface,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -1044,7 +1196,10 @@ class _SectionHeader extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           subtitle,
-          style: const TextStyle(color: Colors.white54, fontSize: 12),
+          style: TextStyle(
+            color: scheme.onSurface.withValues(alpha: 0.55),
+            fontSize: 12,
+          ),
         ),
       ],
     );

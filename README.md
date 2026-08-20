@@ -1,197 +1,205 @@
 # HapoPay — Flutter Mobile Application
-### Technical Documentation · v1.0.0 · May 2026
+### Technical Documentation · v1.0.0 · August 2026
 
 > Cross-platform mobile app built with Flutter, powered by a Django REST API & Supabase
 
-| Platform | Flutter SDK | Dart | API Backend | Database / Realtime | Release |
-|----------|-------------|------|-------------|---------------------|---------|
-| iOS & Android | 3.22+ | 3.4+ | Django REST | Supabase | May 2026 |
+| Platform | Flutter SDK | Dart | API Backend | Database / Realtime | Status |
+|----------|-------------|------|-------------|---------------------|--------|
+| iOS & Android | 3.22+ | 3.4+ | Django REST | Supabase | Production prep |
 
 ---
 
 ## Table of Contents
 
 1. [Project Overview](#1-project-overview)
-2. [Getting Started](docs/SETUP.md)
+2. [Documentation](#2-documentation)
 3. [Project Structure](#3-project-structure)
-4. [Architecture & Design Patterns](docs/ARCHITECTURE.md)
-5. [Features & Screens](docs/FEATURES.md)
-6. [Dependencies](#6-dependencies)
-7. [Configuration & Environment Variables](#7-configuration--environment-variables)
-8. [Build & Deployment](#8-build--deployment)
-9. [Changelog](#9-changelog)
-10. [Contributing](#10-contributing)
-11. [Code of Conduct](#11-code-of-conduct)
+4. [Dependencies](#4-dependencies)
+5. [Configuration & Environment Variables](#5-configuration--environment-variables)
+6. [Build & Deployment](#6-build--deployment)
+7. [Troubleshooting & FAQs](#7-troubleshooting--faqs)
+8. [Changelog](#8-changelog)
+9. [Contributing](#9-contributing)
+10. [Code of Conduct](#10-code-of-conduct)
 
 ---
 
 ## 1. Project Overview
 
-HapoPay is a parent-student money management and smart spending platform. The mobile application, built with Flutter, provides parents with the tools to manage their children's allowances, adjust transaction limits, and monitor spending in real time. For students, it provides a safe payment interface using dynamic QR codes, biometric authorization, and a gamified financial education hub.
+HapoPay is a parent-student money management and smart spending platform. The Flutter app gives parents tools to manage allowances, adjust spending limits, and monitor transactions in real time. Students get a safe payment flow with dynamic QR codes, biometric auth, and a gamified rewards hub (tiers, streaks, claimable achievements).
 
-The application utilizes a hybrid backend model: Django serves as the primary business logic and transaction gateway, while Supabase provides real-time transaction updates, persistent database hosting, and storage.
+**Backend model:** Django handles business logic and the transaction gateway; Supabase provides realtime updates, database hosting, and storage.
+
+**App stack:** Riverpod (state), GoRouter (navigation), Dio (HTTP + interceptors), Material 3 light/dark theming via `lib/core/theme/`.
 
 ---
 
 ## 2. Documentation
 
-For detailed information, please refer to the following documents in the `docs/` folder:
-
-- **[Setup & Installation](docs/SETUP.md)**: Step-by-step guide to setting up your local environment and running the app.
-- **[Environment Variables Setup](docs/SETUP_ENV.md)**: Configuring `.env.dev` / `.env.prod`, required variables, and troubleshooting common environment issues (emulator loopback, keystore setup).
-- **[Architecture & Design](docs/ARCHITECTURE.md)**: Deep dive into the clean layered architecture, state management with Riverpod, and navigation with GoRouter.
-- **[Features & Screens](docs/FEATURES.md)**: Walkthrough of the authentication flow, parent dashboard, and student payment features.
-- **[Design & Theming](docs/DESIGNS.md)**: Mobile design system, color tokens, and component mappings.
-- **[Project Roadmap](docs/NEXT_STEPS.md)**: Milestones and current build status.
-- **[Rewards System](docs/rewards_system.md)**: Implementation detail for the student gamification/rewards feature.
-
----
-
-## 3. Dependencies
-
-Below are the primary packages declared in the application's configuration:
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| `supabase_flutter` | ^2.6.0 | Client wrapper for realtime subscription events and storage. |
-| `flutter_riverpod` | ^2.5.1 | State management framework. |
-| `riverpod_annotation`| ^2.3.5 | Code generation annotations for Riverpod state managers. |
-| `go_router` | ^14.2.7 | Declarative system navigation. |
-| `dio` | ^5.7.0 | HTTP client with cookie support, interceptors, and robust request routing. |
-| `flutter_secure_storage`| ^9.2.2 | Enforceable hardware-backed (Keychain/Keystore) encrypted storage. |
-| `shared_preferences` | ^2.3.2 | Lightweight configuration/settings caching. |
-| `qr_flutter` | ^4.1.0 | Dynamically generated QR graphics on-screen. |
-| `mobile_scanner` | ^5.2.3 | Integrated camera viewports and QR code decoding. |
-| `google_fonts` | ^6.2.1 | Typographical layout styles. |
-| `intl` | ^0.19.0 | Currency and localized date parsing. |
+| Doc | Description |
+|-----|-------------|
+| **[Setup & Installation](docs/SETUP.md)** | Local environment, Flutter deps, `build_runner`, run commands |
+| **[Environment Variables](docs/SETUP_ENV.md)** | `.env.dev` / `.env.prod`, `USE_MOCK_API`, emulator loopback, keystore |
+| **[Architecture](docs/ARCHITECTURE.md)** | Clean layers, Riverpod, GoRouter |
+| **[Features & Screens](docs/FEATURES.md)** | Auth, parent dashboard, student QR & rewards routes |
+| **[Rewards System](docs/rewards_system.md)** | Catalog, tiers, claim UX, API contract, mock flow |
+| **[Project Roadmap](docs/NEXT_STEPS.md)** | Milestones and build status |
+| **[Production Checklist](PRODUCTION_READINESS.md)** | Store-submission blockers and completed work |
+| **[Production Runbook](docs/PROD_NEXT_STEPS.md)** | Ordered phases for signing, env, assets, legal, QA |
 
 ---
 
-## 4. Configuration & Environment Variables
+## 3. Project Structure
 
-### 4.1 Environment Files
+```
+lib/
+├── main.dart / app.dart
+├── core/                 # config, network, router, theme, storage, realtime
+├── features/
+│   ├── auth/             # login, register, JWT session, biometrics
+│   ├── parent/           # dashboard, ledger, spending limits
+│   ├── student/          # dashboard, rewards catalog / claim
+│   └── qrcode/           # pay QR + my QR screens
+└── shared/               # shared widgets (buttons, cards, theme toggle)
+test/                     # unit / widget tests by feature
+docs/                     # setup, architecture, features, rewards, prod runbook
+```
 
-The application requires environment properties to be injected during the build phase. Create a `.env.dev` or `.env.prod` file from the repository's sample configuration.
+---
+
+## 4. Dependencies
+
+Primary packages from `pubspec.yaml`:
+
+| Package | Purpose |
+|---------|---------|
+| `flutter_riverpod` / `riverpod_annotation` | State management + codegen |
+| `go_router` | Declarative navigation & role redirects |
+| `dio` | HTTP client, auth / mock / retry interceptors |
+| `supabase_flutter` | Realtime subscriptions & client init |
+| `flutter_secure_storage` | Hardware-backed token storage |
+| `shared_preferences` | Lightweight local settings cache |
+| `qr_flutter` / `mobile_scanner` | QR generation and camera scanning |
+| `local_auth` | Face ID / fingerprint |
+| `google_fonts` / `intl` | Typography and localization |
+
+---
+
+## 5. Configuration & Environment Variables
+
+### 5.1 Environment files
+
+Copy the sample and fill in values (files are gitignored — never commit secrets):
 
 ```bash
-# .env.example -> Copy values to target environment profiles
+cp .env.example .env.dev
+cp .env.example .env.prod
+```
+
+```bash
+# .env.example
 SUPABASE_URL=https://your-supabase-instance.supabase.co
 SUPABASE_ANON_KEY=your-supabase-public-anon-key
 API_BASE_URL=http://localhost:8000/api
+USE_MOCK_API=false
 ```
 
-> For a full walkthrough of these variables, per-environment values, and common pitfalls, see **[docs/SETUP_ENV.md](docs/SETUP_ENV.md)**.
+| Variable | Notes |
+|----------|--------|
+| `API_BASE_URL` | Use `http://10.0.2.2:8000/api` on the Android emulator |
+| `USE_MOCK_API` | `true` only for local UI demos without Django; **must be `false` for release** |
 
-### 4.2 Safe Environment Injection
+Full reference: **[docs/SETUP_ENV.md](docs/SETUP_ENV.md)**.
 
-Pass variables directly to compile commands to prevent hardcoding configuration strings into project scripts:
+### 5.2 Run / build with env injection
 
 ```bash
-# Inject local development configs
+# Development
 flutter run --dart-define-from-file=.env.dev
+
+# Codegen (Riverpod)
+flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
 ---
 
-## 5. Build & Deployment
+## 6. Build & Deployment
 
-### 5.1 Android Signing
+### 6.1 Android signing
 
-Set up the key details locally in `android/key.properties`. Ensure this file is never tracked in source control.
+Create `android/key.properties` locally (gitignored):
 
 ```properties
 storePassword=your-android-keystore-password
 keyPassword=your-android-key-password
 keyAlias=upload
-storeFile=../keys/upload-keystore.jks
+storeFile=keys/upload-keystore.jks
 ```
 
-Build commands:
-
 ```bash
-# Build production bundle (recommended for Google Play Console)
 flutter build appbundle --release --dart-define-from-file=.env.prod
-
-# Build stand-alone APK
 flutter build apk --release --dart-define-from-file=.env.prod
 ```
 
-### 5.2 iOS Deployment
+Application ID: `com.hapopay.hapoPay`
 
-iOS distribution builds require provisioning profiles and code-signing assets within Xcode.
+### 6.2 iOS deployment
+
+Requires Apple Developer enrollment, App ID, distribution cert, and provisioning profile in Xcode.
 
 ```bash
-# Compile distribution archive
 flutter build ipa --release --dart-define-from-file=.env.prod
 ```
 
+Bundle ID: `com.hapopay.hapoPay`
+
+Store-readiness checklist and phased runbook: **[PRODUCTION_READINESS.md](PRODUCTION_READINESS.md)** · **[docs/PROD_NEXT_STEPS.md](docs/PROD_NEXT_STEPS.md)**.
+
 ---
 
-## 6. Troubleshooting & FAQs
+## 7. Troubleshooting & FAQs
 
 | Error / Symptom | Likely Cause | Solution |
-|-----------------|-------------|---------|
-| `Connection refused` on Android Emulator | `localhost` points to emulator loopback, not the host machine | Modify `API_BASE_URL` in `.env.dev` to target `10.0.2.2` (Android host routing IP) instead of `localhost` / `127.0.0.1`. |
-| Realtime subscription fails | Replication configuration not toggled on targets | Ensure tables in Supabase Console are active under **Database > Replication**. |
-| Invalid JWT token | Supabase and Django token alignment issue | Verify that the signing keys of the Django SimpleJWT configuration and Supabase match if sharing tokens directly. |
-| Keystore compilation failure | Missing `key.properties` configuration | Ensure `key.properties` exists in the `android/` directory and points to a valid `.jks` file. |
-| Camera viewport blank | Permissions configurations omitted | Check iOS `Info.plist` and Android `AndroidManifest.xml` for `NSCameraUsageDescription` and `CAMERA` permissions. |
-
-For a deeper breakdown of environment-related issues specifically, see **[docs/SETUP_ENV.md](docs/SETUP_ENV.md)**.
-
----
-
-## 7. Changelog
-
-### v1.0.0 — May 2026
-- Core authentication logic integration using Django JWT tokens.
-- Parent dashboard layout with real-time transaction tracking.
-- Student QR payment screen and scanner viewports.
-- Integrated biometrics (`local_auth`) and secure storage (`flutter_secure_storage`).
-
-### Upcoming — v1.1.0
-- Interactive dashboard charts for parent budget tracking.
-- Push notifications via backend-triggered messages.
-- Advanced achievement badges and student savings goals.
+|-----------------|--------------|----------|
+| `Connection refused` on Android emulator | `localhost` is the emulator, not the host | Set `API_BASE_URL` to `http://10.0.2.2:8000/api` |
+| Realtime subscription fails | Replication not enabled | Enable tables under Supabase **Database → Replication** |
+| Invalid JWT | Django / Supabase signing mismatch | Align SimpleJWT secret with Supabase JWT secret if sharing tokens |
+| Keystore / signing failure | Missing `key.properties` | Add `android/key.properties` pointing at a valid `.jks` |
+| Camera viewport blank | Missing permissions | Confirm `CAMERA` / `NSCameraUsageDescription` |
+| Unexpected mock responses in release | `USE_MOCK_API=true` | Set `USE_MOCK_API=false` in `.env.prod` |
 
 ---
 
-## Design & Theming (Mobile)
+## 8. Changelog
 
-This repo ships a mobile-first design system tailored for Flutter. See the mobile design guide in [docs/DESIGNS.md](docs/DESIGNS.md) which contains:
+### v1.0.0 — in progress (August 2026)
 
-- Tokenized color palette and dark-mode variants.
-- Flutter `ThemeData` starter example and recommended `tokens.dart` pipeline.
-- Component mappings (Buttons, Cards, Inputs, AppBar, Bottom Navigation) and accessibility guidance.
+- Auth: Django JWT login/register path, secure storage, biometric service, role-based GoRouter redirects
+- Parent: dashboard, family ledger, spending limits, card lock; Supabase realtime feed wiring
+- Student: dashboard, QR pay / my QR screens, rewards hub (tiers, streak panel, optimistic claim)
+- Rewards catalog shared across mock, demo, and UI — see [docs/rewards_system.md](docs/rewards_system.md)
+- Networking: Dio interceptors (auth, retry, errors); mock API gated by `USE_MOCK_API`
+- Theme: Material 3 light/dark tokens in `lib/core/theme/`
+- Android: `com.hapopay.hapoPay` + release signing via `key.properties`
+- CI: analyze, tests, debug builds
 
-Quick commands to run the app with environment files:
+### Upcoming
 
-```bash
-# development
-flutter run --dart-define-from-file=.env.dev
-
-# production build
-flutter build appbundle --release --dart-define-from-file=.env.prod
-```
-
-Recommended implementation notes:
-- Keep token overrides in `lib/core/theme/tokens.dart` and import that from `app_theme.dart`.
-- Use Riverpod to expose runtime theme toggles and `ThemeMode` state.
-- Store icons in `assets/icons/` and declare them in `pubspec.yaml`.
-
-## 10. Contributing
-
-We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) for details on:
-- Development workflow and branch strategy
-- Code standards and linting
-- Testing requirements
-- Pull request process
-- Commit message conventions
-
-## 11. Code of Conduct
-
-This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to the project maintainers.
+- Interactive parent budget charts
+- Push notifications (FCM / APNs)
+- Store assets, legal pages, crash reporting, release CI artifacts
+- Broader unit / widget / integration coverage
 
 ---
 
-*End of Document — HapoPay Mobile v1.0.0*
+## 9. Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for workflow, linting, tests, PRs, and commit conventions.
+
+## 10. Code of Conduct
+
+This project follows a [Code of Conduct](CODE_OF_CONDUCT.md). Report unacceptable behavior to the maintainers.
+
+---
+
+*HapoPay Mobile · v1.0.0*

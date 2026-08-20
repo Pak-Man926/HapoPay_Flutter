@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:hapopay/features/student/models/rewards_catalog.dart';
 
 /// A Mock Interceptor that catches all API requests and returns locally
 /// mocked data. This disables network traffic and allows testing the UI
@@ -42,78 +43,16 @@ class MockInterceptor extends Interceptor {
 
   static void _initRewards(String studentId) {
     if (_rewardsData != null) return;
-    _rewardsData = {
-      'student_id': studentId,
-      'total_points': 480,
-      'tier': 'silver',
-      'streak_days': 7,
-      'next_milestone_points': 600,
-      'milestones': [
-        {'tier': 'bronze', 'min_points': 0, 'max_points': 200},
-        {'tier': 'silver', 'min_points': 200, 'max_points': 600},
-        {'tier': 'gold', 'min_points': 600, 'max_points': 1200},
-        {'tier': 'platinum', 'min_points': 1200},
-      ],
-      'achievements': [
-        {
-          'id': 'first_pay',
-          'name': 'First Payment',
-          'description': 'Completed your very first payment',
-          'earned': true,
-          'claimed': true,
-          'icon': 'payment',
-          'points': 50,
-        },
-        {
-          'id': 'saver_5',
-          'name': '5-Day Saver',
-          'description': 'Stay under budget for 5 days straight',
-          'earned': false,
-          'icon': 'savings',
-          'points': 100,
-          'progress': 3,
-          'goal': 5,
-        },
-        {
-          'id': 'qr_master',
-          'name': 'QR Master',
-          'description': 'Used QR scan to pay 10 times',
-          'earned': true,
-          'claimed': false,
-          'icon': 'qr_code_scanner',
-          'points': 75,
-        },
-        {
-          'id': 'streak_14',
-          'name': '2-Week Warrior',
-          'description': 'Keep a 14-day budget streak',
-          'earned': false,
-          'icon': 'local_fire_department',
-          'points': 200,
-          'progress': 7,
-          'goal': 14,
-        },
-        {
-          'id': 'big_saver',
-          'name': 'Big Saver',
-          'description': 'Save KSh 1,000 in a month',
-          'earned': false,
-          'icon': 'account_balance_wallet',
-          'points': 150,
-          'progress': 480,
-          'goal': 1000,
-        },
-        {
-          'id': 'social_star',
-          'name': 'Social Star',
-          'description': 'Refer a friend to HapoPay',
-          'earned': true,
-          'claimed': true,
-          'icon': 'share',
-          'points': 100,
-        },
-      ],
-    };
+    _rewardsData = RewardsCatalog.seedJson(studentId: studentId);
+  }
+
+  static void _applyTierForPoints(int newTotal) {
+    if (_rewardsData == null) return;
+    final tier = RewardsCatalog.tierForPoints(newTotal);
+    _rewardsData!['total_points'] = newTotal;
+    _rewardsData!['tier'] = tier.name;
+    _rewardsData!['next_milestone_points'] =
+        RewardsCatalog.nextMilestonePoints(newTotal);
   }
 
   @override
@@ -236,23 +175,7 @@ class MockInterceptor extends Interceptor {
               ach['claimed'] = true;
               final pts = ach['points'] as int? ?? 0;
               final currentTotal = _rewardsData!['total_points'] as int? ?? 0;
-              final newTotal = currentTotal + pts;
-              _rewardsData!['total_points'] = newTotal;
-
-              // Re-calculate tier and next milestone points
-              if (newTotal >= 1200) {
-                _rewardsData!['tier'] = 'platinum';
-                _rewardsData!['next_milestone_points'] = null;
-              } else if (newTotal >= 600) {
-                _rewardsData!['tier'] = 'gold';
-                _rewardsData!['next_milestone_points'] = 1200;
-              } else if (newTotal >= 200) {
-                _rewardsData!['tier'] = 'silver';
-                _rewardsData!['next_milestone_points'] = 600;
-              } else {
-                _rewardsData!['tier'] = 'bronze';
-                _rewardsData!['next_milestone_points'] = 200;
-              }
+              _applyTierForPoints(currentTotal + pts);
             }
             break;
           }

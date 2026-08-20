@@ -48,7 +48,7 @@ class DioClient {
     );
 
     dio.interceptors.addAll([
-      MockInterceptor(),
+      if (EnvConfig.useMockApi) MockInterceptor(),
       AuthInterceptor(storage: storage, eventBus: eventBus, dio: dio),
       RetryInterceptor(dio: dio),
       ErrorInterceptor(),

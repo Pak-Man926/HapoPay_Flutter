@@ -3,6 +3,8 @@
 /// Mirrors the /api/rewards/{studentId}/ endpoint contract.
 library;
 
+import 'rewards_catalog.dart';
+
 // ---------------------------------------------------------------------------
 // Tier
 // ---------------------------------------------------------------------------
@@ -244,7 +246,7 @@ class RewardModel {
     RewardTier? tier,
     List<AchievementModel>? achievements,
     List<MilestoneModel>? milestones,
-    int? nextMilestonePoints,
+    Object? nextMilestonePoints = _unset,
     int? streakDays,
   }) {
     return RewardModel(
@@ -253,86 +255,18 @@ class RewardModel {
       tier: tier ?? this.tier,
       achievements: achievements ?? this.achievements,
       milestones: milestones ?? this.milestones,
-      nextMilestonePoints: nextMilestonePoints ?? this.nextMilestonePoints,
+      nextMilestonePoints: identical(nextMilestonePoints, _unset)
+          ? this.nextMilestonePoints
+          : nextMilestonePoints as int?,
       streakDays: streakDays ?? this.streakDays,
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Fallback / demo data used when the backend is unreachable
-  // ---------------------------------------------------------------------------
-  static RewardModel demo() {
-    return const RewardModel(
-      studentId: 'demo',
-      totalPoints: 480,
-      tier: RewardTier.silver,
-      streakDays: 7,
-      nextMilestonePoints: 600,
-      milestones: [
-        MilestoneModel(tier: RewardTier.bronze, minPoints: 0, maxPoints: 200),
-        MilestoneModel(tier: RewardTier.silver, minPoints: 200, maxPoints: 600),
-        MilestoneModel(tier: RewardTier.gold, minPoints: 600, maxPoints: 1200),
-        MilestoneModel(tier: RewardTier.platinum, minPoints: 1200),
-      ],
-      achievements: [
-        AchievementModel(
-          id: 'first_pay',
-          name: 'First Payment',
-          description: 'Completed your very first payment',
-          earned: true,
-          claimed: true,
-          icon: 'payment',
-          points: 50,
-        ),
-        AchievementModel(
-          id: 'saver_5',
-          name: '5-Day Saver',
-          description: 'Stay under budget for 5 days straight',
-          earned: false,
-          icon: 'savings',
-          points: 100,
-          progress: 3,
-          goal: 5,
-        ),
-        AchievementModel(
-          id: 'qr_master',
-          name: 'QR Master',
-          description: 'Used QR scan to pay 10 times',
-          earned: true,
-          claimed: false,
-          icon: 'qr_code_scanner',
-          points: 75,
-        ),
-        AchievementModel(
-          id: 'streak_14',
-          name: '2-Week Warrior',
-          description: 'Keep a 14-day budget streak',
-          earned: false,
-          icon: 'local_fire_department',
-          points: 200,
-          progress: 7,
-          goal: 14,
-        ),
-        AchievementModel(
-          id: 'big_saver',
-          name: 'Big Saver',
-          description: 'Save KSh 1,000 in a month',
-          earned: false,
-          icon: 'account_balance_wallet',
-          points: 150,
-          progress: 480,
-          goal: 1000,
-        ),
-        AchievementModel(
-          id: 'social_star',
-          name: 'Social Star',
-          description: 'Refer a friend to HapoPay',
-          earned: true,
-          claimed: true,
-          icon: 'share',
-          points: 100,
-        ),
-      ],
-    );
+  static const Object _unset = Object();
+
+  /// Demo / fixture data from [RewardsCatalog] (tests & offline seeds).
+  /// Not used as an automatic network fallback.
+  static RewardModel demo({String studentId = 'demo'}) {
+    return RewardsCatalog.seedReward(studentId: studentId);
   }
 }

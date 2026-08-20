@@ -8,16 +8,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../providers/rewards_provider.dart';
 import '../providers/student_account_provider.dart';
 import '../models/reward_model.dart';
-
-// ---------------------------------------------------------------------------
-// Tier colour palette (shared with rewards_screen.dart)
-// ---------------------------------------------------------------------------
-const _tierColors = {
-  RewardTier.bronze: Color(0xFFCD7F32),
-  RewardTier.silver: Color(0xFFC0C0C0),
-  RewardTier.gold: Color(0xFFFFD700),
-  RewardTier.platinum: Color(0xFF00E5FF),
-};
+import 'reward_theme.dart';
 
 class StudentDashboardScreen extends ConsumerWidget {
   const StudentDashboardScreen({super.key});
@@ -199,19 +190,17 @@ class _RewardsSummaryCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Rewards',
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface),
+                        color: theme.colorScheme.onSurface),
                   ),
                   Text(
                     'Tap to view your achievements',
                     style: TextStyle(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
+                        color: theme.colorScheme.onSurface
                             .withValues(alpha: 0.5),
                         fontSize: 13),
                   ),
@@ -219,15 +208,12 @@ class _RewardsSummaryCard extends ConsumerWidget {
               ),
             ),
             Icon(Icons.chevron_right,
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.5)),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
           ],
         ),
       ),
       data: (reward) {
-        final tierColor = _tierColors[reward.tier] ?? Colors.amber;
+        final tierColor = rewardTierColors[reward.tier] ?? Colors.amber;
         final progress = reward.tierProgressFraction;
         final nextPts = reward.nextMilestonePoints;
         final earned = reward.earnedAchievementsCount;

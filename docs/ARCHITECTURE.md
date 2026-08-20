@@ -5,6 +5,7 @@ HapoPay uses a Clean Layered Architecture organized into feature modules (`lib/f
 ## Contents
 
 - [High-Level Overview](#high-level-overview)
+- [System workflow](#system-workflow)
 - [State Management — Riverpod](#state-management--riverpod)
 - [Navigation — GoRouter](#navigation--gorouter)
 - [Backend Integration](#backend-integration)
@@ -33,6 +34,48 @@ HapoPay uses a Clean Layered Architecture organized into feature modules (`lib/f
 ```
 
 Each feature module (e.g. `lib/features/student/`) implements this same three-layer split internally — model, repository, provider, presentation — so features can be developed, tested, and reasoned about in isolation.
+
+## System workflow
+
+### Request path (Flutter → backends)
+
+```mermaid
+flowchart TB
+  ui[Screens Widgets] --> providers[Riverpod providers]
+  providers --> repos[Feature repositories]
+  repos --> dio[DioClient]
+  dio --> mock{USE_MOCK_API?}
+  mock -->|true| mockI[MockInterceptor]
+  mock -->|false| net[Network]
+  net --> django[Django REST API]
+  providers --> supabase[Supabase client]
+  supabase --> rt[Realtime channels]
+  dio --> authI[AuthInterceptor JWT]
+  authI --> retry[RetryInterceptor]
+  retry --> errI[ErrorInterceptor]
+```
+
+### Auth redirect (GoRouter)
+
+```mermaid
+flowchart TD
+  nav[Navigation request] --> redirect[GoRouter redirect]
+  redirect --> status{AuthStatus}
+  status -->|unknown| wait[Stay or splash]
+  status -->|unauthenticated| login[/login]
+  status -->|authenticated parent| parent[/parent]
+  status -->|authenticated student| student[/student]
+```
+
+### Feature module pattern
+
+```mermaid
+flowchart LR
+  presentation[presentation screens] --> providers[providers]
+  providers --> repository[repository]
+  repository --> models[models]
+  repository --> dio[core DioClient]
+```
 
 ## State Management — Riverpod
 
@@ -112,6 +155,14 @@ final transactionChannel = supabase
     .subscribe();
 ```
 
+```mermaid
+flowchart LR
+  pay[Student payment via Django] --> db[(Postgres)]
+  db --> stream[Supabase replication]
+  stream --> mobile[Parent app channel]
+  mobile --> ui[Live transaction feed]
+```
+
 ## Worked Example
 
-The Student Rewards System is a complete, shipped implementation of this architecture end-to-end — model, repository, provider, and presentation layers, plus routing. See [`rewards_system.md`](rewards_system.md) for a walkthrough of how the pattern above maps to real files in `lib/features/student/`.
+The Student Rewards System is a complete, shipped implementation of this architecture end-to-end — model, repository, provider, and presentation layers, plus routing. See [`rewards_system.md`](rewards_system.md) for a walkthrough of how the pattern above maps to real files in `lib/features/student/`, including load/claim mermaid workflows.

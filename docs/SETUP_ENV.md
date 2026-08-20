@@ -26,8 +26,9 @@ Both files are gitignored and should **never** be committed to source control.
 | `SUPABASE_URL` | Your Supabase project URL | `https://your-instance.supabase.co` | Same, pointing to prod project |
 | `SUPABASE_ANON_KEY` | Public anon key for Supabase client | `your-supabase-public-anon-key` | Prod project's anon key |
 | `API_BASE_URL` | Base URL for the Django REST API | `http://10.0.2.2:8000/api` (Android emulator) | `https://api.yourdomain.com/api` |
+| `USE_MOCK_API` | Mount in-memory MockInterceptor | `true` (UI demos without Django) | `false` (required for release) |
 
-> **Note:** The values above are placeholders from `.env.example`. Use your own project's Supabase and Django instance values.
+> **Note:** The values above are placeholders from `.env.example`. Use your own project's Supabase and Django instance values. Release builds must set `USE_MOCK_API=false`.
 
 ## 3. Running with Environment Files
 
@@ -72,10 +73,10 @@ Production Android builds require `android/key.properties`, which is **not** com
 storePassword=your-android-keystore-password
 keyPassword=your-android-key-password
 keyAlias=upload
-storeFile=../keys/upload-keystore.jks
+storeFile=keys/upload-keystore.jks
 ```
 
-Make sure `storeFile` points to a valid `.jks` keystore file, and that the file itself exists at that path.
+`storeFile` is resolved from the `android/` project root (e.g. `android/keys/upload-keystore.jks`). Make sure the `.jks` exists and that `android/key.properties` is present — release builds fail without it.
 
 ### Camera viewport blank (QR scanner)
 Missing camera permissions. Check:
