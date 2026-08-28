@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hapopay/core/constants/constants.dart';
-import '../../student/providers/student_account_provider.dart';
+import '../../../student/providers/student_account_provider.dart';
 
 class SpendingLimitsScreen extends ConsumerStatefulWidget {
   const SpendingLimitsScreen({super.key});
@@ -89,14 +89,14 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                   style: theme.textTheme.headlineSmall
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
-                verticalSpaceSmall,
+                const Spacing.vertical(10),
                 Text(
                   'Instantly adjust spending limits or freeze the debit card to prevent unauthorized purchases.',
                   style: TextStyle(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 14),
                 ),
-                verticalSpaceXXLarge,
+                const Spacing.vertical(30),
 
                 // Card Freeze Container
                 Container(
@@ -131,7 +131,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                                   .withValues(alpha: 0.7),
                         ),
                       ),
-                      horizontalSpaceMedium,
+                      const Spacing.horizontal(15),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +144,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                                 color: theme.colorScheme.onSurface,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const Spacing.vertical(4),
                             Text(
                               'Suspend all payments immediately',
                               style: TextStyle(
@@ -167,9 +167,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                     ],
                   ),
                 ),
-
-                verticalSpaceXLarge,
-
+                const Spacing.vertical(25),
                 // Limit Settings Container (Disabled when locked)
                 Opacity(
                   opacity: _isCardLocked ? 0.4 : 1.0,
@@ -207,7 +205,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                               height: 24,
                               color: theme.colorScheme.onSurface
                                   .withValues(alpha: 0.12)),
-                          verticalSpaceSmall,
+                          const Spacing.vertical(10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -225,7 +223,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                               ),
                             ],
                           ),
-                          verticalSpaceMedium,
+                          const Spacing.vertical(15),
                           Slider(
                             value: _currentSliderValue,
                             min: 5.0,
@@ -262,7 +260,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                   ),
                 ),
 
-                verticalSpaceXVILarge,
+                const Spacing.vertical(50),
 
                 // Save button
                 SizedBox(
