@@ -2,28 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hapopay/core/constants/constants.dart';
+import 'package:hapopay/features/parent/presentation/screens/models/transaction_record_model.dart';
 
 import '../../../../core/theme/tokens.dart';
 
-class _TxnRecord {
-  final String child;
-  final String merchant;
-  final double amount;
-  final String date;
-  final String time;
-  final String cat;
-  final String status; // 'approved' or 'flagged'
-
-  const _TxnRecord({
-    required this.child,
-    required this.merchant,
-    required this.amount,
-    required this.date,
-    required this.time,
-    required this.cat,
-    required this.status,
-  });
-}
 
 class FamilyLedgerScreen extends ConsumerStatefulWidget {
   final bool isEmbeddedInShell;
@@ -41,8 +24,8 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
   String _filterChild = 'all'; // 'all', 'Amara', 'Kwame'
   String _filterStatus = 'all'; // 'all', 'approved', 'flagged'
 
-  static const List<_TxnRecord> _allTxns = [
-    _TxnRecord(
+  static const List<TxnRecord> _allTxns = [
+    TxnRecord(
       child: 'Amara',
       merchant: 'School Canteen',
       amount: -4.50,
@@ -51,7 +34,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
       cat: '🍔',
       status: 'approved',
     ),
-    _TxnRecord(
+    TxnRecord(
       child: 'Kwame',
       merchant: 'Stationery World',
       amount: -12.00,
@@ -60,7 +43,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
       cat: '📚',
       status: 'approved',
     ),
-    _TxnRecord(
+    TxnRecord(
       child: 'Amara',
       merchant: 'Weekly Allowance',
       amount: 50.00,
@@ -69,7 +52,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
       cat: '💸',
       status: 'approved',
     ),
-    _TxnRecord(
+    TxnRecord(
       child: 'Kwame',
       merchant: 'Weekly Allowance',
       amount: 30.00,
@@ -78,7 +61,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
       cat: '💸',
       status: 'approved',
     ),
-    _TxnRecord(
+    TxnRecord(
       child: 'Kwame',
       merchant: 'Game Shop',
       amount: -18.00,
@@ -87,7 +70,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
       cat: '🎮',
       status: 'flagged',
     ),
-    _TxnRecord(
+    TxnRecord(
       child: 'Amara',
       merchant: 'Bus Pass',
       amount: -15.00,
@@ -96,7 +79,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
       cat: '🚌',
       status: 'approved',
     ),
-    _TxnRecord(
+    TxnRecord(
       child: 'Amara',
       merchant: 'Health Clinic',
       amount: -8.00,
@@ -105,7 +88,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
       cat: '🏥',
       status: 'approved',
     ),
-    _TxnRecord(
+    TxnRecord(
       child: 'Kwame',
       merchant: 'Lunch Break',
       amount: -5.50,
@@ -114,7 +97,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
       cat: '🍔',
       status: 'approved',
     ),
-    _TxnRecord(
+    TxnRecord(
       child: 'Amara',
       merchant: 'Art Supplies',
       amount: -22.00,
@@ -123,7 +106,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
       cat: '🎨',
       status: 'approved',
     ),
-    _TxnRecord(
+    TxnRecord(
       child: 'Kwame',
       merchant: 'Books R Us',
       amount: -9.00,
@@ -162,7 +145,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
         .fold<double>(0.0, (sum, t) => sum + t.amount.abs());
 
     // Group filtered transactions by date
-    final Map<String, List<_TxnRecord>> grouped = {};
+    final Map<String, List<TxnRecord>> grouped = {};
     for (final t in filtered) {
       grouped.putIfAbsent(t.date, () => []).add(t);
     }
@@ -213,7 +196,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
                           children: [
                             const Icon(Icons.arrow_upward_rounded,
                                 color: AppTokens.accent, size: 16),
-                            const SizedBox(width: 4),
+                            const Spacing.horizontal(4),
                             Text(
                               'Money In',
                               style: GoogleFonts.outfit(
@@ -224,7 +207,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        const Spacing.vertical(6),
                         Text(
                           '+\$${totalIn.toStringAsFixed(2)}',
                           style: GoogleFonts.dmMono(
@@ -237,7 +220,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const Spacing.horizontal(12),
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(16),
@@ -267,7 +250,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        const Spacing.vertical(6),
                         Text(
                           '-\$${totalOut.toStringAsFixed(2)}',
                           style: GoogleFonts.dmMono(
@@ -283,7 +266,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
               ],
             ),
 
-            const SizedBox(height: 18),
+            const Spacing.vertical(18),
 
             // Filter Chips (By Child & By Status)
             Column(
@@ -331,7 +314,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const Spacing.vertical(8),
 
                 // Status Filter row
                 SingleChildScrollView(
@@ -384,16 +367,16 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
               ],
             ),
 
-            const SizedBox(height: 20),
+            const Spacing.vertical(20),
 
             // Grouped Transactions
             if (grouped.isEmpty) ...[
-              const SizedBox(height: 48),
+              const Spacing.vertical(48),
               Center(
                 child: Column(
                   children: [
                     Text('🔍', style: const TextStyle(fontSize: 32)),
-                    const SizedBox(height: 10),
+                    const Spacing.vertical(10),
                     Text(
                       'No matching transactions found',
                       style: GoogleFonts.outfit(
@@ -457,7 +440,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
                                   style: const TextStyle(fontSize: 18)),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const Spacing.horizontal(12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -476,7 +459,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
                                       ),
                                     ),
                                     if (isFlagged) ...[
-                                      const SizedBox(width: 6),
+                                      const Spacing.horizontal(6),
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 6, vertical: 2),
@@ -498,7 +481,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
                                     ],
                                   ],
                                 ),
-                                const SizedBox(height: 2),
+                                const Spacing.vertical(2),
                                 Text(
                                   '${t.child} · ${t.time}',
                                   style: GoogleFonts.outfit(
@@ -526,11 +509,11 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 8),
+                const Spacing.vertical(8),
               ],
             ],
 
-            const SizedBox(height: 24),
+            const Spacing.vertical(24),
           ],
         ),
       ),
