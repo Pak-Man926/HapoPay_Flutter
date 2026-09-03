@@ -6,7 +6,7 @@ import 'package:hapopay/core/constants/constants.dart';
 import 'package:hapopay/features/student/presentation/models/goal_item_model.dart';
 import 'package:hapopay/features/student/presentation/models/student_transaction_model.dart';
 import 'package:hapopay/features/student/presentation/widgets/mini_stats_card.dart';
-import 'package:hapopay/features/student/presentation/widgets/payQr_card.dart';
+import 'package:hapopay/features/student/presentation/widgets/payqr_card.dart';
 import 'package:hapopay/features/student/presentation/widgets/quick_pay_button.dart';
 import 'package:hapopay/features/student/presentation/widgets/rewards_card.dart';
 
@@ -224,7 +224,7 @@ class StudentDashboardScreen extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          const Spacing.vertical( 2),
+                          const Spacing.vertical(2),
                           Text(
                             'Available balance',
                             style: GoogleFonts.outfit(
@@ -603,7 +603,3 @@ class StudentDashboardScreen extends ConsumerWidget {
     );
   }
 }
-
-
-
-
