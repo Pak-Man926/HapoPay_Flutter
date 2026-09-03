@@ -3,57 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hapopay/core/constants/constants.dart';
+import 'package:hapopay/features/student/presentation/screens/models/achievement_item.dart';
+import 'package:hapopay/features/student/presentation/screens/models/tier_info.dart';
 
 import '../../../../core/theme/tokens.dart';
 import '../../providers/rewards_provider.dart';
-
-class _TierInfo {
-  final String name;
-  final int min;
-  final int max;
-  final Color color;
-  final String emoji;
-
-  const _TierInfo({
-    required this.name,
-    required this.min,
-    required this.max,
-    required this.color,
-    required this.emoji,
-  });
-}
-
-class _AchievementItem {
-  final String id;
-  final String title;
-  final String desc;
-  final String emoji;
-  final int pts;
-  final bool isClaimed;
-  final bool isLocked;
-
-  const _AchievementItem({
-    required this.id,
-    required this.title,
-    required this.desc,
-    required this.emoji,
-    required this.pts,
-    this.isClaimed = false,
-    this.isLocked = false,
-  });
-
-  _AchievementItem copyWith({bool? isClaimed}) {
-    return _AchievementItem(
-      id: id,
-      title: title,
-      desc: desc,
-      emoji: emoji,
-      pts: pts,
-      isClaimed: isClaimed ?? this.isClaimed,
-      isLocked: isLocked,
-    );
-  }
-}
 
 class RewardsScreen extends ConsumerStatefulWidget {
   final bool isEmbeddedInShell;
@@ -68,32 +23,32 @@ class RewardsScreen extends ConsumerStatefulWidget {
 }
 
 class _RewardsScreenState extends ConsumerState<RewardsScreen> {
-  static const List<_TierInfo> _tiers = [
-    _TierInfo(
+  static const List<TierInfo> _tiers = [
+    TierInfo(
         name: 'Sprout',
         min: 0,
         max: 200,
         color: Color(0xFF64748B),
         emoji: '🌱'),
-    _TierInfo(
+    TierInfo(
         name: 'Scout',
         min: 200,
         max: 500,
         color: Color(0xFF00B4D8),
         emoji: '🔵'),
-    _TierInfo(
+    TierInfo(
         name: 'Keeper',
         min: 500,
         max: 1000,
         color: Color(0xFF7C4DFF),
         emoji: '💜'),
-    _TierInfo(
+    TierInfo(
         name: 'Champion',
         min: 1000,
         max: 2000,
         color: Color(0xFFFFD166),
         emoji: '⭐'),
-    _TierInfo(
+    TierInfo(
         name: 'Legend',
         min: 2000,
         max: 999999,
@@ -101,7 +56,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
         emoji: '🔥'),
   ];
 
-  late List<_AchievementItem> _achievements;
+  late List<AchievementItem> _achievements;
   final List<String> _streakDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   final List<bool> _completedDays = [true, true, true, true, true, true, true];
 
@@ -109,7 +64,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
   void initState() {
     super.initState();
     _achievements = [
-      const _AchievementItem(
+      const AchievementItem(
         id: '1',
         title: 'First Purchase',
         desc: 'Made your first payment',
@@ -117,7 +72,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
         pts: 10,
         isClaimed: true,
       ),
-      const _AchievementItem(
+      const AchievementItem(
         id: '2',
         title: 'Saver Star',
         desc: 'Reached a savings goal',
@@ -125,7 +80,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
         pts: 25,
         isClaimed: true,
       ),
-      const _AchievementItem(
+      const AchievementItem(
         id: '3',
         title: 'Budget Boss',
         desc: 'Stayed under limit 7 days',
@@ -133,7 +88,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
         pts: 50,
         isClaimed: false,
       ),
-      const _AchievementItem(
+      const AchievementItem(
         id: '4',
         title: 'Streak Master',
         desc: '7-day spending streak',
@@ -141,7 +96,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
         pts: 75,
         isClaimed: false,
       ),
-      const _AchievementItem(
+      const AchievementItem(
         id: '5',
         title: 'Zero Waste',
         desc: 'No flagged purchases in a month',
@@ -149,7 +104,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
         pts: 100,
         isClaimed: false,
       ),
-      const _AchievementItem(
+      const AchievementItem(
         id: '6',
         title: 'Top Saver',
         desc: 'Saved over \$100 total',
@@ -262,12 +217,12 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                               color: mutedForeground,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          const Spacing.vertical(2),
                           Row(
                             children: [
                               Text(currentTier.emoji,
                                   style: const TextStyle(fontSize: 24)),
-                              const SizedBox(width: 6),
+                              const Spacing.horizontal(6),
                               Text(
                                 currentTier.name,
                                 style: GoogleFonts.outfit(
@@ -303,7 +258,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                     ],
                   ),
                   if (nextTier != null) ...[
-                    const SizedBox(height: 18),
+                    const Spacing.vertical(18),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -324,7 +279,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const Spacing.vertical(6),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
@@ -341,7 +296,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const Spacing.vertical(20),
 
             // Tier Roadmap Card
             Container(
@@ -369,7 +324,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const Spacing.vertical(16),
                   Row(
                     children: List.generate(_tiers.length, (i) {
                       final tier = _tiers[i];
@@ -413,7 +368,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  const Spacing.vertical(4),
                                   Text(
                                     tier.name,
                                     style: GoogleFonts.outfit(
@@ -448,7 +403,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const Spacing.vertical(20),
 
             // 7-Day Streak Card
             Container(
@@ -476,7 +431,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                       Row(
                         children: [
                           const Text('🔥', style: TextStyle(fontSize: 18)),
-                          const SizedBox(width: 6),
+                          const Spacing.horizontal(6),
                           Text(
                             '7-Day Streak',
                             style: GoogleFonts.outfit(
@@ -505,7 +460,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const Spacing.vertical(16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: List.generate(7, (i) {
@@ -530,7 +485,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                                   : null,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const Spacing.vertical(4),
                           Text(
                             _streakDays[i],
                             style: GoogleFonts.outfit(
@@ -543,7 +498,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                       );
                     }),
                   ),
-                  const SizedBox(height: 12),
+                  const Spacing.vertical(12),
                   Center(
                     child: Text(
                       "Complete today's purchase to keep your streak!",
@@ -557,7 +512,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
               ),
             ),
 
-            const SizedBox(height: 22),
+            const Spacing.vertical(22),
 
             // Achievements List
             Text(
@@ -568,27 +523,27 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                 color: foregroundColor,
               ),
             ),
-            const SizedBox(height: 12),
+            const Spacing.vertical(12),
 
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _achievements.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              separatorBuilder: (_, __) => const Spacing.vertical(10),
               itemBuilder: (context, index) {
-                final a = _achievements[index];
+                final award = _achievements[index];
 
                 return Opacity(
-                  opacity: a.isLocked ? 0.5 : 1.0,
+                  opacity: award.isLocked ? 0.5 : 1.0,
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: a.isClaimed
+                      color: award.isClaimed
                           ? AppTokens.accent.withValues(alpha: 0.08)
                           : cardColor,
                       borderRadius: AppTokens.borderRadiusLg,
                       border: Border.all(
-                        color: a.isClaimed
+                        color: award.isClaimed
                             ? AppTokens.accent.withValues(alpha: 0.35)
                             : borderColor,
                         width: 1,
@@ -600,7 +555,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: a.isClaimed
+                            color: award.isClaimed
                                 ? AppTokens.accent.withValues(alpha: 0.15)
                                 : (isDark
                                     ? AppTokens.darkSecondary
@@ -609,18 +564,18 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              a.isLocked ? '🔒' : a.emoji,
+                              award.isLocked ? '🔒' : award.emoji,
                               style: const TextStyle(fontSize: 22),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const Spacing.horizontal(12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                a.title,
+                                award.title,
                                 style: GoogleFonts.outfit(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
@@ -628,7 +583,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                                 ),
                               ),
                               Text(
-                                a.desc,
+                                award.desc,
                                 style: GoogleFonts.outfit(
                                   fontSize: 12,
                                   color: mutedForeground,
@@ -645,21 +600,21 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                               children: [
                                 const Icon(Icons.star_rounded,
                                     color: AppTokens.gold, size: 14),
-                                const SizedBox(width: 2),
+                                const Spacing.horizontal(2),
                                 Text(
-                                  '+${a.pts}',
+                                  '+${award.pts}',
                                   style: GoogleFonts.dmMono(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
-                                    color: a.isClaimed
+                                    color: award.isClaimed
                                         ? AppTokens.accent
                                         : AppTokens.primary,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 4),
-                            if (a.isClaimed)
+                            const Spacing.vertical(4),
+                            if (award.isClaimed)
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 2),
@@ -677,7 +632,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                                   ),
                                 ),
                               )
-                            else if (!a.isLocked)
+                            else if (!award.isLocked)
                               GestureDetector(
                                 onTap: () => _claimAchievement(index),
                                 child: Container(
@@ -706,7 +661,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
               },
             ),
 
-            const SizedBox(height: 24),
+            const Spacing.vertical(24),
           ],
         ),
       ),
