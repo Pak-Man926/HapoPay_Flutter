@@ -1,551 +1,645 @@
-import 'dart:convert';
-import 'package:dio/dio.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hapopay/core/constants/constants.dart';
-import 'package:local_auth/local_auth.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
-import '../../student/providers/student_account_provider.dart';
+import 'package:hapopay/features/qrcode/presentation/widgets/alt_auth_options.dart';
+import 'package:hapopay/features/qrcode/presentation/widgets/security_badge.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+
+import '../../../core/theme/tokens.dart';
+import '../../../shared/widgets/app_primary_button.dart';
+
+enum PayStep { biometric, qr, success }
 
 class PayQrScreen extends ConsumerStatefulWidget {
-  const PayQrScreen({super.key});
+  final bool isEmbeddedInShell;
+
+  const PayQrScreen({
+    super.key,
+    this.isEmbeddedInShell = false,
+  });
 
   @override
   ConsumerState<PayQrScreen> createState() => _PayQrScreenState();
 }
 
-class _PayQrScreenState extends ConsumerState<PayQrScreen> {
-  final MobileScannerController _scannerController = MobileScannerController();
-  final LocalAuthentication _localAuth = LocalAuthentication();
-  bool _isProcessingScan = false;
+class _PayQrScreenState extends ConsumerState<PayQrScreen>
+    with TickerProviderStateMixin {
+  PayStep _step = PayStep.biometric;
+  bool _bioDone = false;
+  int _countdown = 60;
+  Timer? _timer;
+
+  late final AnimationController _pulseController;
+  late final AnimationController _scanController;
+  late final Animation<double> _scanAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat();
+
+    _scanController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+
+    _scanAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _scanController, curve: Curves.easeInOut),
+    );
+  }
 
   @override
   void dispose() {
-    _scannerController.dispose();
+    _timer?.cancel();
+    _pulseController.dispose();
+    _scanController.dispose();
     super.dispose();
   }
 
-  void _onDetect(BarcodeCapture capture) {
-    if (_isProcessingScan) return;
+  void _startCountdown() {
+    _timer?.cancel();
+    _countdown = 60;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      if (_countdown <= 1) {
+        setState(() => _countdown = 60);
+      } else {
+        setState(() => _countdown--);
+      }
+    });
+  }
 
-    final barcode = capture.barcodes.firstOrNull;
-    final String? rawValue = barcode?.rawValue;
-
-    if (rawValue != null && rawValue.isNotEmpty) {
+  void _authenticate() {
+    setState(() => _bioDone = true);
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
       setState(() {
-        _isProcessingScan = true;
+        _step = PayStep.qr;
       });
-      _scannerController.stop();
-      _processScannedPayload(rawValue);
-    }
-  }
-
-  void _processScannedPayload(String payload) {
-    double amount = 0.0;
-    String description = 'QR Merchant Payment';
-    String recipientName = 'HapoPay Merchant';
-
-    // Attempt to parse QR code
-    try {
-      final data = jsonDecode(payload) as Map<String, dynamic>;
-      amount = double.tryParse(data['amount']?.toString() ?? '') ?? 0.0;
-      description = data['description']?.toString() ?? 'QR Merchant Payment';
-      recipientName = data['student_name']?.toString() ??
-          data['merchant_name']?.toString() ??
-          'HapoPay Merchant';
-    } catch (_) {
-      // Fallback 1: query string parameters
-      try {
-        final uri = Uri.parse('?$payload');
-        amount = double.tryParse(uri.queryParameters['amount'] ?? '') ?? 0.0;
-        description =
-            uri.queryParameters['description'] ?? 'QR Merchant Payment';
-        recipientName = uri.queryParameters['merchant'] ?? 'HapoPay Merchant';
-      } catch (_) {
-        // Fallback 2: plain number
-        final plainAmount = double.tryParse(payload);
-        if (plainAmount != null) {
-          amount = plainAmount;
-        } else {
-          _showErrorDialog('Invalid QR Code',
-              'This code is not recognized by HapoPay. Please scan a valid payment code.');
-          return;
-        }
-      }
-    }
-
-    if (amount <= 0) {
-      _showErrorDialog('Invalid Amount',
-          'The QR code specifies an invalid transaction amount (\$${amount.toStringAsFixed(2)}).');
-      return;
-    }
-
-    // Show beautiful confirmation bottom sheet
-    _showPaymentConfirmationSheet(payload, recipientName, amount, description);
-  }
-
-  void _showPaymentConfirmationSheet(
-    String originalPayload,
-    String recipient,
-    double amount,
-    String description,
-  ) {
-    final theme = Theme.of(context);
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: theme.colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (context) {
-        final theme = Theme.of(context);
-        return Padding(
-          padding: EdgeInsets.fromLTRB(
-              24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 48,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.24),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              verticalSpaceLarge,
-              Text(
-                'Confirm Payment',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface),
-              ),
-              verticalSpaceXXLarge,
-              // Transaction details box
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                      color:
-                          theme.colorScheme.onSurface.withValues(alpha: 0.12)),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      '\$${amount.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                    verticalSpaceSmall,
-                    Text(
-                      'to $recipient',
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.7)),
-                    ),
-                    Divider(
-                        height: 32,
-                        color: theme.colorScheme.onSurface
-                            .withValues(alpha: 0.12)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Purpose',
-                            style: TextStyle(
-                                color: theme.colorScheme.onSurface
-                                    .withValues(alpha: 0.5))),
-                        Text(description,
-                            style: TextStyle(
-                                color: theme.colorScheme.onSurface,
-                                fontWeight: FontWeight.w500)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              verticalSpaceXXLarge,
-              // Glowing confirm button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: theme.colorScheme.onPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 8,
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context); // close bottom sheet
-                    _authenticateAndPay(originalPayload);
-                  },
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.fingerprint),
-                      SizedBox(width: 12),
-                      Text(
-                        'Authenticate & Pay',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _resumeScanner();
-                  },
-                  child: Text('Cancel',
-                      style: TextStyle(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.5),
-                          fontSize: 16)),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    ).then((_) {
-      // If bottom sheet dismissed without clicking pay
-      if (_isProcessingScan && !_isPaying) {
-        _resumeScanner();
-      }
+      _startCountdown();
     });
   }
 
-  bool _isPaying = false;
-
-  Future<void> _authenticateAndPay(String qrPayload) async {
-    _isPaying = true;
-
-    // 1. Biometric Authentication
-    try {
-      final bool canCheck = await _localAuth.canCheckBiometrics;
-      final bool isSupported = await _localAuth.isDeviceSupported();
-
-      if (canCheck || isSupported) {
-        final bool didAuthenticate = await _localAuth.authenticate(
-          localizedReason: 'Scan fingerprint to authorize transaction',
-          biometricOnly: false,
-        );
-
-        if (!didAuthenticate) {
-          _isPaying = false;
-          _showErrorDialog('Auth Required',
-              'Payment aborted. Biometric authorization is mandatory for security.');
-          return;
-        }
-      }
-    } catch (_) {
-      // Local authentication unsupported or threw error on emulator; proceed with normal PIN mockup
-    }
-
-    // 2. Process Backend Handshake (Interceptors)
-    if (!mounted) return;
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Center(
-        child: CircularProgressIndicator(
-            color: Theme.of(context).colorScheme.primary),
-      ),
-    );
-
-    try {
-      await ref.read(studentAccountProvider.notifier).payWithQr(qrPayload);
-      if (!mounted) return;
-      Navigator.pop(context); // close loading spinner
-
-      // Show gorgeous success overlay
-      _showSuccessScreen();
-    } catch (e) {
-      if (!mounted) return;
-      Navigator.pop(context); // close loading spinner
-      _isPaying = false;
-
-      String errorMsg = e.toString();
-      if (e is DioException) {
-        final data = e.response?.data;
-        if (data is Map) {
-          errorMsg = data['detail']?.toString() ??
-              data['message']?.toString() ??
-              errorMsg;
-        }
-      }
-
-      _showErrorDialog(
-          'Payment Failed', errorMsg.replaceAll('Exception: ', ''));
-    }
-  }
-
-  void _showSuccessScreen() {
-    final theme = Theme.of(context);
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        final theme = Theme.of(context);
-
-        return Dialog(
-          backgroundColor: theme.colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade900,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.check,
-                    color: Colors.green.shade300,
-                    size: 48,
-                  ),
-                ),
-                verticalSpaceLarge,
-                Text(
-                  'Payment Successful',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-                verticalSpaceSmall,
-                Text(
-                  'Your transaction has been securely processed and recorded.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color:
-                          theme.colorScheme.onSurface.withValues(alpha: 0.7)),
-                ),
-                verticalSpaceXXLarge,
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: theme.colorScheme.onPrimary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context); // Close dialog
-                      context.go('/student'); // Return to dashboard
-                    },
-                    child: const Text('Back to Dashboard',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showErrorDialog(String title, String message) {
-    final theme = Theme.of(context);
-    showDialog<void>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: theme.colorScheme.surface,
-          title:
-              Text(title, style: TextStyle(color: theme.colorScheme.onSurface)),
-          content: Text(message,
-              style: TextStyle(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7))),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _resumeScanner();
-              },
-              child: Text('OK',
-                  style: TextStyle(color: theme.colorScheme.primary)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _resumeScanner() {
-    setState(() {
-      _isProcessingScan = false;
-      _isPaying = false;
-    });
-    _scannerController.start();
+  void _simulateScanSuccess() {
+    _timer?.cancel();
+    setState(() => _step = PayStep.success);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor =
+        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
+    final foregroundColor =
+        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
+    final mutedForeground =
+        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
+    final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
+    final secondaryBg =
+        isDark ? AppTokens.darkSecondary : AppTokens.lightSecondary;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Scan QR Code'),
+      backgroundColor: backgroundColor,
+      appBar: widget.isEmbeddedInShell
+          ? null
+          : AppBar(
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back_ios_new_rounded,
+                    color: foregroundColor, size: 20),
+                onPressed: () => context.pop(),
+              ),
+              title: Text(
+                _step == PayStep.biometric
+                    ? 'Verify Identity'
+                    : _step == PayStep.qr
+                        ? 'Scan to Pay'
+                        : 'Payment Confirmation',
+                style: GoogleFonts.outfit(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: foregroundColor,
+                ),
+              ),
+              centerTitle: true,
+            ),
+      body: SafeArea(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: _buildCurrentStep(
+            context,
+            isDark: isDark,
+            foregroundColor: foregroundColor,
+            mutedForeground: mutedForeground,
+            cardColor: cardColor,
+            borderColor: borderColor,
+            secondaryBg: secondaryBg,
+          ),
+        ),
       ),
-      body: Stack(
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Step 1: Biometric Verification
+  // ---------------------------------------------------------------------------
+
+  Widget _buildBiometricStep({
+    required Color foregroundColor,
+    required Color mutedForeground,
+    required Color cardColor,
+    required Color borderColor,
+  }) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+      child: Column(
         children: [
-          // Scanner Camera Preview viewport
-          MobileScanner(
-            controller: _scannerController,
-            onDetect: _onDetect,
+          const Spacing.vertical(10),
+          Text(
+            'Verify Identity',
+            style: GoogleFonts.outfit(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: foregroundColor,
+            ),
           ),
+          const Spacing.vertical(4),
+          Text(
+            'Use your fingerprint or face to confirm',
+            style: GoogleFonts.outfit(
+              fontSize: 14,
+              color: mutedForeground,
+            ),
+          ),
+          const Spacing.vertical(48),
 
-          // High-end UI overlay (scanning target layout)
-          Positioned.fill(
-            child: Container(
-              decoration: ShapeDecoration(
-                shape: QrScannerOverlayShape(
-                  borderColor: theme.colorScheme.primary,
-                  borderRadius: 16,
-                  borderLength: 30,
-                  borderWidth: 6,
-                  cutOutSize: 240,
-                ),
+          // Animated Pulsing Biometric Sensor
+          Center(
+            child: SizedBox(
+              width: 180,
+              height: 180,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Outer ripple
+                  if (!_bioDone)
+                    AnimatedBuilder(
+                      animation: _pulseController,
+                      builder: (context, child) {
+                        return Container(
+                          width: 120 + (_pulseController.value * 50),
+                          height: 120 + (_pulseController.value * 50),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppTokens.primary.withValues(
+                              alpha: (1.0 - _pulseController.value) * 0.2,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
+                  // Middle ripple
+                  Container(
+                    width: 130,
+                    height: 130,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _bioDone
+                          ? AppTokens.accent.withValues(alpha: 0.18)
+                          : AppTokens.primary.withValues(alpha: 0.15),
+                    ),
+                  ),
+
+                  // Touch ID center button
+                  GestureDetector(
+                    onTap: _authenticate,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: _bioDone
+                            ? AppTokens.accentGradient
+                            : AppTokens.primaryGradient,
+                        boxShadow: [
+                          BoxShadow(
+                            color: (_bioDone
+                                    ? AppTokens.accent
+                                    : AppTokens.primary)
+                                .withValues(alpha: 0.4),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _bioDone
+                                ? Icons.check_rounded
+                                : Icons.fingerprint_rounded,
+                            color: Colors.white,
+                            size: 38,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            _bioDone ? 'Verified' : 'Touch ID',
+                            style: GoogleFonts.outfit(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
 
-          // Visual Instruction text
-          Positioned(
-            bottom: 60,
-            left: 24,
-            right: 24,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface.withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Text(
-                'Align the merchant QR code within the frame',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+          const Spacing.vertical(24),
+
+          Text(
+            _bioDone
+                ? 'Generating secure QR code...'
+                : 'Tap the sensor to authenticate',
+            style: GoogleFonts.outfit(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: mutedForeground,
             ),
+          ),
+
+          const Spacing.vertical(48),
+
+          // Alternative verification methods
+          Text(
+            'OR USE ANOTHER METHOD',
+            style: GoogleFonts.outfit(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: mutedForeground,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const Spacing.vertical(12),
+
+          AltAuthOption(
+            emoji: '👁️',
+            label: 'Face Recognition',
+            cardColor: cardColor,
+            borderColor: borderColor,
+            foregroundColor: foregroundColor,
+            onTap: _authenticate,
+          ),
+          const Spacing.vertical(10),
+          AltAuthOption(
+            emoji: '🔢',
+            label: 'Enter PIN',
+            cardColor: cardColor,
+            borderColor: borderColor,
+            foregroundColor: foregroundColor,
+            onTap: _authenticate,
           ),
         ],
       ),
     );
   }
-}
 
-// ---------------------------------------------------------------------------
-// QR Scanner Overlay Custom Painter
-// ---------------------------------------------------------------------------
-class QrScannerOverlayShape extends ShapeBorder {
-  final Color borderColor;
-  final double borderWidth;
-  final double borderLength;
-  final double borderRadius;
-  final double cutOutSize;
+  // ---------------------------------------------------------------------------
+  // Step 2: Dynamic QR Code
+  // ---------------------------------------------------------------------------
+  Widget _buildQrStep({
+    required Color foregroundColor,
+    required Color mutedForeground,
+    required Color cardColor,
+    required Color borderColor,
+  }) {
+    final pct = _countdown / 60.0;
 
-  const QrScannerOverlayShape({
-    this.borderColor = Colors.white,
-    this.borderWidth = 3.0,
-    this.borderLength = 20.0,
-    this.borderRadius = 0.0,
-    this.cutOutSize = 250.0,
-  });
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+      child: Column(
+        children: [
+          Text(
+            'Scan to Pay',
+            style: GoogleFonts.outfit(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: foregroundColor,
+            ),
+          ),
+          const Spacing.vertical(2),
+          Text(
+            'Show this QR code at the checkout terminal',
+            style: GoogleFonts.outfit(
+              fontSize: 13,
+              color: mutedForeground,
+            ),
+          ),
+          const Spacing.vertical(24),
 
-  @override
-  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+          // QR Container with laser scan line & timer ring
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: AppTokens.borderRadius3xl,
+              border: Border.all(color: AppTokens.primary, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTokens.primary.withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                // QR Box with Animated Scan Line
+                ClipRRect(
+                  borderRadius: AppTokens.borderRadiusLg,
+                  child: Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.all(12),
+                    child: Stack(
+                      children: [
+                        QrImageView(
+                          data:
+                              'hapopay://pay?amount=12.00&merchant=School+Canteen&exp=60',
+                          version: QrVersions.auto,
+                          size: 190.0,
+                          eyeStyle: const QrEyeStyle(
+                            eyeShape: QrEyeShape.square,
+                            color: Color(0xFF080B12),
+                          ),
+                          dataModuleStyle: const QrDataModuleStyle(
+                            dataModuleShape: QrDataModuleShape.square,
+                            color: Color(0xFF080B12),
+                          ),
+                        ),
+                        // Animated Laser Scan Beam
+                        Positioned.fill(
+                          child: AnimatedBuilder(
+                            animation: _scanAnimation,
+                            builder: (context, child) {
+                              return Align(
+                                alignment: Alignment(
+                                    0, (_scanAnimation.value * 2) - 1),
+                                child: Container(
+                                  height: 2.5,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.transparent,
+                                        AppTokens.primary,
+                                        AppTokens.accent,
+                                        Colors.transparent,
+                                      ],
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppTokens.primary
+                                            .withValues(alpha: 0.8),
+                                        blurRadius: 6,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
-  @override
-  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => Path();
+                const Spacing.vertical(16),
 
-  @override
-  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
-    return Path()..addRect(rect);
-  }
+                // Countdown Timer Arc
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        value: pct,
+                        strokeWidth: 2.5,
+                        backgroundColor: AppTokens.darkBorder,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppTokens.primary),
+                      ),
+                    ),
+                    const Spacing.horizontal(8),
+                    Text(
+                      'Expires in ${_countdown}s',
+                      style: GoogleFonts.dmMono(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: mutedForeground,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
 
-  @override
-  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
-    final width = rect.width;
-    final height = rect.height;
+          const Spacing.vertical(20),
 
-    final cutOutRect = Rect.fromCenter(
-      center: Offset(width / 2, height / 2),
-      width: cutOutSize,
-      height: cutOutSize,
+          // Max Transaction Cap
+          Text(
+            'Max transaction',
+            style: GoogleFonts.outfit(
+              fontSize: 12,
+              color: mutedForeground,
+            ),
+          ),
+          const Spacing.vertical(2),
+          Text(
+            '\$50.00',
+            style: GoogleFonts.dmMono(
+              fontSize: 32,
+              fontWeight: FontWeight.w800,
+              color: foregroundColor,
+            ),
+          ),
+
+          const Spacing.vertical(20),
+
+          // Security Badges Row
+          Row(
+            children: [
+              Expanded(
+                child: SecurityBadge(
+                  icon: Icons.shield_outlined,
+                  iconColor: AppTokens.accent,
+                  label: '256-bit encrypted',
+                  cardColor: cardColor,
+                  borderColor: borderColor,
+                  textColor: mutedForeground,
+                ),
+              ),
+              const Spacing.vertical(8),
+              Expanded(
+                child: SecurityBadge(
+                  icon: Icons.lock_outline_rounded,
+                  iconColor: AppTokens.primary,
+                  label: 'Biometric verified',
+                  cardColor: cardColor,
+                  borderColor: borderColor,
+                  textColor: mutedForeground,
+                ),
+              ),
+            ],
+          ),
+
+          const Spacing.vertical(24),
+
+          // Simulate Scan CTA Button
+          AppPrimaryButton(
+            label: 'Simulate Terminal Scan  ↗',
+            onPressed: _simulateScanSuccess,
+          ),
+        ],
+      ),
     );
-
-    // Dark screen overlay
-    final backgroundPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.65);
-    final backgroundPath = Path()
-      ..addRect(rect)
-      ..addRRect(
-          RRect.fromRectAndRadius(cutOutRect, Radius.circular(borderRadius)))
-      ..fillType = PathFillType.evenOdd;
-    canvas.drawPath(backgroundPath, backgroundPaint);
-
-    // Outline corner brackets
-    final borderPaint = Paint()
-      ..color = borderColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = borderWidth;
-
-    final borderPath = Path();
-
-    // Top-left
-    borderPath.moveTo(cutOutRect.left, cutOutRect.top + borderLength);
-    borderPath.lineTo(cutOutRect.left, cutOutRect.top);
-    borderPath.lineTo(cutOutRect.left + borderLength, cutOutRect.top);
-
-    // Top-right
-    borderPath.moveTo(cutOutRect.right - borderLength, cutOutRect.top);
-    borderPath.lineTo(cutOutRect.right, cutOutRect.top);
-    borderPath.lineTo(cutOutRect.right, cutOutRect.top + borderLength);
-
-    // Bottom-right
-    borderPath.moveTo(cutOutRect.right, cutOutRect.bottom - borderLength);
-    borderPath.lineTo(cutOutRect.right, cutOutRect.bottom);
-    borderPath.lineTo(cutOutRect.right - borderLength, cutOutRect.bottom);
-
-    // Bottom-left
-    borderPath.moveTo(cutOutRect.left + borderLength, cutOutRect.bottom);
-    borderPath.lineTo(cutOutRect.left, cutOutRect.bottom);
-    borderPath.lineTo(cutOutRect.left, cutOutRect.bottom - borderLength);
-
-    canvas.drawPath(borderPath, borderPaint);
   }
 
-  @override
-  ShapeBorder scale(double t) => this;
+  // ---------------------------------------------------------------------------
+  // Step 3: Success Confirmation
+  // ---------------------------------------------------------------------------
+  Widget _buildSuccessStep({
+    required Color foregroundColor,
+    required Color mutedForeground,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Spacer(),
+
+          // Large Success Checkmark Badge
+          Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppTokens.accent.withValues(alpha: 0.15),
+              border: Border.all(color: AppTokens.accent, width: 2.5),
+            ),
+            child: const Center(
+              child:
+                  Icon(Icons.check_rounded, color: AppTokens.accent, size: 54),
+            ),
+          ),
+
+          const Spacing.vertical(24),
+
+          Text(
+            'Payment Sent!',
+            style: GoogleFonts.outfit(
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              color: foregroundColor,
+            ),
+          ),
+          const Spacing.vertical(6),
+          Text(
+            '\$12.00 to School Canteen',
+            style: GoogleFonts.outfit(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: mutedForeground,
+            ),
+          ),
+
+          const Spacing.vertical(20),
+
+          // Rewards Earned Pill
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppTokens.accent.withValues(alpha: 0.15),
+              borderRadius: AppTokens.borderRadiusFull,
+              border: Border.all(
+                color: AppTokens.accent.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
+            child: Text(
+              '+5 reward points earned 🎉',
+              style: GoogleFonts.outfit(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppTokens.accent,
+              ),
+            ),
+          ),
+
+          const Spacer(),
+
+          // Done Button
+          AppPrimaryButton(
+            label: 'Done',
+            onPressed: () {
+              setState(() {
+                _step = PayStep.biometric;
+                _bioDone = false;
+              });
+              context.go('/student');
+            },
+          ),
+          const Spacing.vertical(16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCurrentStep(
+    BuildContext context, {
+    required bool isDark,
+    required Color foregroundColor,
+    required Color mutedForeground,
+    required Color cardColor,
+    required Color borderColor,
+    required Color secondaryBg,
+  }) {
+    switch (_step) {
+      case PayStep.biometric:
+        return _buildBiometricStep(
+          foregroundColor: foregroundColor,
+          mutedForeground: mutedForeground,
+          cardColor: cardColor,
+          borderColor: borderColor,
+        );
+      case PayStep.qr:
+        return _buildQrStep(
+          foregroundColor: foregroundColor,
+          mutedForeground: mutedForeground,
+          cardColor: cardColor,
+          borderColor: borderColor,
+        );
+      case PayStep.success:
+        return _buildSuccessStep(
+          foregroundColor: foregroundColor,
+          mutedForeground: mutedForeground,
+        );
+    }
+  }
 }
