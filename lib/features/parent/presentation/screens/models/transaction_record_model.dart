@@ -1,4 +1,3 @@
-
 class TxnRecord {
   final String child;
   final String merchant;

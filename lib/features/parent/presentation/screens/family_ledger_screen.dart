@@ -7,7 +7,6 @@ import 'package:hapopay/features/parent/presentation/screens/models/transaction_
 
 import '../../../../core/theme/tokens.dart';
 
-
 class FamilyLedgerScreen extends ConsumerStatefulWidget {
   final bool isEmbeddedInShell;
 
