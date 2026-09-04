@@ -30,17 +30,19 @@ void main() {
 
     test('catalog has redesigned achievement ids', () {
       final ids = RewardsCatalog.achievements.map((a) => a.id).toSet();
-      expect(ids, containsAll([
-        'first_pay',
-        'qr_rookie',
-        'qr_pro',
-        'campus_champ',
-        'budget_3',
-        'week_warrior',
-        'month_master',
-        'smart_spender',
-        'big_buffer',
-      ]));
+      expect(
+          ids,
+          containsAll([
+            'first_pay',
+            'qr_rookie',
+            'qr_pro',
+            'campus_champ',
+            'budget_3',
+            'week_warrior',
+            'month_master',
+            'smart_spender',
+            'big_buffer',
+          ]));
       expect(ids.contains('social_star'), isFalse);
     });
   });
