@@ -10,7 +10,9 @@ import 'package:hapopay/features/student/presentation/screens/models/tier_info.d
 import '../../../../core/theme/tokens.dart';
 import '../../providers/rewards_provider.dart';
 
-class RewardsScreen extends ConsumerStatefulWidget {
+import '../../providers/rewards_screen_provider.dart';
+
+class RewardsScreen extends ConsumerWidget {
   final bool isEmbeddedInShell;
 
   const RewardsScreen({
@@ -18,11 +20,6 @@ class RewardsScreen extends ConsumerStatefulWidget {
     this.isEmbeddedInShell = false,
   });
 
-  @override
-  ConsumerState<RewardsScreen> createState() => _RewardsScreenState();
-}
-
-class _RewardsScreenState extends ConsumerState<RewardsScreen> {
   static const List<TierInfo> _tiers = [
     TierInfo(
         name: 'Sprout',
@@ -56,83 +53,14 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
         emoji: '🔥'),
   ];
 
-  late List<AchievementItem> _achievements;
-  final List<String> _streakDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-  final List<bool> _completedDays = [true, true, true, true, true, true, true];
-
   @override
-  void initState() {
-    super.initState();
-    _achievements = [
-      const AchievementItem(
-        id: '1',
-        title: 'First Purchase',
-        desc: 'Made your first payment',
-        emoji: '🎯',
-        pts: 10,
-        isClaimed: true,
-      ),
-      const AchievementItem(
-        id: '2',
-        title: 'Saver Star',
-        desc: 'Reached a savings goal',
-        emoji: '🎨',
-        pts: 25,
-        isClaimed: true,
-      ),
-      const AchievementItem(
-        id: '3',
-        title: 'Budget Boss',
-        desc: 'Stayed under limit 7 days',
-        emoji: '💰',
-        pts: 50,
-        isClaimed: false,
-      ),
-      const AchievementItem(
-        id: '4',
-        title: 'Streak Master',
-        desc: '7-day spending streak',
-        emoji: '🔥',
-        pts: 75,
-        isClaimed: false,
-      ),
-      const AchievementItem(
-        id: '5',
-        title: 'Zero Waste',
-        desc: 'No flagged purchases in a month',
-        emoji: '✅',
-        pts: 100,
-        isClaimed: false,
-      ),
-      const AchievementItem(
-        id: '6',
-        title: 'Top Saver',
-        desc: 'Saved over \$100 total',
-        emoji: '🏆',
-        pts: 150,
-        isLocked: true,
-      ),
-    ];
-  }
-
-  void _claimAchievement(int index) {
-    HapticFeedback.mediumImpact();
-    setState(() {
-      _achievements[index] = _achievements[index].copyWith(isClaimed: true);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('🎉 Claimed +${_achievements[index].pts} reward points!'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppTokens.accent,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final rewardsAsync = ref.watch(rewardsProvider);
+    final rewardsState = ref.watch(rewardsScreenProvider);
+    final currentPoints = rewardsState.totalPoints;
+    final achievements = rewardsState.achievements;
+    final streakDays = rewardsState.streakDays;
+    final completedDays = rewardsState.completedDays;
 
     final backgroundColor =
         isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
@@ -143,7 +71,6 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
     final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
     final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
 
-    final currentPoints = rewardsAsync.value?.totalPoints ?? 680;
     final currentTier = _tiers.firstWhere(
       (t) => currentPoints >= t.min && currentPoints < t.max,
       orElse: () => _tiers[2],
@@ -160,7 +87,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: widget.isEmbeddedInShell
+      appBar: isEmbeddedInShell
           ? null
           : AppBar(
               leading: IconButton(
@@ -464,7 +391,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: List.generate(7, (i) {
-                      final isComplete = _completedDays[i];
+                      final isComplete = completedDays[i];
                       return Column(
                         children: [
                           Container(
@@ -487,7 +414,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                           ),
                           const Spacing.vertical(4),
                           Text(
-                            _streakDays[i],
+                            streakDays[i],
                             style: GoogleFonts.outfit(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -528,10 +455,10 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: _achievements.length,
+              itemCount: achievements.length,
               separatorBuilder: (_, __) => const Spacing.vertical(10),
               itemBuilder: (context, index) {
-                final award = _achievements[index];
+                final award = achievements[index];
 
                 return Opacity(
                   opacity: award.isLocked ? 0.5 : 1.0,
@@ -634,7 +561,22 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                               )
                             else if (!award.isLocked)
                               GestureDetector(
-                                onTap: () => _claimAchievement(index),
+                                onTap: () {
+                                  HapticFeedback.mediumImpact();
+                                  final pts = ref
+                                      .read(rewardsScreenProvider.notifier)
+                                      .claimAchievement(index);
+                                  if (pts > 0) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            '🎉 Claimed +$pts reward points!'),
+                                        behavior: SnackBarBehavior.floating,
+                                        backgroundColor: AppTokens.accent,
+                                      ),
+                                    );
+                                  }
+                                },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 4),
