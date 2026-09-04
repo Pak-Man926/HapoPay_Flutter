@@ -7,7 +7,7 @@ import 'api_exception.dart';
 /// ```dart
 /// final result = await repository.login(email, password);
 /// result.when(
-///   success: (session) => print('Welcome ${session.user.fullName}'),
+///   success: (session) => appLogger.i('Welcome ${session.user.fullName}'),
 ///   failure: (error)   => showSnackBar(error.message),
 /// );
 /// ```
