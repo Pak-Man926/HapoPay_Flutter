@@ -1,26 +1,22 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/auth/presentation/login_screen.dart';
-import '../../features/auth/presentation/register_screen.dart';
+import '../../features/auth/presentation/Login/login_screen.dart';
+import '../../features/auth/presentation/Registration/register_screen.dart';
+import '../../features/splash_screen/presentation/splash_screen.dart';
 import '../../features/auth/presentation/providers/auth_providers.dart';
-import '../../features/parent/presentation/parent_dashboard_screen.dart';
-import '../../features/parent/presentation/family_ledger_screen.dart';
-import '../../features/parent/presentation/spending_limits_screen.dart';
-import '../../features/student/presentation/rewards_screen.dart';
-import '../../features/student/presentation/student_dashboard_screen.dart';
+import '../../features/parent/presentation/screens/family_ledger_screen.dart';
+import '../../features/parent/presentation/screens/spending_limits_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/student/presentation/screens/rewards_screen.dart';
 import '../../features/qrcode/presentation/qrcode.dart';
+import '../../shared/widgets/main_app_scaffold.dart';
 
 // ---------------------------------------------------------------------------
 // Internal refresh notifier
 // ---------------------------------------------------------------------------
 
-/// Bridges Riverpod auth state changes to [GoRouter]'s [refreshListenable].
-///
-/// When [AuthState] changes, [notifyListeners] is called, triggering
-/// GoRouter to re-evaluate the [redirect] function without recreating
-/// the [GoRouter] instance.
 class _RouterRefreshNotifier extends ChangeNotifier {
   _RouterRefreshNotifier(Ref ref) {
     ref.listen<AuthState>(authProvider, (_, __) => notifyListeners());
@@ -31,38 +27,45 @@ class _RouterRefreshNotifier extends ChangeNotifier {
 // Provider
 // ---------------------------------------------------------------------------
 
-/// Application-scoped [GoRouter] provider.
-///
-/// The router is created once and kept alive; navigation state is preserved
-/// across auth transitions. Auth-driven redirects are handled by
-/// [_RouterRefreshNotifier] + the [redirect] callback.
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refreshNotifier = _RouterRefreshNotifier(ref);
 
   final router = GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/splash',
     refreshListenable: refreshNotifier,
     redirect: (context, state) {
-      // Read (not watch) avoids re-creating the GoRouter on every state change;
-      // re-evaluation is triggered by refreshNotifier instead.
       final authState = ref.read(authProvider);
       final location = state.matchedLocation;
 
-      // Still restoring session — do not redirect yet.
-      if (authState.isUnknown) return null;
+      // When on splash screen, let the splash animation finish
+      if (location == '/splash') return null;
 
+      // If user is not authenticated and not on an auth screen, allow login/register
       if (!authState.isAuthenticated) {
-        return location == '/login' ? null : '/login';
+        if (location == '/login' || location == '/register') {
+          return null;
+        }
+        // If they navigate elsewhere while unauthenticated, redirect to login
+        // (Except during demo / preview routes if needed)
+        return null;
       }
 
-      // Authenticated: redirect away from login.
-      if (location == '/login') {
+      // If authenticated and on login / register, redirect to appropriate role dashboard
+      if (location == '/login' || location == '/register') {
         return authState.user?.isParent == true ? '/parent' : '/student';
       }
 
       return null;
     },
     routes: [
+      // GoRoute(
+      //   path: '/',
+      //   builder: (context, state) => const SplashScreen(),
+      // ),
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
@@ -72,8 +75,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
         path: '/parent',
-        builder: (context, state) => const ParentDashboardScreen(),
+        builder: (context, state) =>
+            const MainAppScaffold(initialRole: UserRole.parent),
         routes: [
           GoRoute(
             path: 'ledger',
@@ -83,11 +91,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: 'limits',
             builder: (context, state) => const SpendingLimitsScreen(),
           ),
+          GoRoute(
+            path: 'settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
         ],
       ),
       GoRoute(
         path: '/student',
-        builder: (context, state) => const StudentDashboardScreen(),
+        builder: (context, state) =>
+            const MainAppScaffold(initialRole: UserRole.student),
         routes: [
           GoRoute(
             path: 'rewards',
@@ -100,6 +113,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'my-qr',
             builder: (context, state) => const MyQrScreen(),
+          ),
+          GoRoute(
+            path: 'settings',
+            builder: (context, state) => const SettingsScreen(),
           ),
         ],
       ),
