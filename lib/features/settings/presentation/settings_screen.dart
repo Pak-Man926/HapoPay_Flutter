@@ -13,7 +13,9 @@ import '../../../core/theme/tokens.dart';
 import '../../../shared/widgets/hapo_pay_logo.dart';
 import '../../auth/providers/auth_provider.dart';
 
-class SettingsScreen extends ConsumerStatefulWidget {
+import '../providers/user_settings_provider.dart';
+
+class SettingsScreen extends ConsumerWidget {
   final bool isEmbeddedInShell;
 
   const SettingsScreen({
@@ -22,23 +24,9 @@ class SettingsScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  // Notification states
-  bool _txnAlerts = true;
-  bool _flaggedPurchases = true;
-  bool _allowanceReminders = false;
-
-  // Security states
-  bool _biometricUnlock = true;
-  bool _parentPin = true;
-  bool _spendingAlerts = true;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final userSettings = ref.watch(userSettingsProvider);
     final isDark = themeMode == ThemeMode.dark ||
         (themeMode == ThemeMode.system &&
             Theme.of(context).brightness == Brightness.dark);
@@ -60,7 +48,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: widget.isEmbeddedInShell
+      appBar: isEmbeddedInShell
           ? null
           : AppBar(
               leading: IconButton(
@@ -191,8 +179,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       value: isDark,
                       activeThumbColor: AppTokens.primary,
                       onChanged: (val) {
-                        ref.read(themeModeProvider.notifier).state =
-                            val ? ThemeMode.dark : ThemeMode.light;
+                        ref.read(themeModeProvider.notifier).setThemeMode(
+                              val ? ThemeMode.dark : ThemeMode.light,
+                            );
                       },
                     ),
                   ],
@@ -210,8 +199,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         previewBgColor: const Color(0xFF080B12),
                         accentBarColor: AppTokens.primaryLight,
                         onTap: () {
-                          ref.read(themeModeProvider.notifier).state =
-                              ThemeMode.dark;
+                          ref.read(themeModeProvider.notifier).setThemeMode(
+                                ThemeMode.dark,
+                              );
                         },
                       ),
                     ),
@@ -223,8 +213,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         previewBgColor: const Color(0xFFF1F5F9),
                         accentBarColor: AppTokens.primaryDark,
                         onTap: () {
-                          ref.read(themeModeProvider.notifier).state =
-                              ThemeMode.light;
+                          ref.read(themeModeProvider.notifier).setThemeMode(
+                                ThemeMode.light,
+                              );
                         },
                       ),
                     ),
@@ -246,8 +237,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   icon: Icons.notifications_none_rounded,
                   label: 'Transaction alerts',
                   desc: 'Get notified on every purchase',
-                  value: _txnAlerts,
-                  onChanged: (v) => setState(() => _txnAlerts = v),
+                  value: userSettings.txnAlerts,
+                  onChanged: (v) =>
+                      ref.read(userSettingsProvider.notifier).setTxnAlerts(v),
                   foregroundColor: foregroundColor,
                   mutedForeground: mutedForeground,
                 ),
@@ -256,8 +248,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   icon: Icons.shield_outlined,
                   label: 'Flagged purchases',
                   desc: 'Immediate alerts for blocked items',
-                  value: _flaggedPurchases,
-                  onChanged: (v) => setState(() => _flaggedPurchases = v),
+                  value: userSettings.flaggedPurchases,
+                  onChanged: (v) => ref
+                      .read(userSettingsProvider.notifier)
+                      .setFlaggedPurchases(v),
                   foregroundColor: foregroundColor,
                   mutedForeground: mutedForeground,
                 ),
@@ -266,8 +260,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   icon: Icons.alarm_rounded,
                   label: 'Allowance reminders',
                   desc: 'Weekly top-up reminder',
-                  value: _allowanceReminders,
-                  onChanged: (v) => setState(() => _allowanceReminders = v),
+                  value: userSettings.allowanceReminders,
+                  onChanged: (v) => ref
+                      .read(userSettingsProvider.notifier)
+                      .setAllowanceReminders(v),
                   foregroundColor: foregroundColor,
                   mutedForeground: mutedForeground,
                 ),
@@ -287,8 +283,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   icon: Icons.fingerprint_rounded,
                   label: 'Biometric unlock',
                   desc: 'Touch ID or Face ID required',
-                  value: _biometricUnlock,
-                  onChanged: (v) => setState(() => _biometricUnlock = v),
+                  value: userSettings.biometricUnlock,
+                  onChanged: (v) => ref
+                      .read(userSettingsProvider.notifier)
+                      .setBiometricUnlock(v),
                   foregroundColor: foregroundColor,
                   mutedForeground: mutedForeground,
                 ),
@@ -297,8 +295,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   icon: Icons.pin_outlined,
                   label: 'Parent PIN',
                   desc: '4-digit PIN for parent access',
-                  value: _parentPin,
-                  onChanged: (v) => setState(() => _parentPin = v),
+                  value: userSettings.parentPin,
+                  onChanged: (v) =>
+                      ref.read(userSettingsProvider.notifier).setParentPin(v),
                   foregroundColor: foregroundColor,
                   mutedForeground: mutedForeground,
                 ),
@@ -307,8 +306,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   icon: Icons.lock_outline_rounded,
                   label: 'Spending alerts',
                   desc: 'Notify on unusual patterns',
-                  value: _spendingAlerts,
-                  onChanged: (v) => setState(() => _spendingAlerts = v),
+                  value: userSettings.spendingAlerts,
+                  onChanged: (v) => ref
+                      .read(userSettingsProvider.notifier)
+                      .setSpendingAlerts(v),
                   foregroundColor: foregroundColor,
                   mutedForeground: mutedForeground,
                 ),
@@ -328,7 +329,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               child: Column(
                 children: [
                   const HapoPayLogo(size: 48),
-                  const SizedBox(height: 10),
+                  const Spacing.vertical(10),
                   Text(
                     'HapoPay',
                     style: GoogleFonts.outfit(
@@ -337,7 +338,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       color: foregroundColor,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const Spacing.vertical(2),
                   Text(
                     '${packageInfo.version} (${packageInfo.buildNumber}) · Built with love 💜',
                     style: GoogleFonts.outfit(
