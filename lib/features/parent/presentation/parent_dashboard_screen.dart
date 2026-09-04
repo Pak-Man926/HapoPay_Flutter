@@ -13,7 +13,9 @@ import '../../../core/theme/tokens.dart';
 import '../../../shared/widgets/hapo_pay_logo.dart';
 import '../../../shared/widgets/theme_toggle.dart';
 
-class ParentDashboardScreen extends ConsumerStatefulWidget {
+import '../providers/parent_dashboard_provider.dart';
+
+class ParentDashboardScreen extends ConsumerWidget {
   final bool isEmbeddedInShell;
 
   const ParentDashboardScreen({
@@ -22,105 +24,8 @@ class ParentDashboardScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ParentDashboardScreen> createState() =>
-      _ParentDashboardScreenState();
-}
-
-class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
-  int _selectedChildIndex = 0;
-  bool _showAlert = true;
-
-  final List<ChildProfile> _children = const [
-    ChildProfile(
-      name: 'Amara',
-      age: 14,
-      avatar: '🧕',
-      balance: 124.50,
-      limit: 200.0,
-      spent: 75.50,
-      color: AppTokens.primary,
-    ),
-    ChildProfile(
-      name: 'Kwame',
-      age: 11,
-      avatar: '👦🏾',
-      balance: 58.20,
-      limit: 100.0,
-      spent: 41.80,
-      color: AppTokens.accent,
-    ),
-    // ChildProfile(
-    //   name: 'Jude',
-    //   age: 16,
-    //   avatar: '👦🏾',
-    //   balance: 97.20,
-    //   limit: 100.0,
-    //   spent: 3.80,
-    //   color: AppTokens.gold,
-    // ),
-    // ChildProfile(
-    //   name: 'Hailey',
-    //   age: 8,
-    //   avatar: '🧕',
-    //   balance: 124.50,
-    //   limit: 200.0,
-    //   spent: 75.50,
-    //   color: AppTokens.warning,
-    // ),
-  ];
-
-  final List<SpendCategory> _spendCategories = const [
-    SpendCategory(label: 'Food', pct: 42, color: AppTokens.primary),
-    SpendCategory(label: 'Education', pct: 28, color: AppTokens.accent),
-    SpendCategory(label: 'Transport', pct: 18, color: AppTokens.warning),
-    SpendCategory(label: 'Entertainment', pct: 12, color: AppTokens.gold),
-  ];
-
-  final List<ParentTxn> _recentTxns = const [
-    ParentTxn(
-      childName: 'Amara',
-      merchant: 'School Canteen',
-      amount: -4.50,
-      time: 'Today, 12:30',
-      cat: '🍔',
-      approved: true,
-    ),
-    ParentTxn(
-      childName: 'Kwame',
-      merchant: 'Stationery World',
-      amount: -12.00,
-      time: 'Today, 10:15',
-      cat: '📚',
-      approved: true,
-    ),
-    ParentTxn(
-      childName: 'Amara',
-      merchant: 'Allowance',
-      amount: 50.00,
-      time: 'Yesterday',
-      cat: '💸',
-      approved: true,
-    ),
-    ParentTxn(
-      childName: 'Kwame',
-      merchant: 'Game Shop',
-      amount: -18.00,
-      time: 'Yesterday',
-      cat: '🎮',
-      approved: false,
-    ),
-    ParentTxn(
-      childName: 'Amara',
-      merchant: 'Bus Pass',
-      amount: -15.00,
-      time: 'Mon',
-      cat: '🚌',
-      approved: true,
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dashboardState = ref.watch(parentDashboardProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final backgroundColor =
@@ -134,11 +39,16 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
     final secondaryBg =
         isDark ? AppTokens.darkSecondary : AppTokens.lightSecondary;
 
-    final child = _children[_selectedChildIndex];
+    final child = dashboardState.selectedChild;
+    final children = dashboardState.children;
+    final spendCategories = dashboardState.spendCategories;
+    final recentTxns = dashboardState.recentTxns;
+    final showAlert = dashboardState.showAlert;
+    final selectedChildIndex = dashboardState.selectedChildIndex;
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: widget.isEmbeddedInShell
+      appBar: isEmbeddedInShell
           ? null
           : AppBar(
               automaticallyImplyLeading: false,
@@ -203,16 +113,6 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ThemeToggle(),
                 ),
-                // IconButton(
-                //   icon: Icon(Icons.logout_rounded,
-                //       color: mutedForeground, size: 20),
-                //   onPressed: () async {
-                //     await ref.read(authProvider.notifier).logout();
-                //     if (context.mounted) {
-                //       context.go('/login');
-                //     }
-                //   },
-                // ),
               ],
             ),
       body: SingleChildScrollView(
@@ -221,7 +121,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Alert Banner
-            if (_showAlert) ...[
+            if (showAlert) ...[
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -240,7 +140,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
                     const Spacing.horizontal(8),
                     Expanded(
                       child: Text(
-                        "Kwame's Game Shop purchase needs review",
+                        dashboardState.alertMessage,
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -249,7 +149,8 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => setState(() => _showAlert = false),
+                      onTap: () =>
+                          ref.read(parentDashboardProvider.notifier).dismissAlert(),
                       child: Text(
                         'Dismiss',
                         style: GoogleFonts.outfit(
@@ -308,7 +209,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
                       ),
                       const Spacing.vertical(4),
                       Text(
-                        '\$182.70',
+                        '\$${dashboardState.familyBalance.toStringAsFixed(2)}',
                         style: GoogleFonts.dmMono(
                           fontSize: 34,
                           fontWeight: FontWeight.w800,
@@ -324,7 +225,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
                               size: 14),
                           const Spacing.horizontal(4),
                           Text(
-                            '\$50 added this week',
+                            '\$${dashboardState.addedThisWeek.toInt()} added this week',
                             style: GoogleFonts.outfit(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -397,18 +298,18 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
               ],
             ),
             const Spacing.vertical(10),
-            //TODO: Change this view into a caurosel to support multiple children
             Row(
-              children: List.generate(_children.length, (i) {
-                final c = _children[i];
-                final isSelected = _selectedChildIndex == i;
+              children: List.generate(children.length, (i) {
+                final c = children[i];
+                final isSelected = selectedChildIndex == i;
                 return Expanded(
                   child: Padding(
                     padding: EdgeInsets.only(
                         left: i > 0 ? 6.0 : 0,
-                        right: i < _children.length - 1 ? 6.0 : 0),
+                        right: i < children.length - 1 ? 6.0 : 0),
                     child: GestureDetector(
-                      onTap: () => setState(() => _selectedChildIndex = i),
+                      onTap: () =>
+                          ref.read(parentDashboardProvider.notifier).selectChild(i),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.all(14),
@@ -679,13 +580,13 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
                         height: 80,
                         child: CustomPaint(
                           painter:
-                              DonutChartPainter(categories: _spendCategories),
+                              DonutChartPainter(categories: spendCategories),
                         ),
                       ),
                       const Spacing.horizontal(20),
                       Expanded(
                         child: Column(
-                          children: _spendCategories.map((c) {
+                          children: spendCategories.map((c) {
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 3.0),
@@ -765,10 +666,10 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: _recentTxns.length,
+              itemCount: recentTxns.length,
               separatorBuilder: (_, __) => const Spacing.vertical(8),
               itemBuilder: (context, index) {
-                final t = _recentTxns[index];
+                final t = recentTxns[index];
                 return Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

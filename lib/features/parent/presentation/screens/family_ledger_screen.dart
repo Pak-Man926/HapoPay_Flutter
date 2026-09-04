@@ -7,7 +7,9 @@ import 'package:hapopay/features/parent/presentation/screens/models/transaction_
 
 import '../../../../core/theme/tokens.dart';
 
-class FamilyLedgerScreen extends ConsumerStatefulWidget {
+import '../../providers/family_ledger_provider.dart';
+
+class FamilyLedgerScreen extends ConsumerWidget {
   final bool isEmbeddedInShell;
 
   const FamilyLedgerScreen({
@@ -16,108 +18,8 @@ class FamilyLedgerScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<FamilyLedgerScreen> createState() => _FamilyLedgerScreenState();
-}
-
-class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
-  String _filterChild = 'all'; // 'all', 'Amara', 'Kwame'
-  String _filterStatus = 'all'; // 'all', 'approved', 'flagged'
-
-  static const List<TxnRecord> _allTxns = [
-    TxnRecord(
-      child: 'Amara',
-      merchant: 'School Canteen',
-      amount: -4.50,
-      date: 'Today',
-      time: '12:30',
-      cat: '🍔',
-      status: 'approved',
-    ),
-    TxnRecord(
-      child: 'Kwame',
-      merchant: 'Stationery World',
-      amount: -12.00,
-      date: 'Today',
-      time: '10:15',
-      cat: '📚',
-      status: 'approved',
-    ),
-    TxnRecord(
-      child: 'Amara',
-      merchant: 'Weekly Allowance',
-      amount: 50.00,
-      date: 'Today',
-      time: '9:00',
-      cat: '💸',
-      status: 'approved',
-    ),
-    TxnRecord(
-      child: 'Kwame',
-      merchant: 'Weekly Allowance',
-      amount: 30.00,
-      date: 'Today',
-      time: '9:00',
-      cat: '💸',
-      status: 'approved',
-    ),
-    TxnRecord(
-      child: 'Kwame',
-      merchant: 'Game Shop',
-      amount: -18.00,
-      date: 'Yesterday',
-      time: '16:20',
-      cat: '🎮',
-      status: 'flagged',
-    ),
-    TxnRecord(
-      child: 'Amara',
-      merchant: 'Bus Pass',
-      amount: -15.00,
-      date: 'Mon',
-      time: '7:45',
-      cat: '🚌',
-      status: 'approved',
-    ),
-    TxnRecord(
-      child: 'Amara',
-      merchant: 'Health Clinic',
-      amount: -8.00,
-      date: 'Mon',
-      time: '14:00',
-      cat: '🏥',
-      status: 'approved',
-    ),
-    TxnRecord(
-      child: 'Kwame',
-      merchant: 'Lunch Break',
-      amount: -5.50,
-      date: 'Mon',
-      time: '12:30',
-      cat: '🍔',
-      status: 'approved',
-    ),
-    TxnRecord(
-      child: 'Amara',
-      merchant: 'Art Supplies',
-      amount: -22.00,
-      date: 'Sun',
-      time: '11:00',
-      cat: '🎨',
-      status: 'approved',
-    ),
-    TxnRecord(
-      child: 'Kwame',
-      merchant: 'Books R Us',
-      amount: -9.00,
-      date: 'Sun',
-      time: '13:45',
-      cat: '📚',
-      status: 'approved',
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ledgerState = ref.watch(familyLedgerProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor =
         isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
@@ -130,28 +32,15 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
     final secondaryBg =
         isDark ? AppTokens.darkSecondary : AppTokens.lightSecondary;
 
-    final filtered = _allTxns.where((t) {
-      if (_filterChild != 'all' && t.child != _filterChild) return false;
-      if (_filterStatus != 'all' && t.status != _filterStatus) return false;
-      return true;
-    }).toList();
-
-    final totalIn = filtered
-        .where((t) => t.amount > 0)
-        .fold<double>(0.0, (sum, t) => sum + t.amount);
-    final totalOut = filtered
-        .where((t) => t.amount < 0)
-        .fold<double>(0.0, (sum, t) => sum + t.amount.abs());
-
-    // Group filtered transactions by date
-    final Map<String, List<TxnRecord>> grouped = {};
-    for (final t in filtered) {
-      grouped.putIfAbsent(t.date, () => []).add(t);
-    }
+    final filterChild = ledgerState.filterChild;
+    final filterStatus = ledgerState.filterStatus;
+    final totalIn = ledgerState.totalIn;
+    final totalOut = ledgerState.totalOut;
+    final grouped = ledgerState.groupedByDate;
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: widget.isEmbeddedInShell
+      appBar: isEmbeddedInShell
           ? null
           : AppBar(
               leading: IconButton(
@@ -276,11 +165,13 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: ['all', 'Amara', 'Kwame'].map((childName) {
-                      final isSelected = _filterChild == childName;
+                      final isSelected = filterChild == childName;
                       return Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: GestureDetector(
-                          onTap: () => setState(() => _filterChild = childName),
+                          onTap: () => ref
+                              .read(familyLedgerProvider.notifier)
+                              .setFilterChild(childName),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.symmetric(
@@ -320,7 +211,7 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: ['all', 'approved', 'flagged'].map((status) {
-                      final isSelected = _filterStatus == status;
+                      final isSelected = filterStatus == status;
                       final isFlagged = status == 'flagged';
                       final activeColor =
                           isFlagged ? AppTokens.warning : AppTokens.primary;
@@ -328,7 +219,9 @@ class _FamilyLedgerScreenState extends ConsumerState<FamilyLedgerScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: GestureDetector(
-                          onTap: () => setState(() => _filterStatus = status),
+                          onTap: () => ref
+                              .read(familyLedgerProvider.notifier)
+                              .setFilterStatus(status),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.symmetric(

@@ -1,69 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hapopay/core/constants/constants.dart';
+import '../../providers/spending_limits_provider.dart';
 import '../../../student/providers/student_account_provider.dart';
 
-class SpendingLimitsScreen extends ConsumerStatefulWidget {
+class SpendingLimitsScreen extends ConsumerWidget {
   const SpendingLimitsScreen({super.key});
 
   @override
-  ConsumerState<SpendingLimitsScreen> createState() =>
-      _SpendingLimitsScreenState();
-}
-
-class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
-  double _currentSliderValue = 50.0;
-  bool _isCardLocked = false;
-  bool _initialized = false;
-  bool _isSaving = false;
-
-  void _initializeState(double currentLimit) {
-    if (_initialized) return;
-    _currentSliderValue = currentLimit;
-    _isCardLocked = currentLimit == 0.0;
-    _initialized = true;
-  }
-
-  Future<void> _saveLimit() async {
-    setState(() {
-      _isSaving = true;
-    });
-
-    try {
-      final targetLimit = _isCardLocked ? 0.0 : _currentSliderValue;
-      await ref.read(studentAccountProvider.notifier).updateLimit(targetLimit);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Spending limits updated successfully.'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update limits: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final accountAsync = ref.watch(studentAccountProvider);
+    final limitsState = ref.watch(spendingLimitsProvider);
     final theme = Theme.of(context);
+
+    final isCardLocked = limitsState.isCardLocked;
+    final currentSliderValue = limitsState.currentLimit;
+    final isSaving = limitsState.isSaving;
 
     return Scaffold(
       appBar: AppBar(
@@ -76,9 +28,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
           child: Text('Error loading limits: $err',
               style: TextStyle(color: theme.colorScheme.error)),
         ),
-        data: (account) {
-          _initializeState(account.dailyLimit);
-
+        data: (_) {
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -102,12 +52,12 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: _isCardLocked
+                    color: isCardLocked
                         ? Colors.red.withValues(alpha: 0.08)
                         : theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: _isCardLocked
+                      color: isCardLocked
                           ? Colors.redAccent.withValues(alpha: 0.4)
                           : theme.colorScheme.onSurface.withValues(alpha: 0.12),
                     ),
@@ -117,15 +67,15 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: _isCardLocked
+                          color: isCardLocked
                               ? Colors.redAccent.withValues(alpha: 0.12)
                               : theme.colorScheme.onSurface
                                   .withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          _isCardLocked ? Icons.lock : Icons.lock_open,
-                          color: _isCardLocked
+                          isCardLocked ? Icons.lock : Icons.lock_open,
+                          color: isCardLocked
                               ? Colors.redAccent
                               : theme.colorScheme.onSurface
                                   .withValues(alpha: 0.7),
@@ -157,11 +107,11 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                       ),
                       Switch(
                         activeThumbColor: theme.colorScheme.error,
-                        value: _isCardLocked,
+                        value: isCardLocked,
                         onChanged: (val) {
-                          setState(() {
-                            _isCardLocked = val;
-                          });
+                          ref
+                              .read(spendingLimitsProvider.notifier)
+                              .setCardLocked(val);
                         },
                       ),
                     ],
@@ -170,9 +120,9 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                 const Spacing.vertical(25),
                 // Limit Settings Container (Disabled when locked)
                 Opacity(
-                  opacity: _isCardLocked ? 0.4 : 1.0,
+                  opacity: isCardLocked ? 0.4 : 1.0,
                   child: IgnorePointer(
-                    ignoring: _isCardLocked,
+                    ignoring: isCardLocked,
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -214,7 +164,7 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                                       color: theme.colorScheme.onSurface
                                           .withValues(alpha: 0.7))),
                               Text(
-                                '\$${_currentSliderValue.toStringAsFixed(2)}',
+                                '\$${currentSliderValue.toStringAsFixed(2)}',
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -225,18 +175,18 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                           ),
                           const Spacing.vertical(15),
                           Slider(
-                            value: _currentSliderValue,
+                            value: currentSliderValue,
                             min: 5.0,
                             max: 200.0,
                             divisions: 39,
                             activeColor: theme.colorScheme.primary,
                             inactiveColor: theme.colorScheme.onSurface
                                 .withValues(alpha: 0.12),
-                            label: '\$${_currentSliderValue.round()}',
+                            label: '\$${currentSliderValue.round()}',
                             onChanged: (double value) {
-                              setState(() {
-                                _currentSliderValue = value;
-                              });
+                              ref
+                                  .read(spendingLimitsProvider.notifier)
+                                  .setLimit(value);
                             },
                           ),
                           Row(
@@ -275,8 +225,38 @@ class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
                       ),
                       elevation: 8,
                     ),
-                    onPressed: _isSaving ? null : _saveLimit,
-                    child: _isSaving
+                    onPressed: isSaving
+                        ? null
+                        : () async {
+                            final success = await ref
+                                .read(spendingLimitsProvider.notifier)
+                                .saveLimit();
+                            if (context.mounted) {
+                              if (success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text(
+                                        'Spending limits updated successfully.'),
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                );
+                                Navigator.pop(context);
+                              } else {
+                                final err = ref
+                                    .read(spendingLimitsProvider)
+                                    .errorMessage;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text('Failed to update limits: $err'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                    child: isSaving
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             'Save Spending Controls',
