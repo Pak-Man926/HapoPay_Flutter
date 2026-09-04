@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,8 +9,9 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/theme/tokens.dart';
 import '../../../shared/widgets/app_primary_button.dart';
+import '../providers/pay_qr_provider.dart';
 
-enum PayStep { biometric, qr, success }
+export '../providers/pay_qr_provider.dart' show PayStep;
 
 class PayQrScreen extends ConsumerStatefulWidget {
   final bool isEmbeddedInShell;
@@ -27,11 +27,6 @@ class PayQrScreen extends ConsumerStatefulWidget {
 
 class _PayQrScreenState extends ConsumerState<PayQrScreen>
     with TickerProviderStateMixin {
-  PayStep _step = PayStep.biometric;
-  bool _bioDone = false;
-  int _countdown = 60;
-  Timer? _timer;
-
   late final AnimationController _pulseController;
   late final AnimationController _scanController;
   late final Animation<double> _scanAnimation;
@@ -56,43 +51,18 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
 
   @override
   void dispose() {
-    _timer?.cancel();
     _pulseController.dispose();
     _scanController.dispose();
     super.dispose();
   }
 
-  void _startCountdown() {
-    _timer?.cancel();
-    _countdown = 60;
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) return;
-      if (_countdown <= 1) {
-        setState(() => _countdown = 60);
-      } else {
-        setState(() => _countdown--);
-      }
-    });
-  }
-
-  void _authenticate() {
-    setState(() => _bioDone = true);
-    Future.delayed(const Duration(milliseconds: 800), () {
-      if (!mounted) return;
-      setState(() {
-        _step = PayStep.qr;
-      });
-      _startCountdown();
-    });
-  }
-
-  void _simulateScanSuccess() {
-    _timer?.cancel();
-    setState(() => _step = PayStep.success);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final payQrState = ref.watch(payQrProvider);
+    final step = payQrState.step;
+    final bioDone = payQrState.bioDone;
+    final countdown = payQrState.countdown;
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor =
         isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
@@ -116,9 +86,9 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
                 onPressed: () => context.pop(),
               ),
               title: Text(
-                _step == PayStep.biometric
+                step == PayStep.biometric
                     ? 'Verify Identity'
-                    : _step == PayStep.qr
+                    : step == PayStep.qr
                         ? 'Scan to Pay'
                         : 'Payment Confirmation',
                 style: GoogleFonts.outfit(
@@ -134,6 +104,9 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
           duration: const Duration(milliseconds: 300),
           child: _buildCurrentStep(
             context,
+            step: step,
+            bioDone: bioDone,
+            countdown: countdown,
             isDark: isDark,
             foregroundColor: foregroundColor,
             mutedForeground: mutedForeground,
@@ -151,6 +124,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
   // ---------------------------------------------------------------------------
 
   Widget _buildBiometricStep({
+    required bool bioDone,
     required Color foregroundColor,
     required Color mutedForeground,
     required Color cardColor,
@@ -188,7 +162,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
                 alignment: Alignment.center,
                 children: [
                   // Outer ripple
-                  if (!_bioDone)
+                  if (!bioDone)
                     AnimatedBuilder(
                       animation: _pulseController,
                       builder: (context, child) {
@@ -211,7 +185,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
                     height: 130,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: _bioDone
+                      color: bioDone
                           ? AppTokens.accent.withValues(alpha: 0.18)
                           : AppTokens.primary.withValues(alpha: 0.15),
                     ),
@@ -219,19 +193,20 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
 
                   // Touch ID center button
                   GestureDetector(
-                    onTap: _authenticate,
+                    onTap: () =>
+                        ref.read(payQrProvider.notifier).authenticate(),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       width: 96,
                       height: 96,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: _bioDone
+                        gradient: bioDone
                             ? AppTokens.accentGradient
                             : AppTokens.primaryGradient,
                         boxShadow: [
                           BoxShadow(
-                            color: (_bioDone
+                            color: (bioDone
                                     ? AppTokens.accent
                                     : AppTokens.primary)
                                 .withValues(alpha: 0.4),
@@ -244,7 +219,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            _bioDone
+                            bioDone
                                 ? Icons.check_rounded
                                 : Icons.fingerprint_rounded,
                             color: Colors.white,
@@ -252,7 +227,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            _bioDone ? 'Verified' : 'Touch ID',
+                            bioDone ? 'Verified' : 'Touch ID',
                             style: GoogleFonts.outfit(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -271,7 +246,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
           const Spacing.vertical(24),
 
           Text(
-            _bioDone
+            bioDone
                 ? 'Generating secure QR code...'
                 : 'Tap the sensor to authenticate',
             style: GoogleFonts.outfit(
@@ -301,7 +276,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
             cardColor: cardColor,
             borderColor: borderColor,
             foregroundColor: foregroundColor,
-            onTap: _authenticate,
+            onTap: () => ref.read(payQrProvider.notifier).authenticate(),
           ),
           const Spacing.vertical(10),
           AltAuthOption(
@@ -310,7 +285,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
             cardColor: cardColor,
             borderColor: borderColor,
             foregroundColor: foregroundColor,
-            onTap: _authenticate,
+            onTap: () => ref.read(payQrProvider.notifier).authenticate(),
           ),
         ],
       ),
@@ -321,12 +296,13 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
   // Step 2: Dynamic QR Code
   // ---------------------------------------------------------------------------
   Widget _buildQrStep({
+    required int countdown,
     required Color foregroundColor,
     required Color mutedForeground,
     required Color cardColor,
     required Color borderColor,
   }) {
-    final pct = _countdown / 60.0;
+    final pct = countdown / 60.0;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -445,7 +421,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
                     ),
                     const Spacing.horizontal(8),
                     Text(
-                      'Expires in ${_countdown}s',
+                      'Expires in ${countdown}s',
                       style: GoogleFonts.dmMono(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -512,7 +488,8 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
           // Simulate Scan CTA Button
           AppPrimaryButton(
             label: 'Simulate Terminal Scan  ↗',
-            onPressed: _simulateScanSuccess,
+            onPressed: () =>
+                ref.read(payQrProvider.notifier).simulateScanSuccess(),
           ),
         ],
       ),
@@ -598,10 +575,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
           AppPrimaryButton(
             label: 'Done',
             onPressed: () {
-              setState(() {
-                _step = PayStep.biometric;
-                _bioDone = false;
-              });
+              ref.read(payQrProvider.notifier).reset();
               context.go('/student');
             },
           ),
@@ -613,6 +587,9 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
 
   Widget _buildCurrentStep(
     BuildContext context, {
+    required PayStep step,
+    required bool bioDone,
+    required int countdown,
     required bool isDark,
     required Color foregroundColor,
     required Color mutedForeground,
@@ -620,9 +597,10 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
     required Color borderColor,
     required Color secondaryBg,
   }) {
-    switch (_step) {
+    switch (step) {
       case PayStep.biometric:
         return _buildBiometricStep(
+          bioDone: bioDone,
           foregroundColor: foregroundColor,
           mutedForeground: mutedForeground,
           cardColor: cardColor,
@@ -630,6 +608,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
         );
       case PayStep.qr:
         return _buildQrStep(
+          countdown: countdown,
           foregroundColor: foregroundColor,
           mutedForeground: mutedForeground,
           cardColor: cardColor,

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +7,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/theme/tokens.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../providers/my_qr_provider.dart';
 
 class MyQrScreen extends ConsumerStatefulWidget {
   const MyQrScreen({super.key});
@@ -27,22 +27,11 @@ class _MyQrScreenState extends ConsumerState<MyQrScreen> {
     super.dispose();
   }
 
-  String _generateQrPayload(String studentId, String studentName) {
-    final amount = double.tryParse(_amountController.text) ?? 0.0;
-    final payload = {
-      'student_id': studentId,
-      'student_name': studentName,
-      'amount': amount,
-      'description': _descController.text,
-      'timestamp': DateTime.now().toUtc().toIso8601String(),
-    };
-    return jsonEncode(payload);
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final user = ref.watch(authProvider.select((s) => s.user));
+    final myQrState = ref.watch(myQrProvider);
 
     final backgroundColor =
         isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
@@ -121,7 +110,7 @@ class _MyQrScreenState extends ConsumerState<MyQrScreen> {
                       color: Colors.white,
                       padding: const EdgeInsets.all(12),
                       child: QrImageView(
-                        data: _generateQrPayload(studentId, studentName),
+                        data: myQrState.generatePayload(studentId, studentName),
                         version: QrVersions.auto,
                         size: 200.0,
                         eyeStyle: const QrEyeStyle(
@@ -201,7 +190,11 @@ class _MyQrScreenState extends ConsumerState<MyQrScreen> {
                       hintText: '0.00',
                       prefixIcon: Icon(Icons.attach_money_rounded, size: 20),
                     ),
-                    onChanged: (_) => setState(() {}),
+                    onChanged: (val) {
+                      ref.read(myQrProvider.notifier).setAmount(
+                            double.tryParse(val) ?? 0.0,
+                          );
+                    },
                   ),
                   const Spacing.vertical(14),
                   Text(
@@ -225,7 +218,9 @@ class _MyQrScreenState extends ConsumerState<MyQrScreen> {
                       hintText: 'What is this for?',
                       prefixIcon: Icon(Icons.edit_note_rounded, size: 20),
                     ),
-                    onChanged: (_) => setState(() {}),
+                    onChanged: (val) {
+                      ref.read(myQrProvider.notifier).setDescription(val);
+                    },
                   ),
                 ],
               ),
