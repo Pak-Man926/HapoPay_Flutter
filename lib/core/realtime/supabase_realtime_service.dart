@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' show Supabase;
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show PostgresChangeEvent, RealtimeChannel, Supabase;
 import '../config/env_config.dart';
 
 /// Provides a stream of student account IDs whose transactions have changed.
@@ -16,7 +17,7 @@ class SupabaseRealtimeService {
 
   static SupabaseRealtimeService? _instance;
   final _controller = StreamController<String>.broadcast();
-  StreamSubscription? _subscription;
+  RealtimeChannel? _channel;
 
   /// Stream of student IDs that have new or updated transactions.
   Stream<String> get transactionUpdates => _controller.stream;
@@ -27,13 +28,13 @@ class SupabaseRealtimeService {
   /// Start listening to transaction changes for [studentId].
   void subscribe(String studentId) {
     if (!isAvailable) return;
-    if (_subscription != null) return;
+    if (_channel != null) return;
 
     try {
-      _subscription = Supabase.instance.client
+      _channel = Supabase.instance.client
           .channel('public:transactions')
           .onPostgresChanges(
-            event: '*',
+            event: PostgresChangeEvent.all,
             schema: 'public',
             table: 'transactions',
             callback: (payload) {
@@ -48,8 +49,8 @@ class SupabaseRealtimeService {
   }
 
   void unsubscribe() {
-    _subscription?.cancel();
-    _subscription = null;
+    _channel?.unsubscribe();
+    _channel = null;
   }
 
   void dispose() {
