@@ -12,6 +12,7 @@ import '../../../../shared/widgets/app_primary_button.dart';
 import '../../../../shared/widgets/hapo_pay_logo.dart';
 import '../../../../shared/widgets/theme_toggle.dart';
 import '../providers/auth_providers.dart';
+import '../providers/login_state_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -23,10 +24,6 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  UserRole _selectedRole = UserRole.parent;
-  bool _obscurePassword = true;
-  bool _isLoading = false;
-  String? _localError;
 
   @override
   void dispose() {
@@ -36,77 +33,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _onRoleChanged(UserRole newRole) {
-    setState(() {
-      _selectedRole = newRole;
-      if (newRole == UserRole.parent) {
-        _emailController.text;
-      } else {
-        _emailController.text;
-      }
-    });
+    ref.read(loginStateProvider.notifier).setRole(newRole);
   }
 
   Future<void> _handleLogin() async {
-    // -------------------------------------------------------------------------
-    // REAL BACKEND AUTHENTICATION (Uncomment when ready to connect to API)
-    // -------------------------------------------------------------------------
-    /*
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-
-    if (email.isEmpty || password.isEmpty) {
-      setState(() {
-        _localError = 'Please enter your email and password.';
-      });
-      return;
-    }
-
-    setState(() {
-      _localError = null;
-    });
-
-    await ref.read(authProvider.notifier).login(email, password);
+    final success = await ref.read(loginStateProvider.notifier).login(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
 
     if (!mounted) return;
 
-    final authState = ref.read(authProvider);
-    if (authState.isAuthenticated) {
-      context.go(authState.user?.isParent == true ? '/parent' : '/student');
-    } else if (authState.errorMessage != null) {
-      setState(() {
-        _localError = authState.errorMessage;
-      });
-    }
-    */
-
-    // -------------------------------------------------------------------------
-    // DIRECT UI PREVIEW BYPASS
-    // -------------------------------------------------------------------------
-    setState(() {
-      _isLoading = true;
-      _localError = null;
-    });
-
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (_selectedRole == UserRole.parent) {
-      context.go('/parent');
-    } else {
-      context.go('/student');
+    if (success) {
+      final authState = ref.read(authProvider);
+      if (authState.isAuthenticated) {
+        context.go(authState.user?.isParent == true ? '/parent' : '/student');
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // final isLoading = ref.watch(authProvider.select((s) => s.isLoading)); // Real auth loading state
-    final isLoading = _isLoading;
+    final loginState = ref.watch(loginStateProvider);
+    final isLoading = loginState.isLoading;
 
     final backgroundColor =
         isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
@@ -203,7 +153,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         RoleTab(
                           label: 'Parent',
                           emoji: '👤',
-                          isSelected: _selectedRole == UserRole.parent,
+                          isSelected: loginState.selectedRole == UserRole.parent,
                           onTap: () => _onRoleChanged(UserRole.parent),
                           isDark: isDark,
                         ),
@@ -211,7 +161,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         RoleTab(
                           label: 'Student',
                           emoji: '🎒',
-                          isSelected: _selectedRole == UserRole.student,
+                          isSelected: loginState.selectedRole == UserRole.student,
                           onTap: () => _onRoleChanged(UserRole.student),
                           isDark: isDark,
                         ),
@@ -294,7 +244,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   //Password textfield
                   TextField(
                     controller: _passwordController,
-                    obscureText: _obscurePassword,
+                    obscureText: loginState.obscurePassword,
                     textInputAction: TextInputAction.done,
                     onSubmitted: (_) => _handleLogin(),
                     style: GoogleFonts.outfit(
@@ -311,23 +261,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword
+                          loginState.obscurePassword
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
                           color: mutedForeground,
                           size: 20,
                         ),
                         onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
+                          ref
+                              .read(loginStateProvider.notifier)
+                              .togglePasswordVisibility();
                         },
                       ),
                     ),
                   ),
 
                   // Error Message Banner (if any)
-                  if (_localError != null) ...[
+                  if (loginState.errorMessage != null) ...[
                     const Spacing.vertical(14),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -347,7 +297,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           const Spacing.horizontal(8),
                           Expanded(
                             child: Text(
-                              _localError!,
+                              loginState.errorMessage!,
                               style: GoogleFonts.outfit(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,

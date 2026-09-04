@@ -14,6 +14,7 @@ import '../../../../shared/widgets/app_primary_button.dart';
 import '../../../../shared/widgets/hapo_pay_logo.dart';
 import '../../../../shared/widgets/theme_toggle.dart';
 import '../providers/auth_providers.dart';
+import '../providers/register_state_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -23,19 +24,11 @@ class RegisterScreen extends ConsumerStatefulWidget {
 }
 
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
-  int _currentStep = 1;
-  UserRole _selectedRole = UserRole.parent;
-
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _familyCodeController = TextEditingController();
-
-  bool _obscurePassword = true;
-  bool _obscureConfirm = true;
-  String? _errorMessage;
-  var inviteCode = "HAPOFAM-7341";
 
   @override
   void dispose() {
@@ -59,92 +52,44 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   void _onNextStep() {
-    setState(() => _errorMessage = null);
-
-    if (_currentStep == 1) {
-      if (_fullNameController.text.trim().isEmpty ||
-          _emailController.text.trim().isEmpty) {
-        setState(() => _errorMessage = 'Please fill in all fields.');
-        return;
-      }
-      setState(() => _currentStep = 2);
-    } else if (_currentStep == 2) {
-      final password = _passwordController.text;
-      final confirm = _confirmPasswordController.text;
-
-      if (password.isEmpty) {
-        setState(() => _errorMessage = 'Please enter a password.');
-        return;
-      }
-      if (password.length < 6) {
-        setState(
-            () => _errorMessage = 'Password must be at least 6 characters.');
-        return;
-      }
-      if (password != confirm) {
-        setState(() => _errorMessage = "Passwords don't match.");
-        return;
-      }
-      setState(() => _currentStep = 3);
+    final state = ref.read(registerStateProvider);
+    if (state.currentStep < 3) {
+      ref.read(registerStateProvider.notifier).validateAndAdvance(
+            fullName: _fullNameController.text,
+            email: _emailController.text,
+            password: _passwordController.text,
+            confirmPassword: _confirmPasswordController.text,
+          );
     } else {
       _onRegister();
     }
   }
 
-  bool _isLoading = false;
-
   Future<void> _onRegister() async {
-    // -------------------------------------------------------------------------
-    // REAL BACKEND REGISTRATION (Uncomment when ready to connect to API)
-    // -------------------------------------------------------------------------
-    /*
-    await ref.read(authProvider.notifier).register(
-          email: _emailController.text.trim(),
+    final success = await ref.read(registerStateProvider.notifier).register(
+          fullName: _fullNameController.text,
+          email: _emailController.text,
           password: _passwordController.text,
-          fullName: _fullNameController.text.trim(),
-          role: _selectedRole,
         );
 
     if (!mounted) return;
 
-    final authState = ref.read(authProvider);
-    if (authState.isAuthenticated) {
-      context.go(authState.user?.isParent == true ? '/parent' : '/student');
-    } else if (authState.errorMessage != null) {
-      setState(() {
-        _errorMessage = authState.errorMessage;
-      });
-    }
-    */
-
-    // -------------------------------------------------------------------------
-    // DIRECT UI PREVIEW BYPASS
-    // -------------------------------------------------------------------------
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (_selectedRole == UserRole.parent) {
-      context.go('/parent');
-    } else {
-      context.go('/student');
+    if (success) {
+      final authState = ref.read(authProvider);
+      if (authState.isAuthenticated) {
+        context.go(authState.user?.isParent == true ? '/parent' : '/student');
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // final isLoading = ref.watch(authProvider.select((s) => s.isLoading)); // Real auth loading state
-    final isLoading = _isLoading;
+    final registerState = ref.watch(registerStateProvider);
+    final currentStep = registerState.currentStep;
+    final selectedRole = registerState.selectedRole;
+    final isLoading = registerState.isLoading;
+    final inviteCode = registerState.inviteCode;
 
     final backgroundColor =
         isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
@@ -204,11 +149,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (_currentStep > 1)
+                      if (currentStep > 1)
                         IconButton(
                           icon: Icon(Icons.arrow_back_rounded,
                               color: foregroundColor, size: 22),
-                          onPressed: () => setState(() => _currentStep--),
+                          onPressed: () => ref
+                              .read(registerStateProvider.notifier)
+                              .previousStep(),
                         )
                       else
                         const Spacing.horizontal(48),
@@ -255,7 +202,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       for (int s = 1; s <= 3; s++) ...[
                         StepCircle(
                           stepNumber: s,
-                          currentStep: _currentStep,
+                          currentStep: currentStep,
                           isDark: isDark,
                         ),
                         if (s < 3)
@@ -264,7 +211,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               height: 3,
                               margin: const EdgeInsets.symmetric(horizontal: 6),
                               decoration: BoxDecoration(
-                                color: _currentStep > s
+                                color: currentStep > s
                                     ? AppTokens.accent
                                     : (isDark
                                         ? AppTokens.darkMuted
@@ -280,7 +227,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   const Spacing.vertical(28),
 
                   // Step 1: Role & Profile Info
-                  if (_currentStep == 1) ...[
+                  if (currentStep == 1) ...[
                     Text(
                       'Who are you?',
                       style: GoogleFonts.outfit(
@@ -300,12 +247,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             label: 'Parent',
                             subtitle: 'Manage & monitor',
                             emoji: '👨‍👩‍👧',
-                            isSelected: _selectedRole == UserRole.parent,
+                            isSelected: selectedRole == UserRole.parent,
                             selectedBorderColor: AppTokens.primary,
                             selectedBgColor:
                                 AppTokens.primary.withValues(alpha: 0.12),
-                            onTap: () =>
-                                setState(() => _selectedRole = UserRole.parent),
+                            onTap: () => ref
+                                .read(registerStateProvider.notifier)
+                                .setRole(UserRole.parent),
                             isDark: isDark,
                           ),
                         ),
@@ -316,12 +264,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             label: 'Student',
                             subtitle: 'Spend & earn',
                             emoji: '🎒',
-                            isSelected: _selectedRole == UserRole.student,
+                            isSelected: selectedRole == UserRole.student,
                             selectedBorderColor: AppTokens.accent,
                             selectedBgColor:
                                 AppTokens.accent.withValues(alpha: 0.12),
-                            onTap: () => setState(
-                                () => _selectedRole = UserRole.student),
+                            onTap: () => ref
+                                .read(registerStateProvider.notifier)
+                                .setRole(UserRole.student),
                             isDark: isDark,
                           ),
                         ),
@@ -350,7 +299,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         color: foregroundColor,
                       ),
                       decoration: InputDecoration(
-                        hintText: _selectedRole == UserRole.parent
+                        hintText: selectedRole == UserRole.parent
                             ? 'e.g. Ama Mensah'
                             : 'e.g. Amara Mensah',
                         prefixIcon: Icon(Icons.person_outline_rounded,
@@ -389,7 +338,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ],
 
                   // Step 2: Password & Verification
-                  if (_currentStep == 2) ...[
+                  if (currentStep == 2) ...[
                     Text(
                       'Set a password',
                       style: GoogleFonts.outfit(
@@ -413,9 +362,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     //Password textfield
                     TextField(
                       controller: _passwordController,
-                      obscureText: _obscurePassword,
+                      obscureText: registerState.obscurePassword,
                       textInputAction: TextInputAction.next,
-                      onChanged: (_) => setState(() {}),
                       style: GoogleFonts.outfit(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -427,14 +375,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             color: mutedForeground, size: 20),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _obscurePassword
+                            registerState.obscurePassword
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
                             color: mutedForeground,
                             size: 20,
                           ),
-                          onPressed: () => setState(
-                              () => _obscurePassword = !_obscurePassword),
+                          onPressed: () => ref
+                              .read(registerStateProvider.notifier)
+                              .togglePasswordVisibility(),
                         ),
                       ),
                     ),
@@ -488,9 +437,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     //Confirm password textfield
                     TextField(
                       controller: _confirmPasswordController,
-                      obscureText: _obscureConfirm,
+                      obscureText: registerState.obscureConfirm,
                       textInputAction: TextInputAction.done,
-                      onChanged: (_) => setState(() {}),
                       style: GoogleFonts.outfit(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -502,14 +450,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             color: mutedForeground, size: 20),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _obscureConfirm
+                            registerState.obscureConfirm
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
                             color: mutedForeground,
                             size: 20,
                           ),
-                          onPressed: () => setState(
-                              () => _obscureConfirm = !_obscureConfirm),
+                          onPressed: () => ref
+                              .read(registerStateProvider.notifier)
+                              .toggleConfirmVisibility(),
                         ),
                       ),
                     ),
@@ -569,9 +518,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ],
 
                   // Step 3: Family Setup & Summary
-                  if (_currentStep == 3) ...[
+                  if (currentStep == 3) ...[
                     Text(
-                      _selectedRole == UserRole.student
+                      selectedRole == UserRole.student
                           ? 'Join a family'
                           : 'Set up your family',
                       style: GoogleFonts.outfit(
@@ -582,7 +531,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     ),
                     const Spacing.vertical(14),
 
-                    if (_selectedRole == UserRole.student) ...[
+                    if (selectedRole == UserRole.student) ...[
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
@@ -745,7 +694,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           const Spacing.vertical(8),
                           SummaryRow(
                             label: 'Role',
-                            value: _selectedRole == UserRole.parent
+                            value: selectedRole == UserRole.parent
                                 ? '👤 Parent'
                                 : '🎒 Student',
                             foregroundColor: foregroundColor,
@@ -771,7 +720,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ],
 
                   // Error Message Banner
-                  if (_errorMessage != null) ...[
+                  if (registerState.errorMessage != null) ...[
                     const Spacing.vertical(16),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -791,7 +740,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           const Spacing.horizontal(8),
                           Expanded(
                             child: Text(
-                              _errorMessage!,
+                              registerState.errorMessage!,
                               style: GoogleFonts.outfit(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
@@ -808,7 +757,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                   // CTA Button
                   AppPrimaryButton(
-                    label: _currentStep == 3 ? 'Create Account' : 'Continue  →',
+                    label: currentStep == 3 ? 'Create Account' : 'Continue  →',
                     isLoading: isLoading,
                     onPressed: _onNextStep,
                   ),
