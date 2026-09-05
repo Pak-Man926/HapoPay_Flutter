@@ -206,10 +206,9 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
                             : AppTokens.primaryGradient,
                         boxShadow: [
                           BoxShadow(
-                            color: (bioDone
-                                    ? AppTokens.accent
-                                    : AppTokens.primary)
-                                .withValues(alpha: 0.4),
+                            color:
+                                (bioDone ? AppTokens.accent : AppTokens.primary)
+                                    .withValues(alpha: 0.4),
                             blurRadius: 16,
                             offset: const Offset(0, 4),
                           ),

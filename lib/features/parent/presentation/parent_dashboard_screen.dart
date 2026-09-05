@@ -149,8 +149,9 @@ class ParentDashboardScreen extends ConsumerWidget {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () =>
-                          ref.read(parentDashboardProvider.notifier).dismissAlert(),
+                      onTap: () => ref
+                          .read(parentDashboardProvider.notifier)
+                          .dismissAlert(),
                       child: Text(
                         'Dismiss',
                         style: GoogleFonts.outfit(
@@ -308,8 +309,9 @@ class ParentDashboardScreen extends ConsumerWidget {
                         left: i > 0 ? 6.0 : 0,
                         right: i < children.length - 1 ? 6.0 : 0),
                     child: GestureDetector(
-                      onTap: () =>
-                          ref.read(parentDashboardProvider.notifier).selectChild(i),
+                      onTap: () => ref
+                          .read(parentDashboardProvider.notifier)
+                          .selectChild(i),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.all(14),

@@ -153,7 +153,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         RoleTab(
                           label: 'Parent',
                           emoji: '👤',
-                          isSelected: loginState.selectedRole == UserRole.parent,
+                          isSelected:
+                              loginState.selectedRole == UserRole.parent,
                           onTap: () => _onRoleChanged(UserRole.parent),
                           isDark: isDark,
                         ),
@@ -161,7 +162,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         RoleTab(
                           label: 'Student',
                           emoji: '🎒',
-                          isSelected: loginState.selectedRole == UserRole.student,
+                          isSelected:
+                              loginState.selectedRole == UserRole.student,
                           onTap: () => _onRoleChanged(UserRole.student),
                           isDark: isDark,
                         ),
