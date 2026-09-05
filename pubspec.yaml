@@ -40,6 +40,10 @@ dependencies:
 
   # Utils
   intl: ^0.20.3
+  logger: ^2.7.0
+  flutter_svg: ^2.3.0
+  double_tap_to_exit: ^1.0.3
+  package_info_plus: ^10.2.1
 
 dev_dependencies:
   flutter_test:
@@ -53,3 +57,4 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/svg/

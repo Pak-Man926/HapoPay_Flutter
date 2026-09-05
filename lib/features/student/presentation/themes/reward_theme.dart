@@ -2,7 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import '../models/reward_model.dart';
+import '../../models/reward_model.dart';
 
 const Map<RewardTier, Color> rewardTierColors = {
   RewardTier.bronze: Color(0xFFCD7F32),

@@ -1,9 +1,13 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hapopay/core/constants/constants.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
+import '../../../core/theme/tokens.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../providers/my_qr_provider.dart';
 
 class MyQrScreen extends ConsumerStatefulWidget {
   const MyQrScreen({super.key});
@@ -13,8 +17,8 @@ class MyQrScreen extends ConsumerStatefulWidget {
 }
 
 class _MyQrScreenState extends ConsumerState<MyQrScreen> {
-  final _amountController = TextEditingController(text: '10.00');
-  final _descController = TextEditingController(text: 'Pocket Money Request');
+  final _amountController = TextEditingController();
+  final _descController = TextEditingController();
 
   @override
   void dispose() {
@@ -23,150 +27,206 @@ class _MyQrScreenState extends ConsumerState<MyQrScreen> {
     super.dispose();
   }
 
-  String _generateQrPayload(String studentId, String studentName) {
-    final amount = double.tryParse(_amountController.text) ?? 0.0;
-    final payload = {
-      'student_id': studentId,
-      'student_name': studentName,
-      'amount': amount,
-      'description': _descController.text,
-      'timestamp': DateTime.now().toUtc().toIso8601String(),
-    };
-    return jsonEncode(payload);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final user = ref.watch(authProvider).user;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final user = ref.watch(authProvider.select((s) => s.user));
+    final myQrState = ref.watch(myQrProvider);
+
+    final backgroundColor =
+        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
+    final foregroundColor =
+        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
+    final mutedForeground =
+        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
+    final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
+
     final studentId = user?.id ?? 'student_123';
-    final studentName = user?.fullName ?? 'Demo Student';
+    final studentName = user?.fullName ?? 'Amara Mensah';
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text('My QR Code'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              color: foregroundColor, size: 20),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          'My QR Code',
+          style: GoogleFonts.outfit(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: foregroundColor,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
         child: Column(
           children: [
-            const Text(
-              'Receive Payments & Allowances',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            verticalSpaceSmall,
             Text(
-              'Show this QR code to a parent or merchant to request money.',
+              'Receive Payments & Allowances',
               textAlign: TextAlign.center,
-              style:
-                  TextStyle(color: theme.colorScheme.onSurface, fontSize: 14),
+              style: GoogleFonts.outfit(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: foregroundColor,
+              ),
             ),
-            verticalSpaceSmall,
+            const Spacing.vertical(4),
+            Text(
+              'Show this QR code to a parent or peer to receive money',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.outfit(
+                fontSize: 13,
+                color: mutedForeground,
+              ),
+            ),
+            const Spacing.vertical(24),
 
-            // Dynamic QR Code Container with nice aesthetic styling
+            // QR Code Display Card
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: theme.colorScheme
-                    .onSurface, // QR code needs a white background for scanners to detect it easily
-                borderRadius: BorderRadius.circular(24),
+                color: cardColor,
+                borderRadius: AppTokens.borderRadius3xl,
+                border: Border.all(color: AppTokens.accent, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                    color: AppTokens.accent.withValues(alpha: 0.15),
                     blurRadius: 20,
-                    spreadRadius: 2,
+                    offset: const Offset(0, 6),
                   ),
                 ],
               ),
               child: Column(
                 children: [
-                  QrImageView(
-                    data: _generateQrPayload(studentId, studentName),
-                    version: QrVersions.auto,
-                    size: 200.0,
-                    gapless: false,
-                    eyeStyle: QrEyeStyle(
-                      eyeShape: QrEyeShape.square,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                    dataModuleStyle: QrDataModuleStyle(
-                      dataModuleShape: QrDataModuleShape.square,
-                      color: theme.colorScheme.onSurface,
+                  ClipRRect(
+                    borderRadius: AppTokens.borderRadiusLg,
+                    child: Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(12),
+                      child: QrImageView(
+                        data: myQrState.generatePayload(studentId, studentName),
+                        version: QrVersions.auto,
+                        size: 200.0,
+                        eyeStyle: const QrEyeStyle(
+                          eyeShape: QrEyeShape.square,
+                          color: Color(0xFF080B12),
+                        ),
+                        dataModuleStyle: const QrDataModuleStyle(
+                          dataModuleShape: QrDataModuleShape.square,
+                          color: Color(0xFF080B12),
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const Spacing.vertical(16),
                   Text(
                     studentName,
-                    style: TextStyle(
-                      color: theme.colorScheme.onSurface,
+                    style: GoogleFonts.outfit(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
+                      color: foregroundColor,
                     ),
                   ),
-                  verticalSpaceTiny,
+                  const Spacing.vertical(2),
                   Text(
                     'Scan to pay HapoPay user',
-                    style: TextStyle(
-                      color: theme.colorScheme.onError,
+                    style: GoogleFonts.outfit(
                       fontSize: 12,
+                      color: mutedForeground,
                     ),
                   ),
                 ],
               ),
             ),
 
-            verticalSpaceXXLarge,
+            const Spacing.vertical(24),
 
-            // Form Fields to dynamically update QR details
-            Card(
-              color: theme.colorScheme.onError,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+            // Request Details Form Card
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: AppTokens.borderRadiusXl,
+                border: Border.all(color: borderColor, width: 1),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Request Details',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurface,
-                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Request Details',
+                    style: GoogleFonts.outfit(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: foregroundColor,
                     ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _amountController,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(
-                        labelText: 'Amount (\$)',
-                        prefixIcon: Icon(Icons.attach_money),
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (val) {
-                        //TODO: Change the state manager to riverpod
-                        setState(() {});
-                      },
+                  ),
+                  const Spacing.vertical(14),
+                  Text(
+                    'AMOUNT (\$)',
+                    style: GoogleFonts.outfit(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: mutedForeground,
+                      letterSpacing: 0.5,
                     ),
-                    verticalSpaceMedium,
-                    TextField(
-                      controller: _descController,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                        prefixIcon: Icon(Icons.description_outlined),
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (val) {
-                        setState(() {});
-                      },
+                  ),
+                  const Spacing.vertical(6),
+                  TextField(
+                    controller: _amountController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    style: GoogleFonts.dmMono(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: foregroundColor,
                     ),
-                  ],
-                ),
+                    decoration: const InputDecoration(
+                      hintText: '0.00',
+                      prefixIcon: Icon(Icons.attach_money_rounded, size: 20),
+                    ),
+                    onChanged: (val) {
+                      ref.read(myQrProvider.notifier).setAmount(
+                            double.tryParse(val) ?? 0.0,
+                          );
+                    },
+                  ),
+                  const Spacing.vertical(14),
+                  Text(
+                    'DESCRIPTION / NOTE',
+                    style: GoogleFonts.outfit(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: mutedForeground,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const Spacing.vertical(6),
+                  TextField(
+                    controller: _descController,
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: foregroundColor,
+                    ),
+                    decoration: const InputDecoration(
+                      hintText: 'What is this for?',
+                      prefixIcon: Icon(Icons.edit_note_rounded, size: 20),
+                    ),
+                    onChanged: (val) {
+                      ref.read(myQrProvider.notifier).setDescription(val);
+                    },
+                  ),
+                ],
               ),
             ),
+
+            const Spacing.vertical(24),
           ],
         ),
       ),

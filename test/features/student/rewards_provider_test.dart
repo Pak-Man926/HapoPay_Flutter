@@ -1,10 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hapopay/features/auth/domain/entities/app_user.dart';
 import 'package:hapopay/features/auth/presentation/providers/auth_providers.dart';
-import 'package:hapopay/features/auth/presentation/providers/auth_notifier.dart';
-import 'package:hapopay/features/auth/presentation/providers/auth_state.dart';
 import 'package:hapopay/features/student/models/reward_model.dart';
 import 'package:hapopay/features/student/models/rewards_catalog.dart';
 import 'package:hapopay/features/student/providers/rewards_provider.dart';

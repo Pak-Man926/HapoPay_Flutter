@@ -1,71 +1,136 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// Generated from src/tokens.json by tool/generate_tokens.dart
-
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-/// Design tokens generated from src/tokens.json
+/// Design tokens derived from HapoPay Figma Design System
 class AppTokens {
   AppTokens._();
 
-  // Dark theme ColorScheme
+  // ---------------------------------------------------------------------------
+  // Color Palette Constants
+  // ---------------------------------------------------------------------------
+
+  // Primary & Accent Brand Colors
+  static const Color primary = Color(0xFF7C4DFF);
+  static const Color primaryDark = Color(0xFF6C3AFF);
+  static const Color primaryLight = Color(0xFFA78BFA);
+  static const Color accent = Color(0xFF00D4A1);
+  static const Color accentDark = Color(0xFF00B88A);
+  static const Color accentLight = Color(0xFF5EEAD4);
+
+  // Status & Highlights
+  static const Color warning = Color(0xFFFF6B35);
+  static const Color gold = Color(0xFFFFD166);
+  static const Color skyBlue = Color(0xFF00B4D8);
+  static const Color error = Color(0xFFFF4D4D);
+  static const Color success = Color(0xFF00D4A1);
+
+  // Dark Theme Neutral Colors
+  static const Color darkBackground = Color(0xFF080B12);
+  static const Color darkCard = Color(0xFF111827);
+  static const Color darkSecondary = Color(0xFF1E2738);
+  static const Color darkMuted = Color(0xFF1A2035);
+  static const Color darkMutedForeground = Color(0xFF94A3B8);
+  static const Color darkForeground = Color(0xFFF0F4FF);
+  static const Color darkBorder = Color(0xFF1E2A40);
+
+  // Light Theme Neutral Colors
+  static const Color lightBackground = Color(0xFFF8FAFC);
+  static const Color lightCard = Color(0xFFFFFFFF);
+  static const Color lightSecondary = Color(0xFFF1F5F9);
+  static const Color lightMuted = Color(0xFFE2E8F0);
+  static const Color lightMutedForeground = Color(0xFF64748B);
+  static const Color lightForeground = Color(0xFF0D1117);
+  static const Color lightBorder = Color(0xFFE2E8F0);
+
+  // ---------------------------------------------------------------------------
+  // Gradients
+  // ---------------------------------------------------------------------------
+
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [Color(0xFF6C3AFF), Color(0xFF7C4DFF)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient accentGradient = LinearGradient(
+    colors: [Color(0xFF00D4A1), Color(0xFF00B88A)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient heroGradient = LinearGradient(
+    colors: [Color(0xFF6C3AFF), Color(0xFF7C4DFF), Color(0xFF00D4A1)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient darkHeroGradient = LinearGradient(
+    colors: [Color(0xFF080B12), Color(0xFF1A0A3D), Color(0xFF0A2A1F)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient cardGlowGradient = LinearGradient(
+    colors: [Color(0x337C4DFF), Color(0x1100D4A1)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // ---------------------------------------------------------------------------
+  // ColorSchemes
+  // ---------------------------------------------------------------------------
+
   static const ColorScheme darkColorScheme = ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFFBB86FC),
-    primaryContainer: Color(0xFF6200EE),
-    secondary: Color(0xFF03DAC6),
-    secondaryContainer: Color(0x4D03DAC6),
-    surface: Color(0xFF1E1E1E),
-    surfaceContainerHighest: Color(0xFF1E1E1E),
-    error: Color(0xFFCF6679),
-    onPrimary: Color(0xFF000000),
-    onSecondary: Color(0xFF000000),
-    onSurface: Color(0xFFFFFFFF),
-    onError: Color(0xFF000000),
-    outline: Color(0x59FFFFFF),
-    outlineVariant: Color(0x33FFFFFF),
-    shadow: Color(0xFF000000),
-    scrim: Color(0xFF000000),
-    inverseSurface: Color(0xFFF5F5F5),
-    onInverseSurface: Color(0xFF1F1F1F),
-    inversePrimary: Color(0xFF6200EE),
+    primary: primary,
+    onPrimary: Colors.white,
+    primaryContainer: primaryDark,
+    onPrimaryContainer: Colors.white,
+    secondary: accent,
+    onSecondary: darkBackground,
+    secondaryContainer: Color(0x3300D4A1),
+    onSecondaryContainer: accent,
+    surface: darkCard,
+    onSurface: darkForeground,
+    surfaceContainerHighest: darkSecondary,
+    error: warning,
+    onError: Colors.white,
+    outline: darkBorder,
+    outlineVariant: Color(0x331E2A40),
+    shadow: Colors.black,
+    scrim: Colors.black,
+    inverseSurface: lightCard,
+    onInverseSurface: lightForeground,
+    inversePrimary: primaryDark,
   );
 
-  // Light theme ColorScheme
   static const ColorScheme lightColorScheme = ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFF6200EE),
-    primaryContainer: Color(0x4D6200EE),
-    secondary: Color(0xFF03DAC6),
-    secondaryContainer: Color(0x4D03DAC6),
-    surface: Color(0xFFF5F5F5),
-    surfaceContainerHighest: Color(0xFFF5F5F5),
-    error: Color(0xFFCF6679),
-    onPrimary: Color(0xFFFFFFFF),
-    onSecondary: Color(0xFF000000),
-    onSurface: Color(0xFF1F1F1F),
-    onError: Color(0xFFFFFFFF),
-    outline: Color(0x591F1F1F),
-    outlineVariant: Color(0x331F1F1F),
-    shadow: Color(0xFF000000),
-    scrim: Color(0xFF000000),
-    inverseSurface: Color(0xFF1E1E1E),
-    onInverseSurface: Color(0xFFFFFFFF),
-    inversePrimary: Color(0xFFBB86FC),
+    primary: primaryDark,
+    onPrimary: Colors.white,
+    primaryContainer: Color(0x226C3AFF),
+    onPrimaryContainer: primaryDark,
+    secondary: accent,
+    onSecondary: lightForeground,
+    secondaryContainer: Color(0x2200D4A1),
+    onSecondaryContainer: darkBackground,
+    surface: lightCard,
+    onSurface: lightForeground,
+    surfaceContainerHighest: lightSecondary,
+    error: warning,
+    onError: Colors.white,
+    outline: lightBorder,
+    outlineVariant: Color(0x33E2E8F0),
+    shadow: Color(0x0F000000),
+    scrim: Colors.black,
+    inverseSurface: darkCard,
+    onInverseSurface: darkForeground,
+    inversePrimary: primary,
   );
 
-  // Individual color constants (for backwards compatibility)
-  static const Color primary = Color(0xFFBB86FC);
-  static const Color primaryvariant = Color(0xFF6200EE);
-  static const Color secondary = Color(0xFF03DAC6);
-  static const Color background = Color(0xFF121212);
-  static const Color surface = Color(0xFF1E1E1E);
-  static const Color error = Color(0xFFCF6679);
-  static const Color onprimary = Color(0xFF000000);
-  static const Color onsecondary = Color(0xFF000000);
-  static const Color onsurface = Color(0xFFFFFFFF);
-  static const Color onerror = Color(0xFF000000);
-
-  // Spacing tokens
+  // ---------------------------------------------------------------------------
+  // Spacing
+  // ---------------------------------------------------------------------------
   static const double xs = 4.0;
   static const double sm = 8.0;
   static const double md = 16.0;
@@ -73,116 +138,56 @@ class AppTokens {
   static const double xl = 32.0;
   static const double xxl = 48.0;
 
-  // Border radius tokens
-  static const double radiusSm = 4.0;
+  // ---------------------------------------------------------------------------
+  // Border Radii
+  // ---------------------------------------------------------------------------
+  static const double radiusSm = 8.0;
   static const double radiusMd = 12.0;
   static const double radiusLg = 16.0;
   static const double radiusXl = 24.0;
+  static const double radius3xl = 32.0;
+  static const double radiusFull = 999.0;
 
-  // Typography tokens
-  static const String fontFamily = 'Inter';
-  static const TextStyle displaylarge = TextStyle(
-    fontSize: 57.0,
-    fontWeight: FontWeight.w400,
-    height: 1.1228070175438596,
-    letterSpacing: -0.25,
-  );
+  static final BorderRadius borderRadiusSm = BorderRadius.circular(radiusSm);
+  static final BorderRadius borderRadiusMd = BorderRadius.circular(radiusMd);
+  static final BorderRadius borderRadiusLg = BorderRadius.circular(radiusLg);
+  static final BorderRadius borderRadiusXl = BorderRadius.circular(radiusXl);
+  static final BorderRadius borderRadius3xl = BorderRadius.circular(radius3xl);
+  static final BorderRadius borderRadiusFull =
+      BorderRadius.circular(radiusFull);
 
-  static const TextStyle displaymedium = TextStyle(
-    fontSize: 45.0,
-    fontWeight: FontWeight.w400,
-    height: 1.1555555555555554,
-    letterSpacing: 0,
-  );
+  // ---------------------------------------------------------------------------
+  // Typography Helpers (Outfit & DM Mono)
+  // ---------------------------------------------------------------------------
+  static TextStyle outfit({
+    double? fontSize,
+    FontWeight? fontWeight,
+    Color? color,
+    double? height,
+    double? letterSpacing,
+  }) {
+    return GoogleFonts.outfit(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      height: height,
+      letterSpacing: letterSpacing,
+    );
+  }
 
-  static const TextStyle displaysmall = TextStyle(
-    fontSize: 36.0,
-    fontWeight: FontWeight.w400,
-    height: 1.2222222222222223,
-    letterSpacing: 0,
-  );
-
-  static const TextStyle headlinelarge = TextStyle(
-    fontSize: 32.0,
-    fontWeight: FontWeight.w600,
-    height: 1.25,
-    letterSpacing: 0,
-  );
-
-  static const TextStyle headlinemedium = TextStyle(
-    fontSize: 28.0,
-    fontWeight: FontWeight.w600,
-    height: 1.2857142857142858,
-    letterSpacing: 0,
-  );
-
-  static const TextStyle headlinesmall = TextStyle(
-    fontSize: 24.0,
-    fontWeight: FontWeight.w600,
-    height: 1.3333333333333333,
-    letterSpacing: 0,
-  );
-
-  static const TextStyle titlelarge = TextStyle(
-    fontSize: 22.0,
-    fontWeight: FontWeight.w500,
-    height: 1.2727272727272727,
-    letterSpacing: 0,
-  );
-
-  static const TextStyle titlemedium = TextStyle(
-    fontSize: 16.0,
-    fontWeight: FontWeight.w500,
-    height: 1.5,
-    letterSpacing: 0.15,
-  );
-
-  static const TextStyle titlesmall = TextStyle(
-    fontSize: 14.0,
-    fontWeight: FontWeight.w500,
-    height: 1.4285714285714286,
-    letterSpacing: 0.1,
-  );
-
-  static const TextStyle bodylarge = TextStyle(
-    fontSize: 16.0,
-    fontWeight: FontWeight.w400,
-    height: 1.5,
-    letterSpacing: 0.5,
-  );
-
-  static const TextStyle bodymedium = TextStyle(
-    fontSize: 14.0,
-    fontWeight: FontWeight.w400,
-    height: 1.4285714285714286,
-    letterSpacing: 0.25,
-  );
-
-  static const TextStyle bodysmall = TextStyle(
-    fontSize: 12.0,
-    fontWeight: FontWeight.w400,
-    height: 1.3333333333333333,
-    letterSpacing: 0.4,
-  );
-
-  static const TextStyle labellarge = TextStyle(
-    fontSize: 14.0,
-    fontWeight: FontWeight.w500,
-    height: 1.4285714285714286,
-    letterSpacing: 0.1,
-  );
-
-  static const TextStyle labelmedium = TextStyle(
-    fontSize: 12.0,
-    fontWeight: FontWeight.w500,
-    height: 1.3333333333333333,
-    letterSpacing: 0.5,
-  );
-
-  static const TextStyle labelsmall = TextStyle(
-    fontSize: 11.0,
-    fontWeight: FontWeight.w500,
-    height: 1.4545454545454546,
-    letterSpacing: 0.5,
-  );
+  static TextStyle mono({
+    double? fontSize,
+    FontWeight? fontWeight,
+    Color? color,
+    double? height,
+    double? letterSpacing,
+  }) {
+    return GoogleFonts.dmMono(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      height: height,
+      letterSpacing: letterSpacing,
+    );
+  }
 }

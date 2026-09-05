@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:logger/logger.dart';
 
 void main() async {
   final inputFile = File('src/tokens.json');
@@ -261,7 +262,7 @@ void main() async {
   await outputFile.parent.create(recursive: true);
   await outputFile.writeAsString(buffer.toString());
 
-  print('Generated ${outputFile.path}');
+  Logger().i('Generated ${outputFile.path}');
 }
 
 String _colorConst(String hex) {

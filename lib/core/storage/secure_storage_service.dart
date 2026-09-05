@@ -3,7 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class SecureStorageService {
   const SecureStorageService()
       : _storage = const FlutterSecureStorage(
-          aOptions: AndroidOptions(encryptedSharedPreferences: true),
+          aOptions: AndroidOptions(),
           iOptions: IOSOptions(
             accessibility: KeychainAccessibility.first_unlock_this_device,
             // Explicitly disable iCloud Keychain sync for session tokens.

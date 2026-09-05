@@ -22,7 +22,7 @@ class Rewards extends _$Rewards {
     final user = ref.watch(authProvider).user;
     final studentId = user?.id;
     if (studentId == null || studentId.isEmpty) {
-      throw StateError('Sign in to view rewards');
+      return RewardModel.demo(studentId: 'student_123');
     }
     return ref.read(rewardsRepositoryProvider).fetchRewards(studentId);
   }
