@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hapopay/core/constants/constants.dart';
+import 'package:logger/logger.dart';
 
 import '../../../core/theme/tokens.dart';
 import '../../../shared/widgets/hapo_pay_logo.dart';
@@ -27,6 +29,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   Timer? _timer;
   bool _hasNavigated = false;
+  final logger = Logger();
 
   @override
   void initState() {
@@ -75,11 +78,13 @@ class _SplashScreenState extends State<SplashScreen>
     if (_hasNavigated || !mounted) return;
     _hasNavigated = true;
     _timer?.cancel();
+    logger.i('SplashScreen had been navigated, navigating to next screen.');
 
     if (widget.onFinished != null) {
       widget.onFinished!();
     } else {
       context.go('/login');
+      logger.i('SplashScreen has been completed, navigating to next screen.');
     }
   }
 
@@ -149,7 +154,7 @@ class _SplashScreenState extends State<SplashScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const HapoPayLogo(size: 92),
-                        const SizedBox(height: 22),
+                        const Spacing.vertical(22),
                         Text(
                           'HapoPay',
                           style: GoogleFonts.outfit(
@@ -159,7 +164,7 @@ class _SplashScreenState extends State<SplashScreen>
                             letterSpacing: -0.5,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const Spacing.vertical(6),
                         Text(
                           'Smart spending for families',
                           style: GoogleFonts.outfit(

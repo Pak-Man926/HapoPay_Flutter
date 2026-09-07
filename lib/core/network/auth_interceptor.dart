@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
 
 import '../config/env_config.dart';
 import '../storage/secure_storage_service.dart';
@@ -58,6 +59,8 @@ class AuthInterceptor extends Interceptor {
     final token = await _storage.getAccessToken();
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
+      Logger()
+          .i("Injected access token into request headers for ${options.uri}");
     }
     handler.next(options);
   }
@@ -81,9 +84,13 @@ class AuthInterceptor extends Interceptor {
           final newToken = await _storage.getAccessToken();
           opts.headers['Authorization'] = 'Bearer $newToken';
           final response = await _dio.fetch<dynamic>(opts);
+          Logger().d("$response");
           handler.resolve(response);
           return;
         } on DioException catch (retryErr) {
+          Logger().e(
+            "Retry after token refresh failed: ${retryErr.message}",
+          );
           handler.next(retryErr);
           return;
         }

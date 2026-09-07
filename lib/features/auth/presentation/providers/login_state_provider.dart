@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../domain/entities/app_user.dart';
+import 'package:logger/logger.dart';
 import 'auth_providers.dart';
 
 class LoginScreenState {
@@ -61,6 +60,7 @@ class LoginScreenNotifier extends Notifier<LoginScreenState> {
       state = state.copyWith(
         errorMessage: 'Please enter your email and password.',
       );
+      Logger().e('Login failed: Email or password is empty.');
       return false;
     }
 
@@ -72,11 +72,16 @@ class LoginScreenNotifier extends Notifier<LoginScreenState> {
 
       if (authState.isAuthenticated) {
         state = state.copyWith(isLoading: false, clearError: true);
+        Logger().i(
+            "Login successful for user: ${authState.user?.email} with role: ${authState.user?.role} ");
         return true;
       } else {
         state = state.copyWith(
           isLoading: false,
           errorMessage: authState.errorMessage ?? 'Authentication failed.',
+        );
+        Logger().e(
+          'Login failed: ${authState.errorMessage ?? 'Unknown error.'}',
         );
         return false;
       }
