@@ -37,19 +37,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    final success = await ref.read(loginStateProvider.notifier).login(
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
+    // final success = await ref.read(loginStateProvider.notifier).login(
+    //       email: _emailController.text,
+    //       password: _passwordController.text,
+    //     );
 
-    if (!mounted) return;
+    // if (!mounted) return;
 
-    if (success) {
-      final authState = ref.read(authProvider);
-      if (authState.isAuthenticated) {
-        context.go(authState.user?.isParent == true ? '/parent' : '/student');
-      }
-    }
+    // if (success) {
+    //   final authState = ref.read(authProvider);
+    //   if (authState.isAuthenticated) {
+    //     context.go(authState.user?.isParent == true ? '/parent' : '/student');
+    //   }
+    // }
+    final authState = ref.read(authProvider);
+    context.go(authState.user?.isParent == true ? '/parent' : '/student');
   }
 
   @override

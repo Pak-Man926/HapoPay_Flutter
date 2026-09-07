@@ -66,20 +66,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Future<void> _onRegister() async {
-    final success = await ref.read(registerStateProvider.notifier).register(
-          fullName: _fullNameController.text,
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
+    // final success = await ref.read(registerStateProvider.notifier).register(
+    //       fullName: _fullNameController.text,
+    //       email: _emailController.text,
+    //       password: _passwordController.text,
+    //     );
 
-    if (!mounted) return;
+    // if (!mounted) return;
 
-    if (success) {
-      final authState = ref.read(authProvider);
-      if (authState.isAuthenticated) {
-        context.go(authState.user?.isParent == true ? '/parent' : '/student');
-      }
-    }
+    // if (success) {
+    //   final authState = ref.read(authProvider);
+    //   if (authState.isAuthenticated) {
+    //     context.go(authState.user?.isParent == true ? '/parent' : '/student');
+    //   }
+    // }
+    final authState = ref.read(authProvider);
+    context.go(authState.user?.isParent == true ? '/parent' : '/student');
   }
 
   @override
