@@ -7,6 +7,7 @@ import 'package:hapopay/features/settings/presentation/widgets/settings_preview.
 import 'package:hapopay/features/settings/presentation/widgets/settings_section.dart';
 import 'package:hapopay/features/settings/presentation/widgets/settings_toggle.dart';
 import 'package:hapopay/features/settings/presentation/widgets/text_link.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../core/theme/theme_mode_provider.dart';
 import '../../../core/theme/tokens.dart';
@@ -45,6 +46,7 @@ class SettingsScreen extends ConsumerWidget {
     final familyName = user?.fullName.isNotEmpty == true
         ? '${user!.fullName.split(" ").last} Family'
         : 'Mensah Family';
+    
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -339,12 +341,29 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   ),
                   const Spacing.vertical(2),
-                  Text(
-                    '${packageInfo.version} (${packageInfo.buildNumber}) · Built with love 💜',
-                    style: GoogleFonts.outfit(
-                      fontSize: 12,
-                      color: mutedForeground,
-                    ),
+                  FutureBuilder<PackageInfo>(
+                    future: appVersionCheck(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text(
+                          'Loading version…',
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            color: mutedForeground,
+                          ),
+                        );
+                      }
+
+                      final packageInfo = snapshot.data!;
+
+                      return Text(
+                        '${packageInfo.version} (${packageInfo.buildNumber}) · Built with love 💜',
+                        style: GoogleFonts.outfit(
+                          fontSize: 12,
+                          color: mutedForeground,
+                        ),
+                      );
+                    },
                   ),
                   const Spacing.vertical(14),
                   Row(

@@ -7,4 +7,13 @@ class Spacing extends SizedBox {
   const Spacing.horizontal(double width, {super.key}) : super(width: width);
 }
 
-late PackageInfo packageInfo;
+Future<PackageInfo> appVersionCheck() async {
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+  String appName = packageInfo.appName;
+  String packageName = packageInfo.packageName;
+  String version = packageInfo.version;
+  String buildNumber = packageInfo.buildNumber;
+
+  return packageInfo;
+}
