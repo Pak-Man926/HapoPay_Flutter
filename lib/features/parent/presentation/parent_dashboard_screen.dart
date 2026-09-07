@@ -3,9 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hapopay/core/constants/constants.dart';
-import 'package:hapopay/features/parent/models/child_model.dart';
-import 'package:hapopay/features/parent/models/parent_model.dart';
-import 'package:hapopay/features/parent/models/spend_model.dart';
 import 'package:hapopay/features/parent/presentation/widget/donut_chart.dart';
 import 'package:hapopay/features/parent/presentation/widget/family_action_pill.dart';
 
