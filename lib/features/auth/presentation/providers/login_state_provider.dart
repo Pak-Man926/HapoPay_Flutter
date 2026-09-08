@@ -67,24 +67,30 @@ class LoginScreenNotifier extends Notifier<LoginScreenState> {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
-      await ref.read(authProvider.notifier).login(cleanEmail, password);
-      final authState = ref.read(authProvider);
+      // -----------------------------------------------------------------------
+      // API Authentication (Commented out for UI testing)
+      // -----------------------------------------------------------------------
+      // await ref.read(authProvider.notifier).login(cleanEmail, password);
+      // final authState = ref.read(authProvider);
+      //
+      // if (authState.isAuthenticated) {
+      //   state = state.copyWith(isLoading: false, clearError: true);
+      //   Logger().i(
+      //       "Login successful for user: ${authState.user?.email} with role: ${authState.user?.role} ");
+      //   return true;
+      // } else {
+      //   state = state.copyWith(
+      //     isLoading: false,
+      //     errorMessage: authState.errorMessage ?? 'Authentication failed.',
+      //   );
+      //   Logger().e(
+      //     'Login failed: ${authState.errorMessage ?? 'Unknown error.'}',
+      //   );
+      //   return false;
+      // }
 
-      if (authState.isAuthenticated) {
-        state = state.copyWith(isLoading: false, clearError: true);
-        Logger().i(
-            "Login successful for user: ${authState.user?.email} with role: ${authState.user?.role} ");
-        return true;
-      } else {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: authState.errorMessage ?? 'Authentication failed.',
-        );
-        Logger().e(
-          'Login failed: ${authState.errorMessage ?? 'Unknown error.'}',
-        );
-        return false;
-      }
+      state = state.copyWith(isLoading: false, clearError: true);
+      return true;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

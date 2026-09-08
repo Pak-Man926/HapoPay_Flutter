@@ -11,8 +11,10 @@ import 'package:hapopay/features/student/presentation/widgets/quick_pay_button.d
 import 'package:hapopay/features/student/presentation/widgets/rewards_card.dart';
 
 import '../../../core/theme/tokens.dart';
+import '../../../shared/providers/app_shell_provider.dart';
 import '../../../shared/widgets/hapo_pay_logo.dart';
 import '../../../shared/widgets/theme_toggle.dart';
+import '../../auth/domain/entities/app_user.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/student_account_provider.dart';
 
@@ -106,7 +108,10 @@ class StudentDashboardScreen extends ConsumerWidget {
               actions: [
                 // Switch to Parent mode pill
                 GestureDetector(
-                  onTap: () => context.go('/parent'),
+                  onTap: () {
+                    ref.read(appRoleProvider.notifier).setRole(UserRole.parent);
+                    context.go('/parent');
+                  },
                   child: Container(
                     margin: const EdgeInsets.only(right: 8),
                     padding:
@@ -119,7 +124,7 @@ class StudentDashboardScreen extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text('🎒', style: TextStyle(fontSize: 12)),
-                        const SizedBox(width: 4),
+                        const Spacing.horizontal(4),
                         Text(
                           'Student',
                           style: GoogleFonts.outfit(
@@ -136,16 +141,6 @@ class StudentDashboardScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ThemeToggle(),
                 ),
-                // IconButton(
-                //   icon: Icon(Icons.logout_rounded,
-                //       color: mutedForeground, size: 20),
-                //   onPressed: () async {
-                //     await ref.read(authProvider.notifier).logout();
-                //     if (context.mounted) {
-                //       context.go('/login');
-                //     }
-                //   },
-                // ),
               ],
             ),
       body: SingleChildScrollView(
@@ -275,11 +270,15 @@ class StudentDashboardScreen extends ConsumerWidget {
                           icon: Icons.arrow_downward_rounded,
                           iconColor: AppTokens.warning,
                           label: 'Spent',
-                          value: '\$75.50',
+                          value: accountAsync.maybeWhen(
+                            data: (acc) =>
+                                '\$${acc.todaySpent.toStringAsFixed(2)}',
+                            orElse: () => '\$75.50',
+                          ),
                         ),
                       ),
                       const Spacing.horizontal(8),
-                      Expanded(
+                      const Expanded(
                         child: MiniStatCard(
                           icon: Icons.arrow_upward_rounded,
                           iconColor: AppTokens.accent,
@@ -291,7 +290,11 @@ class StudentDashboardScreen extends ConsumerWidget {
                       Expanded(
                         child: MiniStatCard(
                           label: 'Limit left',
-                          value: '\$124',
+                          value: accountAsync.maybeWhen(
+                            data: (acc) =>
+                                '\$${(acc.dailyLimit - acc.todaySpent).clamp(0.0, double.infinity).toStringAsFixed(0)}',
+                            orElse: () => '\$124',
+                          ),
                         ),
                       ),
                     ],
@@ -300,7 +303,7 @@ class StudentDashboardScreen extends ConsumerWidget {
               ),
             ),
 
-            const Spacing.horizontal(20),
+            const Spacing.vertical(20),
 
             // Quick Category Spend Actions
             Row(
@@ -396,261 +399,210 @@ class StudentDashboardScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Rewards',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurface),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Savings Goals',
+                        style: GoogleFonts.outfit(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: foregroundColor,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Goal creation modal coming up!'),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          '+ New goal',
+                          style: GoogleFonts.outfit(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppTokens.primary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    'Tap to view your achievements',
-                    style: TextStyle(
-                        color:
-                            theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                        fontSize: 13),
-                  ),
+                  const Spacing.vertical(14),
+                  for (final g in _goals) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(g.emoji,
+                                      style: const TextStyle(fontSize: 20)),
+                                  const Spacing.horizontal(8),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        g.name,
+                                        style: GoogleFonts.outfit(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: foregroundColor,
+                                        ),
+                                      ),
+                                      Text(
+                                        '\$${g.saved.toInt()} / \$${g.target.toInt()}',
+                                        style: GoogleFonts.dmMono(
+                                          fontSize: 12,
+                                          color: mutedForeground,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              if (g.saved >= g.target)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: AppTokens.accent
+                                        .withValues(alpha: 0.15),
+                                    borderRadius: AppTokens.borderRadiusFull,
+                                  ),
+                                  child: Text(
+                                    'Complete! 🎉',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTokens.accent,
+                                    ),
+                                  ),
+                                )
+                              else
+                                Text(
+                                  '${((g.saved / g.target) * 100).toInt()}%',
+                                  style: GoogleFonts.dmMono(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: mutedForeground,
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const Spacing.vertical(6),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: (g.saved / g.target).clamp(0.0, 1.0),
+                              backgroundColor: isDark
+                                  ? AppTokens.darkMuted
+                                  : AppTokens.lightMuted,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                g.saved >= g.target
+                                    ? AppTokens.accent
+                                    : AppTokens.primary,
+                              ),
+                              minHeight: 6,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
-            Icon(Icons.chevron_right,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
+
+            const Spacing.vertical(22),
+
+            // Recent Transactions List
+            Text(
+              'Recent Transactions',
+              style: GoogleFonts.outfit(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: foregroundColor,
+              ),
+            ),
+            const Spacing.vertical(10),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _recentTxns.length,
+              separatorBuilder: (_, __) => const Spacing.vertical(8),
+              itemBuilder: (context, index) {
+                final t = _recentTxns[index];
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: AppTokens.borderRadiusLg,
+                    border: Border.all(color: borderColor, width: 1),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: secondaryBg,
+                          borderRadius: AppTokens.borderRadiusMd,
+                        ),
+                        child: Center(
+                          child:
+                              Text(t.cat, style: const TextStyle(fontSize: 18)),
+                        ),
+                      ),
+                      const Spacing.horizontal(12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              t.merchant,
+                              style: GoogleFonts.outfit(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: foregroundColor,
+                              ),
+                            ),
+                            Text(
+                              t.time,
+                              style: GoogleFonts.outfit(
+                                fontSize: 12,
+                                color: mutedForeground,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '${t.amount > 0 ? '+' : ''}\$${t.amount.abs().toStringAsFixed(2)}',
+                        style: GoogleFonts.dmMono(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color:
+                              t.amount > 0 ? AppTokens.accent : foregroundColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+
+            const Spacing.vertical(24),
           ],
         ),
       ),
-      data: (reward) {
-        final tierColor = rewardTierColors[reward.tier] ?? Colors.amber;
-        final progress = reward.tierProgressFraction;
-        final nextPts = reward.nextMilestonePoints;
-        final earned = reward.earnedAchievementsCount;
-        final total = reward.achievements.length;
-
-        return _buildShell(
-          context,
-          onTap: onTap,
-          borderColor: tierColor.withValues(alpha: 0.35),
-          glowColor: tierColor.withValues(alpha: 0.08),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top row: icon + title + tier badge
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: tierColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.emoji_events_rounded,
-                      color: tierColor,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Rewards',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                        Text(
-                          '$earned / $total achievements unlocked',
-                          style: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.5),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Tier badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: tierColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: tierColor.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Text(
-                      '${reward.tier.badge} ${reward.tier.label}',
-                      style: TextStyle(
-                        color: tierColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 14),
-
-              // Points + progress bar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${reward.totalPoints} pts',
-                    style: TextStyle(
-                      color: tierColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    nextPts != null
-                        ? '${nextPts - reward.totalPoints} pts to next tier'
-                        : '🏆 Max tier!',
-                    style: TextStyle(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.4),
-                        fontSize: 11),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0, end: progress),
-                  duration: const Duration(milliseconds: 900),
-                  curve: Curves.easeOutCubic,
-                  builder: (_, val, __) => LinearProgressIndicator(
-                    value: val,
-                    backgroundColor: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.12),
-                    valueColor: AlwaysStoppedAnimation(tierColor),
-                    minHeight: 6,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildShell(
-    BuildContext context, {
-    required VoidCallback onTap,
-    required Widget child,
-    Color? borderColor,
-    Color? glowColor,
-  }) {
-    final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: borderColor ??
-                theme.colorScheme.onSurface.withValues(alpha: 0.12)),
-        boxShadow: glowColor != null
-            ? [BoxShadow(color: glowColor, blurRadius: 12, spreadRadius: 1)]
-            : null,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(padding: const EdgeInsets.all(18), child: child),
-        ),
-      ),
-    );
-  }
-
-  Widget _shimmerRow() {
-    return Row(
-      children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: Colors.white10,
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 14,
-                width: 80,
-                decoration: BoxDecoration(
-                  color: Colors.white10,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Container(
-                height: 10,
-                width: 140,
-                decoration: BoxDecoration(
-                  color: Colors.white10,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ===========================================================================
-// Shared helper widget
-// ===========================================================================
-
-class _BalanceInfo extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _BalanceInfo({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-              fontSize: 12),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            color: theme.colorScheme.onSurface,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
     );
   }
 }

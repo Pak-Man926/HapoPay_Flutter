@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hapopay/core/constants/constants.dart';
 import 'package:hapopay/features/auth/presentation/Login/widgets/role_tab.dart';
 import 'package:hapopay/features/auth/presentation/Login/widgets/social_button.dart';
+import 'package:hapopay/shared/providers/app_shell_provider.dart';
 
 import '../../../../core/theme/tokens.dart';
 import '../../../../shared/widgets/app_primary_button.dart';
@@ -37,21 +38,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+    // -------------------------------------------------------------------------
+    // API Authentication (Commented out for UI review & testing)
+    // -------------------------------------------------------------------------
     // final success = await ref.read(loginStateProvider.notifier).login(
     //       email: _emailController.text,
     //       password: _passwordController.text,
     //     );
-
+    //
     // if (!mounted) return;
-
+    //
     // if (success) {
     //   final authState = ref.read(authProvider);
     //   if (authState.isAuthenticated) {
     //     context.go(authState.user?.isParent == true ? '/parent' : '/student');
     //   }
     // }
-    final authState = ref.read(authProvider);
-    context.go(authState.user?.isParent == true ? '/parent' : '/student');
+
+    // Direct UI testing navigation based on selected role:
+    final selectedRole = ref.read(loginStateProvider).selectedRole;
+    ref.read(appRoleProvider.notifier).setRole(selectedRole);
+    context.go(selectedRole == UserRole.parent ? '/parent' : '/student');
   }
 
   @override

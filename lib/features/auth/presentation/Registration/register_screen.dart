@@ -8,6 +8,7 @@ import 'package:hapopay/features/auth/presentation/Registration/widgets/role_car
 import 'package:hapopay/features/auth/presentation/Registration/widgets/rule_row.dart';
 import 'package:hapopay/features/auth/presentation/Registration/widgets/step_circle.dart';
 import 'package:hapopay/features/auth/presentation/Registration/widgets/summary_card.dart';
+import 'package:hapopay/shared/providers/app_shell_provider.dart';
 
 import '../../../../core/theme/tokens.dart';
 import '../../../../shared/widgets/app_primary_button.dart';
@@ -66,22 +67,28 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Future<void> _onRegister() async {
+    // -------------------------------------------------------------------------
+    // API Registration (Commented out for UI review & testing)
+    // -------------------------------------------------------------------------
     // final success = await ref.read(registerStateProvider.notifier).register(
     //       fullName: _fullNameController.text,
     //       email: _emailController.text,
     //       password: _passwordController.text,
     //     );
-
+    //
     // if (!mounted) return;
-
+    //
     // if (success) {
     //   final authState = ref.read(authProvider);
     //   if (authState.isAuthenticated) {
     //     context.go(authState.user?.isParent == true ? '/parent' : '/student');
     //   }
     // }
-    final authState = ref.read(authProvider);
-    context.go(authState.user?.isParent == true ? '/parent' : '/student');
+
+    // Direct UI testing navigation based on selected role:
+    final selectedRole = ref.read(registerStateProvider).selectedRole;
+    ref.read(appRoleProvider.notifier).setRole(selectedRole);
+    context.go(selectedRole == UserRole.parent ? '/parent' : '/student');
   }
 
   @override
