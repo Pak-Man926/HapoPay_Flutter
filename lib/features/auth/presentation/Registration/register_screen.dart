@@ -55,7 +55,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   void _onNextStep() {
     final state = ref.read(registerStateProvider);
     if (state.currentStep < 3) {
-      ref.read(registerStateProvider.notifier).validateAndAdvance(
+      ref
+          .read(registerStateProvider.notifier)
+          .validateAndAdvance(
             fullName: _fullNameController.text,
             email: _emailController.text,
             password: _passwordController.text,
@@ -100,16 +102,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final isLoading = registerState.isLoading;
     final inviteCode = registerState.inviteCode;
 
-    final backgroundColor =
-        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final backgroundColor = isDark
+        ? AppTokens.darkBackground
+        : AppTokens.lightBackground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
     final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
     final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
-    final secondaryBg =
-        isDark ? AppTokens.darkSecondary : AppTokens.lightSecondary;
+    final secondaryBg = isDark
+        ? AppTokens.darkSecondary
+        : AppTokens.lightSecondary;
 
     final pw = _passwordController.text;
     final pwStrength = _calculatePasswordStrength(pw);
@@ -149,8 +155,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
           SafeArea(
             child: SingleChildScrollView(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 16.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -160,8 +168,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     children: [
                       if (currentStep > 1)
                         IconButton(
-                          icon: Icon(Icons.arrow_back_rounded,
-                              color: foregroundColor, size: 22),
+                          icon: Icon(
+                            Icons.arrow_back_rounded,
+                            color: foregroundColor,
+                            size: 22,
+                          ),
                           onPressed: () => ref
                               .read(registerStateProvider.notifier)
                               .previousStep(),
@@ -223,8 +234,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 color: currentStep > s
                                     ? AppTokens.accent
                                     : (isDark
-                                        ? AppTokens.darkMuted
-                                        : AppTokens.lightMuted),
+                                          ? AppTokens.darkMuted
+                                          : AppTokens.lightMuted),
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
@@ -258,8 +269,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             emoji: '👨‍👩‍👧',
                             isSelected: selectedRole == UserRole.parent,
                             selectedBorderColor: AppTokens.primary,
-                            selectedBgColor:
-                                AppTokens.primary.withValues(alpha: 0.12),
+                            selectedBgColor: AppTokens.primary.withValues(
+                              alpha: 0.12,
+                            ),
                             onTap: () => ref
                                 .read(registerStateProvider.notifier)
                                 .setRole(UserRole.parent),
@@ -275,8 +287,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             emoji: '🎒',
                             isSelected: selectedRole == UserRole.student,
                             selectedBorderColor: AppTokens.accent,
-                            selectedBgColor:
-                                AppTokens.accent.withValues(alpha: 0.12),
+                            selectedBgColor: AppTokens.accent.withValues(
+                              alpha: 0.12,
+                            ),
                             onTap: () => ref
                                 .read(registerStateProvider.notifier)
                                 .setRole(UserRole.student),
@@ -311,8 +324,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         hintText: selectedRole == UserRole.parent
                             ? 'e.g. Ama Mensah'
                             : 'e.g. Amara Mensah',
-                        prefixIcon: Icon(Icons.person_outline_rounded,
-                            color: mutedForeground, size: 20),
+                        prefixIcon: Icon(
+                          Icons.person_outline_rounded,
+                          color: mutedForeground,
+                          size: 20,
+                        ),
                       ),
                     ),
 
@@ -340,8 +356,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       decoration: InputDecoration(
                         hintText: 'you@example.com',
-                        prefixIcon: Icon(Icons.mail_outline_rounded,
-                            color: mutedForeground, size: 20),
+                        prefixIcon: Icon(
+                          Icons.mail_outline_rounded,
+                          color: mutedForeground,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ],
@@ -380,8 +399,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       decoration: InputDecoration(
                         hintText: 'Min. 6 characters',
-                        prefixIcon: Icon(Icons.lock_outline_rounded,
-                            color: mutedForeground, size: 20),
+                        prefixIcon: Icon(
+                          Icons.lock_outline_rounded,
+                          color: mutedForeground,
+                          size: 20,
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
                             registerState.obscurePassword
@@ -410,8 +432,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   color: pwStrength >= i
                                       ? strengthColors[pwStrength]
                                       : (isDark
-                                          ? AppTokens.darkMuted
-                                          : AppTokens.lightMuted),
+                                            ? AppTokens.darkMuted
+                                            : AppTokens.lightMuted),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
@@ -455,8 +477,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       decoration: InputDecoration(
                         hintText: 'Re-enter password',
-                        prefixIcon: Icon(Icons.lock_outline_rounded,
-                            color: mutedForeground, size: 20),
+                        prefixIcon: Icon(
+                          Icons.lock_outline_rounded,
+                          color: mutedForeground,
+                          size: 20,
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
                             registerState.obscureConfirm
@@ -478,8 +503,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       const Spacing.vertical(8),
                       Row(
                         children: [
-                          const Icon(Icons.check_circle_rounded,
-                              color: AppTokens.accent, size: 16),
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            color: AppTokens.accent,
+                            size: 16,
+                          ),
                           const Spacing.horizontal(6),
                           Text(
                             'Passwords match',
@@ -593,8 +621,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                         decoration: InputDecoration(
                           hintText: 'e.g. HAPOFAM-4829',
-                          prefixIcon: Icon(Icons.vpn_key_outlined,
-                              color: mutedForeground, size: 20),
+                          prefixIcon: Icon(
+                            Icons.vpn_key_outlined,
+                            color: mutedForeground,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ] else ...[
@@ -636,14 +667,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   tooltip: "Copy to clipboard",
                                   onPressed: () {
                                     Clipboard.setData(
-                                            ClipboardData(text: inviteCode))
-                                        .then((_) {
+                                      ClipboardData(text: inviteCode),
+                                    ).then((_) {
                                       // 4. Success feedback to user
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         const SnackBar(
-                                          content:
-                                              Text('Text copied to clipboard!'),
+                                          content: Text(
+                                            'Text copied to clipboard!',
+                                          ),
                                           duration: Duration(seconds: 2),
                                         ),
                                       );
@@ -733,7 +766,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     const Spacing.vertical(16),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 10),
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: AppTokens.warning.withValues(alpha: 0.12),
                         borderRadius: AppTokens.borderRadiusMd,
@@ -744,8 +779,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.error_outline_rounded,
-                              color: AppTokens.warning, size: 18),
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            color: AppTokens.warning,
+                            size: 18,
+                          ),
                           const Spacing.horizontal(8),
                           Expanded(
                             child: Text(

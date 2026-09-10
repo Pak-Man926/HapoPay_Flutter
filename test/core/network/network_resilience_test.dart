@@ -11,13 +11,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MockAdapter implements HttpClientAdapter {
   int attempts = 0;
   final Future<ResponseBody> Function(RequestOptions options, int attempt)
-      callback;
+  callback;
 
   MockAdapter(this.callback);
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<List<int>>? requestStream, Future<void>? cancelFuture) async {
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<List<int>>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
     attempts++;
     return callback(options, attempts);
   }
@@ -32,26 +35,30 @@ void main() {
   });
 
   group('ErrorInterceptor Tests', () {
-    test('Should map DioExceptionType.connectionTimeout to NetworkException',
-        () async {
-      final dio = Dio();
-      dio.interceptors.add(ErrorInterceptor());
-      dio.httpClientAdapter = MockAdapter((options, attempt) async {
-        throw DioException(
-          requestOptions: options,
-          type: DioExceptionType.connectionTimeout,
-        );
-      });
+    test(
+      'Should map DioExceptionType.connectionTimeout to NetworkException',
+      () async {
+        final dio = Dio();
+        dio.interceptors.add(ErrorInterceptor());
+        dio.httpClientAdapter = MockAdapter((options, attempt) async {
+          throw DioException(
+            requestOptions: options,
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
 
-      try {
-        await dio.get('https://example.com');
-        fail('Should have thrown');
-      } on DioException catch (e) {
-        expect(e.error, isA<NetworkException>());
-        expect((e.error as NetworkException).message,
-            contains('internet connection'));
-      }
-    });
+        try {
+          await dio.get('https://example.com');
+          fail('Should have thrown');
+        } on DioException catch (e) {
+          expect(e.error, isA<NetworkException>());
+          expect(
+            (e.error as NetworkException).message,
+            contains('internet connection'),
+          );
+        }
+      },
+    );
 
     test('Should map 401 to UnauthorizedException', () async {
       final dio = Dio();
@@ -59,10 +66,7 @@ void main() {
       dio.httpClientAdapter = MockAdapter((options, attempt) async {
         throw DioException(
           requestOptions: options,
-          response: Response(
-            requestOptions: options,
-            statusCode: 401,
-          ),
+          response: Response(requestOptions: options, statusCode: 401),
         );
       });
 
@@ -107,9 +111,13 @@ void main() {
 
       // Simulate success first to populate cache
       dio.httpClientAdapter = MockAdapter((options, attempt) async {
-        return ResponseBody.fromString('{"data": "cached"}', 200, headers: {
-          Headers.contentTypeHeader: ['application/json'],
-        });
+        return ResponseBody.fromString(
+          '{"data": "cached"}',
+          200,
+          headers: {
+            Headers.contentTypeHeader: ['application/json'],
+          },
+        );
       });
       await dio.get('https://example.com');
 

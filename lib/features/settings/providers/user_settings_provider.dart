@@ -67,5 +67,5 @@ class UserSettingsNotifier extends Notifier<UserSettingsState> {
 
 final userSettingsProvider =
     NotifierProvider<UserSettingsNotifier, UserSettingsState>(
-  UserSettingsNotifier.new,
-);
+      UserSettingsNotifier.new,
+    );

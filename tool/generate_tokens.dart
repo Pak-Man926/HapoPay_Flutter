@@ -86,7 +86,8 @@ void main() async {
   final buffer = StringBuffer();
   buffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND');
   buffer.writeln(
-      '// Generated from src/tokens.json by tool/generate_tokens.dart');
+    '// Generated from src/tokens.json by tool/generate_tokens.dart',
+  );
   buffer.writeln('');
   buffer.writeln("import 'package:flutter/material.dart';");
   buffer.writeln('');
@@ -100,39 +101,55 @@ void main() async {
   buffer.writeln('  static const ColorScheme darkColorScheme = ColorScheme(');
   buffer.writeln('    brightness: Brightness.dark,');
   buffer.writeln(
-      '    primary: ${_colorConst(darkColors['primary'] ?? '#BB86FC')},');
+    '    primary: ${_colorConst(darkColors['primary'] ?? '#BB86FC')},',
+  );
   buffer.writeln(
-      '    primaryContainer: ${_colorConst(darkColors['primaryVariant'] ?? '#6200EE')},');
+    '    primaryContainer: ${_colorConst(darkColors['primaryVariant'] ?? '#6200EE')},',
+  );
   buffer.writeln(
-      '    secondary: ${_colorConst(darkColors['secondary'] ?? '#03DAC6')},');
+    '    secondary: ${_colorConst(darkColors['secondary'] ?? '#03DAC6')},',
+  );
   buffer.writeln(
-      '    secondaryContainer: ${_colorWithAlpha(darkColors['secondary'] ?? '#03DAC6', 0x4D)},');
+    '    secondaryContainer: ${_colorWithAlpha(darkColors['secondary'] ?? '#03DAC6', 0x4D)},',
+  );
   buffer.writeln(
-      '    surface: ${_colorConst(darkColors['surface'] ?? '#1E1E1E')},');
+    '    surface: ${_colorConst(darkColors['surface'] ?? '#1E1E1E')},',
+  );
   buffer.writeln(
-      '    surfaceContainerHighest: ${_colorConst(darkColors['surface'] ?? '#1E1E1E')},');
-  buffer
-      .writeln('    error: ${_colorConst(darkColors['error'] ?? '#CF6679')},');
+    '    surfaceContainerHighest: ${_colorConst(darkColors['surface'] ?? '#1E1E1E')},',
+  );
   buffer.writeln(
-      '    onPrimary: ${_colorConst(darkColors['onPrimary'] ?? '#000000')},');
+    '    error: ${_colorConst(darkColors['error'] ?? '#CF6679')},',
+  );
   buffer.writeln(
-      '    onSecondary: ${_colorConst(darkColors['onSecondary'] ?? '#000000')},');
+    '    onPrimary: ${_colorConst(darkColors['onPrimary'] ?? '#000000')},',
+  );
   buffer.writeln(
-      '    onSurface: ${_colorConst(darkColors['onSurface'] ?? '#FFFFFF')},');
+    '    onSecondary: ${_colorConst(darkColors['onSecondary'] ?? '#000000')},',
+  );
   buffer.writeln(
-      '    onError: ${_colorConst(darkColors['onError'] ?? '#000000')},');
+    '    onSurface: ${_colorConst(darkColors['onSurface'] ?? '#FFFFFF')},',
+  );
   buffer.writeln(
-      '    outline: ${_colorWithAlpha(darkColors['onSurface'] ?? '#FFFFFF', 0x59)},');
+    '    onError: ${_colorConst(darkColors['onError'] ?? '#000000')},',
+  );
   buffer.writeln(
-      '    outlineVariant: ${_colorWithAlpha(darkColors['onSurface'] ?? '#FFFFFF', 0x33)},');
+    '    outline: ${_colorWithAlpha(darkColors['onSurface'] ?? '#FFFFFF', 0x59)},',
+  );
+  buffer.writeln(
+    '    outlineVariant: ${_colorWithAlpha(darkColors['onSurface'] ?? '#FFFFFF', 0x33)},',
+  );
   buffer.writeln('    shadow: Color(0xFF000000),');
   buffer.writeln('    scrim: Color(0xFF000000),');
   buffer.writeln(
-      '    inverseSurface: ${_colorConst(lightColors['surface'] ?? '#F5F5F5')},');
+    '    inverseSurface: ${_colorConst(lightColors['surface'] ?? '#F5F5F5')},',
+  );
   buffer.writeln(
-      '    onInverseSurface: ${_colorConst(lightColors['onSurface'] ?? '#1F1F1F')},');
+    '    onInverseSurface: ${_colorConst(lightColors['onSurface'] ?? '#1F1F1F')},',
+  );
   buffer.writeln(
-      '    inversePrimary: ${_colorConst(lightColors['primary'] ?? '#6200EE')},');
+    '    inversePrimary: ${_colorConst(lightColors['primary'] ?? '#6200EE')},',
+  );
   buffer.writeln('  );');
   buffer.writeln('');
 
@@ -141,45 +158,62 @@ void main() async {
   buffer.writeln('  static const ColorScheme lightColorScheme = ColorScheme(');
   buffer.writeln('    brightness: Brightness.light,');
   buffer.writeln(
-      '    primary: ${_colorConst(lightColors['primary'] ?? '#6200EE')},');
+    '    primary: ${_colorConst(lightColors['primary'] ?? '#6200EE')},',
+  );
   buffer.writeln(
-      '    primaryContainer: ${_colorWithAlpha(lightColors['primary'] ?? '#6200EE', 0x4D)},');
+    '    primaryContainer: ${_colorWithAlpha(lightColors['primary'] ?? '#6200EE', 0x4D)},',
+  );
   buffer.writeln(
-      '    secondary: ${_colorConst(lightColors['secondary'] ?? '#03DAC6')},');
+    '    secondary: ${_colorConst(lightColors['secondary'] ?? '#03DAC6')},',
+  );
   buffer.writeln(
-      '    secondaryContainer: ${_colorWithAlpha(lightColors['secondary'] ?? '#03DAC6', 0x4D)},');
+    '    secondaryContainer: ${_colorWithAlpha(lightColors['secondary'] ?? '#03DAC6', 0x4D)},',
+  );
   buffer.writeln(
-      '    surface: ${_colorConst(lightColors['surface'] ?? '#F5F5F5')},');
+    '    surface: ${_colorConst(lightColors['surface'] ?? '#F5F5F5')},',
+  );
   buffer.writeln(
-      '    surfaceContainerHighest: ${_colorConst(lightColors['surface'] ?? '#F5F5F5')},');
-  buffer
-      .writeln('    error: ${_colorConst(lightColors['error'] ?? '#B3261E')},');
+    '    surfaceContainerHighest: ${_colorConst(lightColors['surface'] ?? '#F5F5F5')},',
+  );
   buffer.writeln(
-      '    onPrimary: ${_colorConst(lightColors['onPrimary'] ?? '#FFFFFF')},');
+    '    error: ${_colorConst(lightColors['error'] ?? '#B3261E')},',
+  );
   buffer.writeln(
-      '    onSecondary: ${_colorConst(lightColors['onSecondary'] ?? '#000000')},');
+    '    onPrimary: ${_colorConst(lightColors['onPrimary'] ?? '#FFFFFF')},',
+  );
   buffer.writeln(
-      '    onSurface: ${_colorConst(lightColors['onSurface'] ?? '#1F1F1F')},');
+    '    onSecondary: ${_colorConst(lightColors['onSecondary'] ?? '#000000')},',
+  );
   buffer.writeln(
-      '    onError: ${_colorConst(lightColors['onError'] ?? '#FFFFFF')},');
+    '    onSurface: ${_colorConst(lightColors['onSurface'] ?? '#1F1F1F')},',
+  );
   buffer.writeln(
-      '    outline: ${_colorWithAlpha(lightColors['onSurface'] ?? '#1F1F1F', 0x59)},');
+    '    onError: ${_colorConst(lightColors['onError'] ?? '#FFFFFF')},',
+  );
   buffer.writeln(
-      '    outlineVariant: ${_colorWithAlpha(lightColors['onSurface'] ?? '#1F1F1F', 0x33)},');
+    '    outline: ${_colorWithAlpha(lightColors['onSurface'] ?? '#1F1F1F', 0x59)},',
+  );
+  buffer.writeln(
+    '    outlineVariant: ${_colorWithAlpha(lightColors['onSurface'] ?? '#1F1F1F', 0x33)},',
+  );
   buffer.writeln('    shadow: Color(0xFF000000),');
   buffer.writeln('    scrim: Color(0xFF000000),');
   buffer.writeln(
-      '    inverseSurface: ${_colorConst(darkColors['surface'] ?? '#1E1E1E')},');
+    '    inverseSurface: ${_colorConst(darkColors['surface'] ?? '#1E1E1E')},',
+  );
   buffer.writeln(
-      '    onInverseSurface: ${_colorConst(darkColors['onSurface'] ?? '#FFFFFF')},');
+    '    onInverseSurface: ${_colorConst(darkColors['onSurface'] ?? '#FFFFFF')},',
+  );
   buffer.writeln(
-      '    inversePrimary: ${_colorConst(darkColors['primary'] ?? '#BB86FC')},');
+    '    inversePrimary: ${_colorConst(darkColors['primary'] ?? '#BB86FC')},',
+  );
   buffer.writeln('  );');
   buffer.writeln('');
 
   // Individual color constants for backwards compatibility
-  buffer
-      .writeln('  // Individual color constants (for backwards compatibility)');
+  buffer.writeln(
+    '  // Individual color constants (for backwards compatibility)',
+  );
   final individualColors = {
     'primary': darkColors['primary'] ?? '#BB86FC',
     'primaryVariant': darkColors['primaryVariant'] ?? '#6200EE',
@@ -195,7 +229,8 @@ void main() async {
 
   for (final entry in individualColors.entries) {
     buffer.writeln(
-        '  static const Color ${_toCamelCase(entry.key)} = ${_colorConst(entry.value)};');
+      '  static const Color ${_toCamelCase(entry.key)} = ${_colorConst(entry.value)};',
+    );
   }
   buffer.writeln('');
 
@@ -206,7 +241,8 @@ void main() async {
     for (final entry in spacing.entries) {
       final value = entry.value['value'] as num;
       buffer.writeln(
-          '  static const double ${_toCamelCase(entry.key)} = ${value.toDouble()};');
+        '  static const double ${_toCamelCase(entry.key)} = ${value.toDouble()};',
+      );
     }
     buffer.writeln('');
   }
@@ -218,7 +254,8 @@ void main() async {
     for (final entry in borderRadius.entries) {
       final value = entry.value['value'] as num;
       buffer.writeln(
-          '  static const double radius${_toPascalCase(entry.key)} = ${value.toDouble()};');
+        '  static const double radius${_toPascalCase(entry.key)} = ${value.toDouble()};',
+      );
     }
     buffer.writeln('');
   }
@@ -236,7 +273,8 @@ void main() async {
         buffer.writeln("  static const String fontFamily = '$fontFamily';");
       } else if (value is Map<String, dynamic>) {
         buffer.writeln(
-            '  static const TextStyle ${_toCamelCase(key)} = TextStyle(');
+          '  static const TextStyle ${_toCamelCase(key)} = TextStyle(',
+        );
         if (value['fontSize'] != null) {
           buffer.writeln('    fontSize: ${value['fontSize']}.0,');
         }

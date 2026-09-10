@@ -51,10 +51,7 @@ class LoginScreenNotifier extends Notifier<LoginScreenState> {
     state = state.copyWith(clearError: true);
   }
 
-  Future<bool> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> login({required String email, required String password}) async {
     final cleanEmail = email.trim();
     if (cleanEmail.isEmpty || password.isEmpty) {
       state = state.copyWith(
@@ -92,10 +89,7 @@ class LoginScreenNotifier extends Notifier<LoginScreenState> {
       state = state.copyWith(isLoading: false, clearError: true);
       return true;
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
       return false;
     }
   }
@@ -103,5 +97,5 @@ class LoginScreenNotifier extends Notifier<LoginScreenState> {
 
 final loginStateProvider =
     NotifierProvider<LoginScreenNotifier, LoginScreenState>(
-  LoginScreenNotifier.new,
-);
+      LoginScreenNotifier.new,
+    );

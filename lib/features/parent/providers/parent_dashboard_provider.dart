@@ -93,8 +93,8 @@ class ParentDashboardState {
 
   ChildProfile get selectedChild =>
       children.isNotEmpty && selectedChildIndex < children.length
-          ? children[selectedChildIndex]
-          : children.first;
+      ? children[selectedChildIndex]
+      : children.first;
 
   ParentDashboardState copyWith({
     double? familyBalance,
@@ -134,13 +134,11 @@ class ParentDashboardNotifier extends Notifier<ParentDashboardState> {
   }
 
   void addChild(ChildProfile child) {
-    state = state.copyWith(
-      children: [...state.children, child],
-    );
+    state = state.copyWith(children: [...state.children, child]);
   }
 }
 
 final parentDashboardProvider =
     NotifierProvider<ParentDashboardNotifier, ParentDashboardState>(
-  ParentDashboardNotifier.new,
-);
+      ParentDashboardNotifier.new,
+    );

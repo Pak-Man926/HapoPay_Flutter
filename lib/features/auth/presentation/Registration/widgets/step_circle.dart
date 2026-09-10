@@ -37,10 +37,7 @@ class StepCircle extends StatelessWidget {
     return Container(
       width: 28,
       height: 28,
-      decoration: BoxDecoration(
-        color: bgColor,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
       child: Center(
         child: isCompleted
             ? const Icon(Icons.check_rounded, color: Colors.white, size: 16)

@@ -18,15 +18,16 @@ class SpendingLimitsScreen extends ConsumerWidget {
     final isSaving = limitsState.isSaving;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Spending Controls'),
-      ),
+      appBar: AppBar(title: const Text('Spending Controls')),
       body: accountAsync.when(
         loading: () => Center(
-            child: CircularProgressIndicator(color: theme.colorScheme.primary)),
+          child: CircularProgressIndicator(color: theme.colorScheme.primary),
+        ),
         error: (err, _) => Center(
-          child: Text('Error loading limits: $err',
-              style: TextStyle(color: theme.colorScheme.error)),
+          child: Text(
+            'Error loading limits: $err',
+            style: TextStyle(color: theme.colorScheme.error),
+          ),
         ),
         data: (_) {
           return SingleChildScrollView(
@@ -36,15 +37,17 @@ class SpendingLimitsScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Manage Student Card Controls',
-                  style: theme.textTheme.headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const Spacing.vertical(10),
                 Text(
                   'Instantly adjust spending limits or freeze the debit card to prevent unauthorized purchases.',
                   style: TextStyle(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                      fontSize: 14),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontSize: 14,
+                  ),
                 ),
                 const Spacing.vertical(30),
 
@@ -69,16 +72,18 @@ class SpendingLimitsScreen extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: isCardLocked
                               ? Colors.redAccent.withValues(alpha: 0.12)
-                              : theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.1),
+                              : theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.1,
+                                ),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           isCardLocked ? Icons.lock : Icons.lock_open,
                           color: isCardLocked
                               ? Colors.redAccent
-                              : theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.7),
+                              : theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
                         ),
                       ),
                       const Spacing.horizontal(15),
@@ -98,9 +103,11 @@ class SpendingLimitsScreen extends ConsumerWidget {
                             Text(
                               'Suspend all payments immediately',
                               style: TextStyle(
-                                  color: theme.colorScheme.onSurface
-                                      .withValues(alpha: 0.5),
-                                  fontSize: 12),
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.5,
+                                ),
+                                fontSize: 12,
+                              ),
                             ),
                           ],
                         ),
@@ -129,8 +136,10 @@ class SpendingLimitsScreen extends ConsumerWidget {
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.12)),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.12,
+                          ),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,23 +155,32 @@ class SpendingLimitsScreen extends ConsumerWidget {
                                   color: theme.colorScheme.onSurface,
                                 ),
                               ),
-                              Icon(Icons.speed,
-                                  color: theme.colorScheme.onSurface
-                                      .withValues(alpha: 0.3)),
+                              Icon(
+                                Icons.speed,
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.3,
+                                ),
+                              ),
                             ],
                           ),
                           Divider(
-                              height: 24,
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.12)),
+                            height: 24,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.12,
+                            ),
+                          ),
                           const Spacing.vertical(10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Limit Value',
-                                  style: TextStyle(
-                                      color: theme.colorScheme.onSurface
-                                          .withValues(alpha: 0.7))),
+                              Text(
+                                'Limit Value',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.7,
+                                  ),
+                                ),
+                              ),
                               Text(
                                 '\$${currentSliderValue.toStringAsFixed(2)}',
                                 style: TextStyle(
@@ -192,16 +210,24 @@ class SpendingLimitsScreen extends ConsumerWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('\$5.00',
-                                  style: TextStyle(
-                                      color: theme.colorScheme.onSurface
-                                          .withValues(alpha: 0.4),
-                                      fontSize: 12)),
-                              Text('\$200.00',
-                                  style: TextStyle(
-                                      color: theme.colorScheme.onSurface
-                                          .withValues(alpha: 0.4),
-                                      fontSize: 12)),
+                              Text(
+                                '\$5.00',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.4,
+                                  ),
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                '\$200.00',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.4,
+                                  ),
+                                  fontSize: 12,
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -236,9 +262,11 @@ class SpendingLimitsScreen extends ConsumerWidget {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: const Text(
-                                        'Spending limits updated successfully.'),
-                                    backgroundColor:
-                                        Theme.of(context).colorScheme.primary,
+                                      'Spending limits updated successfully.',
+                                    ),
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                   ),
                                 );
                                 Navigator.pop(context);
@@ -248,8 +276,9 @@ class SpendingLimitsScreen extends ConsumerWidget {
                                     .errorMessage;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content:
-                                        Text('Failed to update limits: $err'),
+                                    content: Text(
+                                      'Failed to update limits: $err',
+                                    ),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -261,7 +290,9 @@ class SpendingLimitsScreen extends ConsumerWidget {
                         : const Text(
                             'Save Spending Controls',
                             style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                   ),
                 ),

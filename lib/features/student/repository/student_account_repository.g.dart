@@ -12,20 +12,24 @@ part of 'student_account_repository.dart';
 @ProviderFor(studentAccountRepository)
 final studentAccountRepositoryProvider = StudentAccountRepositoryProvider._();
 
-final class StudentAccountRepositoryProvider extends $FunctionalProvider<
-    StudentAccountRepository,
-    StudentAccountRepository,
-    StudentAccountRepository> with $Provider<StudentAccountRepository> {
+final class StudentAccountRepositoryProvider
+    extends
+        $FunctionalProvider<
+          StudentAccountRepository,
+          StudentAccountRepository,
+          StudentAccountRepository
+        >
+    with $Provider<StudentAccountRepository> {
   StudentAccountRepositoryProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'studentAccountRepositoryProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'studentAccountRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$studentAccountRepositoryHash();
@@ -33,8 +37,8 @@ final class StudentAccountRepositoryProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<StudentAccountRepository> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   StudentAccountRepository create(Ref ref) {

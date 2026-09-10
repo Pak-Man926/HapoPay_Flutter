@@ -3,10 +3,7 @@ import 'package:dio/dio.dart';
 
 /// Interceptor that retries failed requests due to intermittent network conditions.
 class RetryInterceptor extends Interceptor {
-  RetryInterceptor({
-    required this.dio,
-    this.maxRetries = 3,
-  });
+  RetryInterceptor({required this.dio, this.maxRetries = 3});
 
   final Dio dio;
   final int maxRetries;

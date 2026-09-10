@@ -13,14 +13,14 @@ void main() {
     });
 
     test('dark theme Scaffold background is dark', () {
-      final scaffoldBrightness =
-          AppTheme.darkTheme.scaffoldBackgroundColor.computeLuminance();
+      final scaffoldBrightness = AppTheme.darkTheme.scaffoldBackgroundColor
+          .computeLuminance();
       expect(scaffoldBrightness, lessThan(0.1));
     });
 
     test('light theme Scaffold background is light', () {
-      final scaffoldBrightness =
-          AppTheme.light.scaffoldBackgroundColor.computeLuminance();
+      final scaffoldBrightness = AppTheme.light.scaffoldBackgroundColor
+          .computeLuminance();
       expect(scaffoldBrightness, greaterThan(0.9));
     });
 
@@ -34,8 +34,10 @@ void main() {
 
     test('dark theme AppBar background matches surface color', () {
       final appBarTheme = AppTheme.darkTheme.appBarTheme;
-      expect(appBarTheme.backgroundColor,
-          equals(AppTheme.darkTheme.colorScheme.surface));
+      expect(
+        appBarTheme.backgroundColor,
+        equals(AppTheme.darkTheme.colorScheme.surface),
+      );
     });
 
     test('light theme AppBar background is light', () {
@@ -59,8 +61,9 @@ void main() {
   });
 
   group('Dark Mode Widget Test', () {
-    testWidgets('App renders with dark theme when ThemeMode.dark is used',
-        (WidgetTester tester) async {
+    testWidgets('App renders with dark theme when ThemeMode.dark is used', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.light,
@@ -75,10 +78,7 @@ void main() {
 
       // Verify the AppBar uses dark surface color
       final appBar = tester.widget<AppBar>(find.byType(AppBar));
-      expect(
-        appBar.backgroundColor?.computeLuminance(),
-        lessThan(0.2),
-      );
+      expect(appBar.backgroundColor?.computeLuminance(), lessThan(0.2));
 
       // Verify scaffold is dark
       final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
@@ -86,8 +86,9 @@ void main() {
       expect(brightness, lessThan(0.15));
     });
 
-    testWidgets('App renders with light theme when ThemeMode.light is used',
-        (WidgetTester tester) async {
+    testWidgets('App renders with light theme when ThemeMode.light is used', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.light,

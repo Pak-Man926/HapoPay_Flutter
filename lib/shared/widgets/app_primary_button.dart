@@ -38,7 +38,7 @@ class AppPrimaryButton extends StatelessWidget {
     final defaultGradient = effectiveDisabled
         ? null
         : (gradient ??
-            (backgroundColor == null ? AppTokens.primaryGradient : null));
+              (backgroundColor == null ? AppTokens.primaryGradient : null));
 
     final effectiveBgColor = effectiveDisabled
         ? (isDark ? AppTokens.darkMuted : AppTokens.lightMuted)
@@ -46,8 +46,8 @@ class AppPrimaryButton extends StatelessWidget {
 
     final effectiveTextColor = effectiveDisabled
         ? (isDark
-            ? AppTokens.darkMutedForeground
-            : AppTokens.lightMutedForeground)
+              ? AppTokens.darkMutedForeground
+              : AppTokens.lightMutedForeground)
         : (textColor ?? Colors.white);
 
     return Container(
@@ -79,18 +79,16 @@ class AppPrimaryButton extends StatelessWidget {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.5,
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(effectiveTextColor),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        effectiveTextColor,
+                      ),
                     ),
                   )
                 : Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      if (icon != null) ...[
-                        icon!,
-                        const SizedBox(width: 8),
-                      ],
+                      if (icon != null) ...[icon!, const SizedBox(width: 8)],
                       Text(
                         label,
                         style: GoogleFonts.outfit(

@@ -86,6 +86,4 @@ final dioClientProvider = Provider<DioClient>((ref) {
 ///
 /// Repositories that only need [Dio] (not the full [DioClient]) should watch
 /// this provider.
-final dioProvider = Provider<Dio>(
-  (ref) => ref.watch(dioClientProvider).dio,
-);
+final dioProvider = Provider<Dio>((ref) => ref.watch(dioClientProvider).dio);

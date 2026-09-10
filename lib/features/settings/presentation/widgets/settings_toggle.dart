@@ -43,10 +43,7 @@ class SettingToggleRow extends StatelessWidget {
               ),
               Text(
                 desc,
-                style: GoogleFonts.outfit(
-                  fontSize: 12,
-                  color: mutedForeground,
-                ),
+                style: GoogleFonts.outfit(fontSize: 12, color: mutedForeground),
               ),
             ],
           ),

@@ -35,8 +35,9 @@ class _TestResilienceScreenState extends ConsumerState<TestResilienceScreen> {
       final dio = ref.read(dioProvider);
 
       // Using a public JSON API to test GET caching
-      final response =
-          await dio.get('https://jsonplaceholder.typicode.com/todos/1');
+      final response = await dio.get(
+        'https://jsonplaceholder.typicode.com/todos/1',
+      );
 
       setState(() {
         _result =
@@ -107,8 +108,11 @@ class MockAdapter implements HttpClientAdapter {
   MockAdapter(this.callback);
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<List<int>>? requestStream, Future<void>? cancelFuture) async {
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<List<int>>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
     return callback(options);
   }
 
@@ -121,8 +125,9 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('TestResilienceScreen handles offline caching manually',
-      (WidgetTester tester) async {
+  testWidgets('TestResilienceScreen handles offline caching manually', (
+    WidgetTester tester,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
 
     // Create a local Dio instance that mimics the resilience pipeline
@@ -140,9 +145,7 @@ void main() {
           sharedPreferencesProvider.overrideWithValue(prefs),
           dioProvider.overrideWithValue(testDio),
         ],
-        child: const MaterialApp(
-          home: TestResilienceScreen(),
-        ),
+        child: const MaterialApp(home: TestResilienceScreen()),
       ),
     );
 
@@ -155,9 +158,13 @@ void main() {
 
     // Mock a successful response
     dio.httpClientAdapter = MockAdapter((options) async {
-      return ResponseBody.fromString('{"data": "cached_todo"}', 200, headers: {
-        Headers.contentTypeHeader: ['application/json'],
-      });
+      return ResponseBody.fromString(
+        '{"data": "cached_todo"}',
+        200,
+        headers: {
+          Headers.contentTypeHeader: ['application/json'],
+        },
+      );
     });
 
     // Tap to fetch

@@ -10,10 +10,7 @@ class ErrorInterceptor extends Interceptor {
     // Passing our ApiException wrapped in a DioException so it continues
     // propagating properly but carries the typed error.
     handler.next(
-      err.copyWith(
-        error: apiException,
-        message: apiException.message,
-      ),
+      err.copyWith(error: apiException, message: apiException.message),
     );
   }
 
@@ -47,7 +44,8 @@ class ErrorInterceptor extends Interceptor {
           return ServerException(statusCode: statusCode);
         default:
           return UnknownException(
-            message: _extractMessage(err.response) ??
+            message:
+                _extractMessage(err.response) ??
                 'An unexpected error occurred.',
           );
       }

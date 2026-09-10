@@ -15,15 +15,15 @@ final studentAccountProvider = StudentAccountProvider._();
 final class StudentAccountProvider
     extends $AsyncNotifierProvider<StudentAccount, StudentAccountModel> {
   StudentAccountProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'studentAccountProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'studentAccountProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$studentAccountHash();
@@ -42,11 +42,14 @@ abstract class _$StudentAccount extends $AsyncNotifier<StudentAccountModel> {
   WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<AsyncValue<StudentAccountModel>, StudentAccountModel>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<AsyncValue<StudentAccountModel>, StudentAccountModel>,
-        AsyncValue<StudentAccountModel>,
-        Object?,
-        Object?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<StudentAccountModel>, StudentAccountModel>,
+              AsyncValue<StudentAccountModel>,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }

@@ -33,12 +33,15 @@ class MainAppScaffold extends ConsumerWidget {
     final isParent = currentRole == UserRole.parent;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final backgroundColor =
-        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final backgroundColor = isDark
+        ? AppTokens.darkBackground
+        : AppTokens.lightBackground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
     final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
 
     return Scaffold(
@@ -95,8 +98,10 @@ class MainAppScaffold extends ConsumerWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(isParent ? '👤' : '🎒',
-                      style: const TextStyle(fontSize: 12)),
+                  Text(
+                    isParent ? '👤' : '🎒',
+                    style: const TextStyle(fontSize: 12),
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     isParent ? 'Parent' : 'Student',

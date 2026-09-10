@@ -51,7 +51,8 @@ class StudentAccount extends _$StudentAccount {
     //     .processPayment(studentId: studentId, qrPayload: qrPayload);
     // state = AsyncData(newAccount);
 
-    final current = state.asData?.value ??
+    final current =
+        state.asData?.value ??
         const StudentAccountModel(
           studentId: 'student_123',
           balance: 124.50,
@@ -82,7 +83,8 @@ class StudentAccount extends _$StudentAccount {
     //     .updateSpendingLimit(studentId: studentId, limit: limit);
     // state = AsyncData(newAccount);
 
-    final current = state.asData?.value ??
+    final current =
+        state.asData?.value ??
         const StudentAccountModel(
           studentId: 'student_123',
           balance: 124.50,

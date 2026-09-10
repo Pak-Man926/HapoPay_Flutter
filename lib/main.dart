@@ -10,7 +10,6 @@ import 'core/storage/storage_provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-
   // Supabase is reserved for future OAuth / social-login integration.
   // Initialization is skipped when no URL is configured so the app works
   // fully with JWT auth without requiring a Supabase project.

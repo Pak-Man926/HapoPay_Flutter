@@ -40,9 +40,7 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
         minimumSize: const Size.fromHeight(52),
-        shape: RoundedRectangleBorder(
-          borderRadius: AppTokens.borderRadiusLg,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppTokens.borderRadiusLg),
         textStyle: GoogleFonts.outfit(
           fontSize: 15,
           fontWeight: FontWeight.w700,
@@ -54,9 +52,7 @@ class AppTheme {
         foregroundColor: AppTokens.darkForeground,
         minimumSize: const Size.fromHeight(52),
         side: const BorderSide(color: AppTokens.darkBorder, width: 1.5),
-        shape: RoundedRectangleBorder(
-          borderRadius: AppTokens.borderRadiusLg,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppTokens.borderRadiusLg),
         textStyle: GoogleFonts.outfit(
           fontSize: 15,
           fontWeight: FontWeight.w600,
@@ -153,9 +149,7 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
         minimumSize: const Size.fromHeight(52),
-        shape: RoundedRectangleBorder(
-          borderRadius: AppTokens.borderRadiusLg,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppTokens.borderRadiusLg),
         textStyle: GoogleFonts.outfit(
           fontSize: 15,
           fontWeight: FontWeight.w700,
@@ -167,9 +161,7 @@ class AppTheme {
         foregroundColor: AppTokens.lightForeground,
         minimumSize: const Size.fromHeight(52),
         side: const BorderSide(color: AppTokens.lightBorder, width: 1.5),
-        shape: RoundedRectangleBorder(
-          borderRadius: AppTokens.borderRadiusLg,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppTokens.borderRadiusLg),
         textStyle: GoogleFonts.outfit(
           fontSize: 15,
           fontWeight: FontWeight.w600,

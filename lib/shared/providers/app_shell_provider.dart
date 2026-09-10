@@ -16,8 +16,9 @@ class AppRoleNotifier extends Notifier<UserRole> {
   }
 }
 
-final appRoleProvider =
-    NotifierProvider<AppRoleNotifier, UserRole>(AppRoleNotifier.new);
+final appRoleProvider = NotifierProvider<AppRoleNotifier, UserRole>(
+  AppRoleNotifier.new,
+);
 
 class ActiveTabNotifier extends Notifier<AppTab> {
   @override
@@ -28,5 +29,6 @@ class ActiveTabNotifier extends Notifier<AppTab> {
   }
 }
 
-final activeTabProvider =
-    NotifierProvider<ActiveTabNotifier, AppTab>(ActiveTabNotifier.new);
+final activeTabProvider = NotifierProvider<ActiveTabNotifier, AppTab>(
+  ActiveTabNotifier.new,
+);

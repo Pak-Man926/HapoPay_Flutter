@@ -101,5 +101,5 @@ class RewardsScreenNotifier extends Notifier<RewardsScreenState> {
 
 final rewardsScreenProvider =
     NotifierProvider<RewardsScreenNotifier, RewardsScreenState>(
-  RewardsScreenNotifier.new,
-);
+      RewardsScreenNotifier.new,
+    );

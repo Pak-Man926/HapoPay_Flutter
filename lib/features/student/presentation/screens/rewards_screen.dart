@@ -15,42 +15,44 @@ import '../../providers/rewards_screen_provider.dart';
 class RewardsScreen extends ConsumerWidget {
   final bool isEmbeddedInShell;
 
-  const RewardsScreen({
-    super.key,
-    this.isEmbeddedInShell = false,
-  });
+  const RewardsScreen({super.key, this.isEmbeddedInShell = false});
 
   static const List<TierInfo> _tiers = [
     TierInfo(
-        name: 'Sprout',
-        min: 0,
-        max: 200,
-        color: Color(0xFF64748B),
-        emoji: '🌱'),
+      name: 'Sprout',
+      min: 0,
+      max: 200,
+      color: Color(0xFF64748B),
+      emoji: '🌱',
+    ),
     TierInfo(
-        name: 'Scout',
-        min: 200,
-        max: 500,
-        color: Color(0xFF00B4D8),
-        emoji: '🔵'),
+      name: 'Scout',
+      min: 200,
+      max: 500,
+      color: Color(0xFF00B4D8),
+      emoji: '🔵',
+    ),
     TierInfo(
-        name: 'Keeper',
-        min: 500,
-        max: 1000,
-        color: Color(0xFF7C4DFF),
-        emoji: '💜'),
+      name: 'Keeper',
+      min: 500,
+      max: 1000,
+      color: Color(0xFF7C4DFF),
+      emoji: '💜',
+    ),
     TierInfo(
-        name: 'Champion',
-        min: 1000,
-        max: 2000,
-        color: Color(0xFFFFD166),
-        emoji: '⭐'),
+      name: 'Champion',
+      min: 1000,
+      max: 2000,
+      color: Color(0xFFFFD166),
+      emoji: '⭐',
+    ),
     TierInfo(
-        name: 'Legend',
-        min: 2000,
-        max: 999999,
-        color: Color(0xFFFF6B35),
-        emoji: '🔥'),
+      name: 'Legend',
+      min: 2000,
+      max: 999999,
+      color: Color(0xFFFF6B35),
+      emoji: '🔥',
+    ),
   ];
 
   @override
@@ -62,12 +64,15 @@ class RewardsScreen extends ConsumerWidget {
     final streakDays = rewardsState.streakDays;
     final completedDays = rewardsState.completedDays;
 
-    final backgroundColor =
-        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final backgroundColor = isDark
+        ? AppTokens.darkBackground
+        : AppTokens.lightBackground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
     final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
     final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
 
@@ -82,7 +87,7 @@ class RewardsScreen extends ConsumerWidget {
 
     final pctToNext = nextTier != null
         ? ((currentPoints - currentTier.min) / (nextTier.min - currentTier.min))
-            .clamp(0.0, 1.0)
+              .clamp(0.0, 1.0)
         : 1.0;
 
     return Scaffold(
@@ -91,8 +96,11 @@ class RewardsScreen extends ConsumerWidget {
           ? null
           : AppBar(
               leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded,
-                    color: foregroundColor, size: 20),
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: foregroundColor,
+                  size: 20,
+                ),
                 onPressed: () => context.pop(),
               ),
               title: Text(
@@ -147,8 +155,10 @@ class RewardsScreen extends ConsumerWidget {
                           const Spacing.vertical(2),
                           Row(
                             children: [
-                              Text(currentTier.emoji,
-                                  style: const TextStyle(fontSize: 24)),
+                              Text(
+                                currentTier.emoji,
+                                style: const TextStyle(fontSize: 24),
+                              ),
                               const Spacing.horizontal(6),
                               Text(
                                 currentTier.name,
@@ -211,10 +221,12 @@ class RewardsScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: pctToNext,
-                        backgroundColor:
-                            isDark ? AppTokens.darkMuted : AppTokens.lightMuted,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(currentTier.color),
+                        backgroundColor: isDark
+                            ? AppTokens.darkMuted
+                            : AppTokens.lightMuted,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          currentTier.color,
+                        ),
                         minHeight: 8,
                       ),
                     ),
@@ -238,8 +250,11 @@ class RewardsScreen extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.emoji_events_outlined,
-                          color: AppTokens.primary, size: 18),
+                      Icon(
+                        Icons.emoji_events_outlined,
+                        color: AppTokens.primary,
+                        size: 18,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'Tier Roadmap',
@@ -273,13 +288,14 @@ class RewardsScreen extends ConsumerWidget {
                                       color: reached
                                           ? tier.color
                                           : (isDark
-                                              ? AppTokens.darkMuted
-                                              : AppTokens.lightMuted),
+                                                ? AppTokens.darkMuted
+                                                : AppTokens.lightMuted),
                                       boxShadow: isCurrent
                                           ? [
                                               BoxShadow(
-                                                color: tier.color
-                                                    .withValues(alpha: 0.5),
+                                                color: tier.color.withValues(
+                                                  alpha: 0.5,
+                                                ),
                                                 blurRadius: 10,
                                                 spreadRadius: 2,
                                               ),
@@ -318,8 +334,8 @@ class RewardsScreen extends ConsumerWidget {
                                 color: currentPoints >= _tiers[i + 1].min
                                     ? _tiers[i + 1].color
                                     : (isDark
-                                        ? AppTokens.darkMuted
-                                        : AppTokens.lightMuted),
+                                          ? AppTokens.darkMuted
+                                          : AppTokens.lightMuted),
                               ),
                           ],
                         ),
@@ -371,7 +387,9 @@ class RewardsScreen extends ConsumerWidget {
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppTokens.accent.withValues(alpha: 0.15),
                           borderRadius: AppTokens.borderRadiusFull,
@@ -402,13 +420,16 @@ class RewardsScreen extends ConsumerWidget {
                               color: isComplete
                                   ? AppTokens.accent
                                   : (isDark
-                                      ? AppTokens.darkMuted
-                                      : AppTokens.lightMuted),
+                                        ? AppTokens.darkMuted
+                                        : AppTokens.lightMuted),
                             ),
                             child: Center(
                               child: isComplete
-                                  ? const Icon(Icons.check_rounded,
-                                      color: AppTokens.darkBackground, size: 18)
+                                  ? const Icon(
+                                      Icons.check_rounded,
+                                      color: AppTokens.darkBackground,
+                                      size: 18,
+                                    )
                                   : null,
                             ),
                           ),
@@ -485,8 +506,8 @@ class RewardsScreen extends ConsumerWidget {
                             color: award.isClaimed
                                 ? AppTokens.accent.withValues(alpha: 0.15)
                                 : (isDark
-                                    ? AppTokens.darkSecondary
-                                    : AppTokens.lightSecondary),
+                                      ? AppTokens.darkSecondary
+                                      : AppTokens.lightSecondary),
                             borderRadius: AppTokens.borderRadiusMd,
                           ),
                           child: Center(
@@ -525,8 +546,11 @@ class RewardsScreen extends ConsumerWidget {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.star_rounded,
-                                    color: AppTokens.gold, size: 14),
+                                const Icon(
+                                  Icons.star_rounded,
+                                  color: AppTokens.gold,
+                                  size: 14,
+                                ),
                                 const Spacing.horizontal(2),
                                 Text(
                                   '+${award.pts}',
@@ -544,10 +568,13 @@ class RewardsScreen extends ConsumerWidget {
                             if (award.isClaimed)
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 2),
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
-                                  color:
-                                      AppTokens.accent.withValues(alpha: 0.15),
+                                  color: AppTokens.accent.withValues(
+                                    alpha: 0.15,
+                                  ),
                                   borderRadius: AppTokens.borderRadiusFull,
                                 ),
                                 child: Text(
@@ -570,7 +597,8 @@ class RewardsScreen extends ConsumerWidget {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
-                                            '🎉 Claimed +$pts reward points!'),
+                                          '🎉 Claimed +$pts reward points!',
+                                        ),
                                         behavior: SnackBarBehavior.floating,
                                         backgroundColor: AppTokens.accent,
                                       ),
@@ -579,7 +607,9 @@ class RewardsScreen extends ConsumerWidget {
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 4),
+                                    horizontal: 12,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppTokens.primary,
                                     borderRadius: AppTokens.borderRadiusFull,

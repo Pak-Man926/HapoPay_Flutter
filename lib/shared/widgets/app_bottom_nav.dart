@@ -22,15 +22,14 @@ class AppBottomNav extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
     final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
 
     return Container(
       decoration: BoxDecoration(
         color: cardColor,
-        border: Border(
-          top: BorderSide(color: borderColor, width: 1),
-        ),
+        border: Border(top: BorderSide(color: borderColor, width: 1)),
       ),
       padding: EdgeInsets.fromLTRB(
         16,
@@ -160,10 +159,7 @@ class _CenterPayNavButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _CenterPayNavButton({
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _CenterPayNavButton({required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

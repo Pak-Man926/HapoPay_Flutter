@@ -17,19 +17,13 @@ class AuthRemoteDataSource {
 
   /// `POST /accounts/token/`
   Future<AuthResponseDto> login(LoginRequestDto dto) async {
-    final response = await _dio.post(
-      '/accounts/token/',
-      data: dto.toJson(),
-    );
+    final response = await _dio.post('/accounts/token/', data: dto.toJson());
     return AuthResponseDto.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// `POST /accounts/register/`
   Future<AuthResponseDto> register(RegisterRequestDto dto) async {
-    final response = await _dio.post(
-      '/accounts/register/',
-      data: dto.toJson(),
-    );
+    final response = await _dio.post('/accounts/register/', data: dto.toJson());
     return AuthResponseDto.fromJson(response.data as Map<String, dynamic>);
   }
 
@@ -37,10 +31,7 @@ class AuthRemoteDataSource {
   ///
   /// Blacklists the refresh token on the server.
   Future<void> logout(String refreshToken) async {
-    await _dio.post(
-      '/accounts/logout/',
-      data: {'refresh': refreshToken},
-    );
+    await _dio.post('/accounts/logout/', data: {'refresh': refreshToken});
   }
 
   /// `POST /accounts/token/refresh/`

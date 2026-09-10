@@ -71,47 +71,52 @@ void main() {
     expect(reward.tier, RewardTier.silver);
   });
 
-  test('claimAchievement optimistically bumps points then reconciles',
-      () async {
-    await container.read(rewardsProvider.future);
-    final before = container.read(rewardsProvider).requireValue;
+  test(
+    'claimAchievement optimistically bumps points then reconciles',
+    () async {
+      await container.read(rewardsProvider.future);
+      final before = container.read(rewardsProvider).requireValue;
 
-    final claimFuture =
-        container.read(rewardsProvider.notifier).claimAchievement('qr_rookie');
+      final claimFuture = container
+          .read(rewardsProvider.notifier)
+          .claimAchievement('qr_rookie');
 
-    // Optimistic state should already reflect claim before await completes.
-    final optimistic = container.read(rewardsProvider).requireValue;
-    expect(optimistic.totalPoints, before.totalPoints + 50);
-    expect(
-      optimistic.achievements.firstWhere((a) => a.id == 'qr_rookie').claimed,
-      isTrue,
-    );
+      // Optimistic state should already reflect claim before await completes.
+      final optimistic = container.read(rewardsProvider).requireValue;
+      expect(optimistic.totalPoints, before.totalPoints + 50);
+      expect(
+        optimistic.achievements.firstWhere((a) => a.id == 'qr_rookie').claimed,
+        isTrue,
+      );
 
-    await claimFuture;
-    final after = container.read(rewardsProvider).requireValue;
-    expect(after.totalPoints, before.totalPoints + 50);
-    expect(repo.claimCalls, 1);
-  });
+      await claimFuture;
+      final after = container.read(rewardsProvider).requireValue;
+      expect(after.totalPoints, before.totalPoints + 50);
+      expect(repo.claimCalls, 1);
+    },
+  );
 
-  test('claimAchievement rolls back AsyncData on failure (no AsyncError wipe)',
-      () async {
-    await container.read(rewardsProvider.future);
-    final before = container.read(rewardsProvider).requireValue;
-    repo.claimError = Exception('network down');
+  test(
+    'claimAchievement rolls back AsyncData on failure (no AsyncError wipe)',
+    () async {
+      await container.read(rewardsProvider.future);
+      final before = container.read(rewardsProvider).requireValue;
+      repo.claimError = Exception('network down');
 
-    await expectLater(
-      container.read(rewardsProvider.notifier).claimAchievement('qr_rookie'),
-      throwsA(isA<Exception>()),
-    );
+      await expectLater(
+        container.read(rewardsProvider.notifier).claimAchievement('qr_rookie'),
+        throwsA(isA<Exception>()),
+      );
 
-    final state = container.read(rewardsProvider);
-    expect(state.hasError, isFalse);
-    expect(state.requireValue.totalPoints, before.totalPoints);
-    expect(
-      state.requireValue.achievements
-          .firstWhere((a) => a.id == 'qr_rookie')
-          .claimed,
-      isFalse,
-    );
-  });
+      final state = container.read(rewardsProvider);
+      expect(state.hasError, isFalse);
+      expect(state.requireValue.totalPoints, before.totalPoints);
+      expect(
+        state.requireValue.achievements
+            .firstWhere((a) => a.id == 'qr_rookie')
+            .claimed,
+        isFalse,
+      );
+    },
+  );
 }

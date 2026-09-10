@@ -152,10 +152,7 @@ class RegisterScreenNotifier extends Notifier<RegisterScreenState> {
       state = state.copyWith(isLoading: false, clearError: true);
       return true;
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
       return false;
     }
   }
@@ -163,5 +160,5 @@ class RegisterScreenNotifier extends Notifier<RegisterScreenState> {
 
 final registerStateProvider =
     NotifierProvider<RegisterScreenNotifier, RegisterScreenState>(
-  RegisterScreenNotifier.new,
-);
+      RegisterScreenNotifier.new,
+    );

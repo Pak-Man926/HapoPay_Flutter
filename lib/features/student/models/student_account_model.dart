@@ -24,12 +24,12 @@ class TransactionModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'description': description,
-        'amount': amount,
-        'timestamp': timestamp.toIso8601String(),
-        'type': type,
-      };
+    'id': id,
+    'description': description,
+    'amount': amount,
+    'timestamp': timestamp.toIso8601String(),
+    'type': type,
+  };
 }
 
 class StudentAccountModel {
@@ -60,10 +60,10 @@ class StudentAccountModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'student_id': studentId,
-        'balance': balance,
-        'daily_limit': dailyLimit,
-        'today_spent': todaySpent,
-        'transactions': transactions.map((e) => e.toJson()).toList(),
-      };
+    'student_id': studentId,
+    'balance': balance,
+    'daily_limit': dailyLimit,
+    'today_spent': todaySpent,
+    'transactions': transactions.map((e) => e.toJson()).toList(),
+  };
 }

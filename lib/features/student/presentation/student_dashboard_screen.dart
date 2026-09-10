@@ -21,10 +21,7 @@ import '../providers/student_account_provider.dart';
 class StudentDashboardScreen extends ConsumerWidget {
   final bool isEmbeddedInShell;
 
-  const StudentDashboardScreen({
-    super.key,
-    this.isEmbeddedInShell = false,
-  });
+  const StudentDashboardScreen({super.key, this.isEmbeddedInShell = false});
 
   static const List<GoalItem> _goals = [
     GoalItem(name: 'New Headphones', target: 80, saved: 45, emoji: '🎧'),
@@ -33,22 +30,29 @@ class StudentDashboardScreen extends ConsumerWidget {
 
   static const List<StudentTxnItem> _recentTxns = [
     StudentTxnItem(
-        merchant: 'School Canteen',
-        amount: -4.50,
-        time: 'Today, 12:30',
-        cat: '🍔'),
+      merchant: 'School Canteen',
+      amount: -4.50,
+      time: 'Today, 12:30',
+      cat: '🍔',
+    ),
     StudentTxnItem(
-        merchant: 'Bus Pass Top-up',
-        amount: -15.00,
-        time: 'Today, 7:45',
-        cat: '🚌'),
+      merchant: 'Bus Pass Top-up',
+      amount: -15.00,
+      time: 'Today, 7:45',
+      cat: '🚌',
+    ),
     StudentTxnItem(
-        merchant: 'Weekly Allowance',
-        amount: 50.00,
-        time: 'Yesterday',
-        cat: '💸'),
+      merchant: 'Weekly Allowance',
+      amount: 50.00,
+      time: 'Yesterday',
+      cat: '💸',
+    ),
     StudentTxnItem(
-        merchant: 'Stationery World', amount: -12.00, time: 'Mon', cat: '📚'),
+      merchant: 'Stationery World',
+      amount: -12.00,
+      time: 'Mon',
+      cat: '📚',
+    ),
   ];
 
   @override
@@ -58,16 +62,20 @@ class StudentDashboardScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final backgroundColor =
-        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final backgroundColor = isDark
+        ? AppTokens.darkBackground
+        : AppTokens.lightBackground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
     final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
     final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
-    final secondaryBg =
-        isDark ? AppTokens.darkSecondary : AppTokens.lightSecondary;
+    final secondaryBg = isDark
+        ? AppTokens.darkSecondary
+        : AppTokens.lightSecondary;
 
     final displayName = user?.fullName.split(' ').first ?? 'Amara';
 
@@ -114,8 +122,10 @@ class StudentDashboardScreen extends ConsumerWidget {
                   },
                   child: Container(
                     margin: const EdgeInsets.only(right: 8),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTokens.accent,
                       borderRadius: AppTokens.borderRadiusFull,
@@ -232,7 +242,9 @@ class StudentDashboardScreen extends ConsumerWidget {
                       // 7 Day Streak Badge
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: AppTokens.accent.withValues(alpha: 0.2),
                           borderRadius: AppTokens.borderRadiusFull,
@@ -441,8 +453,10 @@ class StudentDashboardScreen extends ConsumerWidget {
                             children: [
                               Row(
                                 children: [
-                                  Text(g.emoji,
-                                      style: const TextStyle(fontSize: 20)),
+                                  Text(
+                                    g.emoji,
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
                                   const Spacing.horizontal(8),
                                   Column(
                                     crossAxisAlignment:
@@ -470,10 +484,13 @@ class StudentDashboardScreen extends ConsumerWidget {
                               if (g.saved >= g.target)
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 3),
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: AppTokens.accent
-                                        .withValues(alpha: 0.15),
+                                    color: AppTokens.accent.withValues(
+                                      alpha: 0.15,
+                                    ),
                                     borderRadius: AppTokens.borderRadiusFull,
                                   ),
                                   child: Text(
@@ -540,8 +557,10 @@ class StudentDashboardScreen extends ConsumerWidget {
               itemBuilder: (context, index) {
                 final t = _recentTxns[index];
                 return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: cardColor,
                     borderRadius: AppTokens.borderRadiusLg,
@@ -557,8 +576,10 @@ class StudentDashboardScreen extends ConsumerWidget {
                           borderRadius: AppTokens.borderRadiusMd,
                         ),
                         child: Center(
-                          child:
-                              Text(t.cat, style: const TextStyle(fontSize: 18)),
+                          child: Text(
+                            t.cat,
+                            style: const TextStyle(fontSize: 18),
+                          ),
                         ),
                       ),
                       const Spacing.horizontal(12),
@@ -589,8 +610,9 @@ class StudentDashboardScreen extends ConsumerWidget {
                         style: GoogleFonts.dmMono(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color:
-                              t.amount > 0 ? AppTokens.accent : foregroundColor,
+                          color: t.amount > 0
+                              ? AppTokens.accent
+                              : foregroundColor,
                         ),
                       ),
                     ],

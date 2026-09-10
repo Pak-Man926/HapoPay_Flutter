@@ -25,9 +25,9 @@ class AuthInterceptor extends Interceptor {
     required SecureStorageService storage,
     required AuthEventBus eventBus,
     required Dio dio,
-  })  : _storage = storage,
-        _eventBus = eventBus,
-        _dio = dio;
+  }) : _storage = storage,
+       _eventBus = eventBus,
+       _dio = dio;
 
   final SecureStorageService _storage;
   final AuthEventBus _eventBus;
@@ -59,8 +59,9 @@ class AuthInterceptor extends Interceptor {
     final token = await _storage.getAccessToken();
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
-      Logger()
-          .i("Injected access token into request headers for ${options.uri}");
+      Logger().i(
+        "Injected access token into request headers for ${options.uri}",
+      );
     }
     handler.next(options);
   }
@@ -88,9 +89,7 @@ class AuthInterceptor extends Interceptor {
           handler.resolve(response);
           return;
         } on DioException catch (retryErr) {
-          Logger().e(
-            "Retry after token refresh failed: ${retryErr.message}",
-          );
+          Logger().e("Retry after token refresh failed: ${retryErr.message}");
           handler.next(retryErr);
           return;
         }

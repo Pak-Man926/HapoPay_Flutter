@@ -30,8 +30,8 @@ class ThemePreviewBox extends StatelessWidget {
           color: isSelected
               ? AppTokens.primary.withValues(alpha: 0.12)
               : Theme.of(context).brightness == Brightness.dark
-                  ? AppTokens.darkSecondary
-                  : AppTokens.lightSecondary,
+              ? AppTokens.darkSecondary
+              : AppTokens.lightSecondary,
           borderRadius: AppTokens.borderRadiusLg,
           border: Border.all(
             color: isSelected ? AppTokens.primary : Colors.transparent,

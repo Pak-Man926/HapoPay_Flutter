@@ -41,11 +41,11 @@ class RuleRow extends StatelessWidget {
             fontWeight: FontWeight.w500,
             color: isMet
                 ? (isDark
-                    ? AppTokens.darkForeground
-                    : AppTokens.lightForeground)
+                      ? AppTokens.darkForeground
+                      : AppTokens.lightForeground)
                 : (isDark
-                    ? AppTokens.darkMutedForeground
-                    : AppTokens.lightMutedForeground),
+                      ? AppTokens.darkMutedForeground
+                      : AppTokens.lightMutedForeground),
           ),
         ),
       ],
