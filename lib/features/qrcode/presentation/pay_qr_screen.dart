@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hapopay/core/constants/constants.dart';
 import 'package:hapopay/features/qrcode/presentation/widgets/alt_auth_options.dart';
 import 'package:hapopay/features/qrcode/presentation/widgets/security_badge.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/theme/tokens.dart';
@@ -16,10 +18,7 @@ export '../providers/pay_qr_provider.dart' show PayStep;
 class PayQrScreen extends ConsumerStatefulWidget {
   final bool isEmbeddedInShell;
 
-  const PayQrScreen({
-    super.key,
-    this.isEmbeddedInShell = false,
-  });
+  const PayQrScreen({super.key, this.isEmbeddedInShell = false});
 
   @override
   ConsumerState<PayQrScreen> createState() => _PayQrScreenState();
@@ -30,6 +29,14 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
   late final AnimationController _pulseController;
   late final AnimationController _scanController;
   late final Animation<double> _scanAnimation;
+  final TextEditingController controller = TextEditingController();
+
+  final logger = Logger();
+  final auth = LocalAuthentication();
+  final String pin = "1234"; // Hardcoded PIN for demonstration purposes
+  bool isBiometricAvailable = false;
+  bool isLoading = false;
+  List<BiometricType> _availableBiometrics = [];
 
   @override
   void initState() {
@@ -47,6 +54,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
     _scanAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _scanController, curve: Curves.easeInOut),
     );
+    _checkBiometricAvailability();
   }
 
   @override
@@ -64,16 +72,20 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
     final countdown = payQrState.countdown;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor =
-        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final backgroundColor = isDark
+        ? AppTokens.darkBackground
+        : AppTokens.lightBackground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
     final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
     final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
-    final secondaryBg =
-        isDark ? AppTokens.darkSecondary : AppTokens.lightSecondary;
+    final secondaryBg = isDark
+        ? AppTokens.darkSecondary
+        : AppTokens.lightSecondary;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -81,16 +93,19 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
           ? null
           : AppBar(
               leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded,
-                    color: foregroundColor, size: 20),
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: foregroundColor,
+                  size: 20,
+                ),
                 onPressed: () => context.pop(),
               ),
               title: Text(
                 step == PayStep.biometric
                     ? 'Verify Identity'
                     : step == PayStep.qr
-                        ? 'Scan to Pay'
-                        : 'Payment Confirmation',
+                    ? 'Scan to Pay'
+                    : 'Payment Confirmation',
                 style: GoogleFonts.outfit(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -130,6 +145,33 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
     required Color cardColor,
     required Color borderColor,
   }) {
+    // final hasFaceOrGenericAuth =
+    //     _availableBiometrics.contains(BiometricType.face) ||
+    //     _availableBiometrics.contains(BiometricType.strong) ||
+    //     _availableBiometrics.contains(BiometricType.weak);
+
+    // Check what the device actually has enrolled
+    final hasFace = _availableBiometrics.contains(BiometricType.face);
+    final hasFingerprint = _availableBiometrics.contains(
+      BiometricType.fingerprint,
+    );
+    //final hasStrong = _availableBiometrics.contains(BiometricType.strong);
+
+    // Determine the icon and text to show
+    IconData bioIcon;
+    String bioLabel;
+
+    if (hasFace && !hasFingerprint) {
+      bioIcon = Icons.face_rounded;
+      bioLabel = 'Face ID';
+    } else if (hasFingerprint && !hasFace) {
+      bioIcon = Icons.fingerprint_rounded;
+      bioLabel = 'Touch ID';
+    } else {
+      // Device has both, or uses generic 'strong' biometrics
+      bioIcon = Icons.security_rounded;
+      bioLabel = 'Biometric Verify';
+    }
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
       child: Column(
@@ -146,10 +188,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
           const Spacing.vertical(4),
           Text(
             'Use your fingerprint or face to confirm',
-            style: GoogleFonts.outfit(
-              fontSize: 14,
-              color: mutedForeground,
-            ),
+            style: GoogleFonts.outfit(fontSize: 14, color: mutedForeground),
           ),
           const Spacing.vertical(48),
 
@@ -167,8 +206,8 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
                       animation: _pulseController,
                       builder: (context, child) {
                         return Container(
-                          width: 120 + (_pulseController.value * 50),
-                          height: 120 + (_pulseController.value * 50),
+                          width: 180 + (_pulseController.value * 50),
+                          height: 180 + (_pulseController.value * 50),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: AppTokens.primary.withValues(
@@ -181,8 +220,8 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
 
                   // Middle ripple
                   Container(
-                    width: 130,
-                    height: 130,
+                    width: 150,
+                    height: 150,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: bioDone
@@ -193,12 +232,20 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
 
                   // Touch ID center button
                   GestureDetector(
-                    onTap: () =>
-                        ref.read(payQrProvider.notifier).authenticate(),
+                    onTap: () {
+                      //ref.read(payQrProvider.notifier).authenticate(),
+                      if (isBiometricAvailable) {
+                        _biometricAuthentication();
+                      } else {
+                        Logger().w(
+                          "Biometric authentication is not available on this device!",
+                        );
+                      }
+                    },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
-                      width: 96,
-                      height: 96,
+                      width: 120,
+                      height: 120,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: bioDone
@@ -218,17 +265,15 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            bioDone
-                                ? Icons.check_rounded
-                                : Icons.fingerprint_rounded,
+                            bioDone ? Icons.check_rounded : bioIcon,
                             color: Colors.white,
                             size: 38,
                           ),
-                          const SizedBox(height: 2),
+                          const Spacing.vertical(2),
                           Text(
-                            bioDone ? 'Verified' : 'Touch ID',
+                            bioDone ? 'Verified' : bioLabel,
                             style: GoogleFonts.outfit(
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
@@ -269,22 +314,23 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
           ),
           const Spacing.vertical(12),
 
-          AltAuthOption(
-            emoji: '👁️',
-            label: 'Face Recognition',
-            cardColor: cardColor,
-            borderColor: borderColor,
-            foregroundColor: foregroundColor,
-            onTap: () => ref.read(payQrProvider.notifier).authenticate(),
-          ),
-          const Spacing.vertical(10),
+          //   AltAuthOption(
+          //     emoji: '👁️',
+          //     label: 'Face Recognition',
+          //     cardColor: cardColor,
+          //     borderColor: borderColor,
+          //     foregroundColor: foregroundColor,
+          //     onTap: () => ref.read(payQrProvider.notifier).authenticate(),
+          //   ),
+          // const Spacing.vertical(10),
           AltAuthOption(
             emoji: '🔢',
             label: 'Enter PIN',
             cardColor: cardColor,
             borderColor: borderColor,
             foregroundColor: foregroundColor,
-            onTap: () => ref.read(payQrProvider.notifier).authenticate(),
+            onTap: () => context.go('/student/pay-qr/pin-auth'),
+            //ref.read(payQrProvider.notifier).authenticate(),
           ),
         ],
       ),
@@ -318,10 +364,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
           const Spacing.vertical(2),
           Text(
             'Show this QR code at the checkout terminal',
-            style: GoogleFonts.outfit(
-              fontSize: 13,
-              color: mutedForeground,
-            ),
+            style: GoogleFonts.outfit(fontSize: 13, color: mutedForeground),
           ),
           const Spacing.vertical(24),
 
@@ -371,7 +414,9 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
                             builder: (context, child) {
                               return Align(
                                 alignment: Alignment(
-                                    0, (_scanAnimation.value * 2) - 1),
+                                  0,
+                                  (_scanAnimation.value * 2) - 1,
+                                ),
                                 child: Container(
                                   height: 2.5,
                                   decoration: BoxDecoration(
@@ -385,8 +430,9 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: AppTokens.primary
-                                            .withValues(alpha: 0.8),
+                                        color: AppTokens.primary.withValues(
+                                          alpha: 0.8,
+                                        ),
                                         blurRadius: 6,
                                       ),
                                     ],
@@ -415,7 +461,8 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
                         strokeWidth: 2.5,
                         backgroundColor: AppTokens.darkBorder,
                         valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppTokens.primary),
+                          AppTokens.primary,
+                        ),
                       ),
                     ),
                     const Spacing.horizontal(8),
@@ -438,10 +485,7 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
           // Max Transaction Cap
           Text(
             'Max transaction',
-            style: GoogleFonts.outfit(
-              fontSize: 12,
-              color: mutedForeground,
-            ),
+            style: GoogleFonts.outfit(fontSize: 12, color: mutedForeground),
           ),
           const Spacing.vertical(2),
           Text(
@@ -520,8 +564,11 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
               border: Border.all(color: AppTokens.accent, width: 2.5),
             ),
             child: const Center(
-              child:
-                  Icon(Icons.check_rounded, color: AppTokens.accent, size: 54),
+              child: Icon(
+                Icons.check_rounded,
+                color: AppTokens.accent,
+                size: 54,
+              ),
             ),
           ),
 
@@ -582,6 +629,51 @@ class _PayQrScreenState extends ConsumerState<PayQrScreen>
         ],
       ),
     );
+  }
+
+  void _checkBiometricAvailability() async {
+    try {
+      bool available =
+          await auth.canCheckBiometrics || await auth.isDeviceSupported();
+      List<BiometricType> biometrics = [];
+
+      if (available) {
+        biometrics = await auth.getAvailableBiometrics();
+        logger.i('Available biometrics: $biometrics');
+      }
+
+      setState(() {
+        isBiometricAvailable = available;
+        _availableBiometrics = biometrics;
+      });
+    } catch (e) {
+      logger.e('Error checking biometric availability: $e');
+    }
+  }
+
+  void _biometricAuthentication() async {
+    if (!isBiometricAvailable) {
+      logger.w("Biometric authentication is not available on this device!");
+      return;
+    }
+
+    try {
+      // The OS automatically chooses Face or Fingerprint based on the user's settings
+      bool authenticated = await auth.authenticate(
+        localizedReason: "Verify your identity to authorize payment",
+        biometricOnly: true,
+        persistAcrossBackgrounding:
+            true, // Keeps the prompt alive if the app goes to the background
+        sensitiveTransaction:
+            true, // Indicates that this is a sensitive transaction
+      );
+
+      if (authenticated) {
+        ref.read(payQrProvider.notifier).authenticate();
+      }
+    } catch (e) {
+      logger.e("Error during biometric authentication: $e");
+    }
   }
 
   Widget _buildCurrentStep(
