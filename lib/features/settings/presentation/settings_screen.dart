@@ -19,34 +19,34 @@ import '../providers/user_settings_provider.dart';
 class SettingsScreen extends ConsumerWidget {
   final bool isEmbeddedInShell;
 
-  const SettingsScreen({
-    super.key,
-    this.isEmbeddedInShell = false,
-  });
+  const SettingsScreen({super.key, this.isEmbeddedInShell = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final userSettings = ref.watch(userSettingsProvider);
-    final isDark = themeMode == ThemeMode.dark ||
+    final isDark =
+        themeMode == ThemeMode.dark ||
         (themeMode == ThemeMode.system &&
             Theme.of(context).brightness == Brightness.dark);
 
     final user = ref.watch(authProvider.select((s) => s.user));
 
-    final backgroundColor =
-        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final backgroundColor = isDark
+        ? AppTokens.darkBackground
+        : AppTokens.lightBackground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
     final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
     final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
 
     final familyName = user?.fullName.isNotEmpty == true
         ? '${user!.fullName.split(" ").last} Family'
         : 'Mensah Family';
-    
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -54,8 +54,11 @@ class SettingsScreen extends ConsumerWidget {
           ? null
           : AppBar(
               leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded,
-                    color: foregroundColor, size: 20),
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: foregroundColor,
+                  size: 20,
+                ),
                 onPressed: () => context.pop(),
               ),
               title: Text(
@@ -96,8 +99,10 @@ class SettingsScreen extends ConsumerWidget {
                       borderRadius: AppTokens.borderRadiusLg,
                     ),
                     child: const Center(
-                      child:
-                          Text('👨‍👩‍👧‍👦', style: TextStyle(fontSize: 26)),
+                      child: Text(
+                        '👨‍👩‍👧‍👦',
+                        style: TextStyle(fontSize: 26),
+                      ),
                     ),
                   ),
                   const Spacing.horizontal(14),
@@ -125,8 +130,10 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       gradient: AppTokens.heroGradient,
                       borderRadius: AppTokens.borderRadiusFull,
@@ -181,7 +188,9 @@ class SettingsScreen extends ConsumerWidget {
                       value: isDark,
                       activeThumbColor: AppTokens.primary,
                       onChanged: (val) {
-                        ref.read(themeModeProvider.notifier).setThemeMode(
+                        ref
+                            .read(themeModeProvider.notifier)
+                            .setThemeMode(
                               val ? ThemeMode.dark : ThemeMode.light,
                             );
                       },
@@ -201,9 +210,9 @@ class SettingsScreen extends ConsumerWidget {
                         previewBgColor: const Color(0xFF080B12),
                         accentBarColor: AppTokens.primaryLight,
                         onTap: () {
-                          ref.read(themeModeProvider.notifier).setThemeMode(
-                                ThemeMode.dark,
-                              );
+                          ref
+                              .read(themeModeProvider.notifier)
+                              .setThemeMode(ThemeMode.dark);
                         },
                       ),
                     ),
@@ -215,9 +224,9 @@ class SettingsScreen extends ConsumerWidget {
                         previewBgColor: const Color(0xFFF1F5F9),
                         accentBarColor: AppTokens.primaryDark,
                         onTap: () {
-                          ref.read(themeModeProvider.notifier).setThemeMode(
-                                ThemeMode.light,
-                              );
+                          ref
+                              .read(themeModeProvider.notifier)
+                              .setThemeMode(ThemeMode.light);
                         },
                       ),
                     ),
@@ -412,8 +421,11 @@ class SettingsScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.logout_rounded,
-                          color: AppTokens.warning, size: 20),
+                      const Icon(
+                        Icons.logout_rounded,
+                        color: AppTokens.warning,
+                        size: 20,
+                      ),
                       const Spacing.horizontal(8),
                       Text(
                         'Sign Out',

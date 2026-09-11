@@ -33,12 +33,15 @@ class _MyQrScreenState extends ConsumerState<MyQrScreen> {
     final user = ref.watch(authProvider.select((s) => s.user));
     final myQrState = ref.watch(myQrProvider);
 
-    final backgroundColor =
-        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final backgroundColor = isDark
+        ? AppTokens.darkBackground
+        : AppTokens.lightBackground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
     final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
     final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
 
@@ -49,8 +52,11 @@ class _MyQrScreenState extends ConsumerState<MyQrScreen> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded,
-              color: foregroundColor, size: 20),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: foregroundColor,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -80,10 +86,7 @@ class _MyQrScreenState extends ConsumerState<MyQrScreen> {
             Text(
               'Show this QR code to a parent or peer to receive money',
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
-                fontSize: 13,
-                color: mutedForeground,
-              ),
+              style: GoogleFonts.outfit(fontSize: 13, color: mutedForeground),
             ),
             const Spacing.vertical(24),
 
@@ -179,8 +182,9 @@ class _MyQrScreenState extends ConsumerState<MyQrScreen> {
                   const Spacing.vertical(6),
                   TextField(
                     controller: _amountController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     style: GoogleFonts.dmMono(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -191,9 +195,9 @@ class _MyQrScreenState extends ConsumerState<MyQrScreen> {
                       prefixIcon: Icon(Icons.attach_money_rounded, size: 20),
                     ),
                     onChanged: (val) {
-                      ref.read(myQrProvider.notifier).setAmount(
-                            double.tryParse(val) ?? 0.0,
-                          );
+                      ref
+                          .read(myQrProvider.notifier)
+                          .setAmount(double.tryParse(val) ?? 0.0);
                     },
                   ),
                   const Spacing.vertical(14),
