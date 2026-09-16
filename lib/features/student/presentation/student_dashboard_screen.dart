@@ -116,10 +116,10 @@ class StudentDashboardScreen extends ConsumerWidget {
               actions: [
                 // Switch to Parent mode pill
                 GestureDetector(
-                  onTap: () {
-                    ref.read(appRoleProvider.notifier).setRole(UserRole.parent);
-                    context.go('/parent');
-                  },
+                  // onTap: () {
+                  //   ref.read(appRoleProvider.notifier).setRole(UserRole.parent);
+                  //   context.go('/parent');
+                  // },
                   child: Container(
                     margin: const EdgeInsets.only(right: 8),
                     padding: const EdgeInsets.symmetric(

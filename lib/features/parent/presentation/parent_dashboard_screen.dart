@@ -81,7 +81,7 @@ class ParentDashboardScreen extends ConsumerWidget {
               actions: [
                 // Switch to Student mode pill
                 GestureDetector(
-                  onTap: () => context.go('/student'),
+                  //onTap: () => context.go('/student'),
                   child: Container(
                     margin: const EdgeInsets.only(right: 8),
                     padding: const EdgeInsets.symmetric(
