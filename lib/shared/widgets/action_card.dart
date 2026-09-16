@@ -43,8 +43,10 @@ class ActionCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: AppTokens.borderRadiusXl,
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 16.0,
+            ),
             child: Row(
               children: [
                 leadingWidget ??
@@ -55,11 +57,7 @@ class ActionCard extends StatelessWidget {
                         color: primaryColor.withValues(alpha: 0.12),
                         borderRadius: AppTokens.borderRadiusMd,
                       ),
-                      child: Icon(
-                        icon,
-                        color: primaryColor,
-                        size: 22,
-                      ),
+                      child: Icon(icon, color: primaryColor, size: 22),
                     ),
                 const SizedBox(width: 14),
                 Expanded(

@@ -3,9 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hapopay/core/constants/constants.dart';
-import 'package:hapopay/features/parent/models/child_model.dart';
-import 'package:hapopay/features/parent/models/parent_model.dart';
-import 'package:hapopay/features/parent/models/spend_model.dart';
 import 'package:hapopay/features/parent/presentation/widget/donut_chart.dart';
 import 'package:hapopay/features/parent/presentation/widget/family_action_pill.dart';
 
@@ -18,26 +15,27 @@ import '../providers/parent_dashboard_provider.dart';
 class ParentDashboardScreen extends ConsumerWidget {
   final bool isEmbeddedInShell;
 
-  const ParentDashboardScreen({
-    super.key,
-    this.isEmbeddedInShell = false,
-  });
+  const ParentDashboardScreen({super.key, this.isEmbeddedInShell = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dashboardState = ref.watch(parentDashboardProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final backgroundColor =
-        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final backgroundColor = isDark
+        ? AppTokens.darkBackground
+        : AppTokens.lightBackground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
     final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
     final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
-    final secondaryBg =
-        isDark ? AppTokens.darkSecondary : AppTokens.lightSecondary;
+    final secondaryBg = isDark
+        ? AppTokens.darkSecondary
+        : AppTokens.lightSecondary;
 
     final child = dashboardState.selectedChild;
     final children = dashboardState.children;
@@ -83,11 +81,13 @@ class ParentDashboardScreen extends ConsumerWidget {
               actions: [
                 // Switch to Student mode pill
                 GestureDetector(
-                  onTap: () => context.go('/student'),
+                  //onTap: () => context.go('/student'),
                   child: Container(
                     margin: const EdgeInsets.only(right: 8),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTokens.primary,
                       borderRadius: AppTokens.borderRadiusFull,
@@ -123,8 +123,10 @@ class ParentDashboardScreen extends ConsumerWidget {
             // Alert Banner
             if (showAlert) ...[
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: AppTokens.warning.withValues(alpha: 0.12),
                   borderRadius: AppTokens.borderRadiusLg,
@@ -135,8 +137,11 @@ class ParentDashboardScreen extends ConsumerWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.notifications_active_outlined,
-                        color: AppTokens.warning, size: 18),
+                    const Icon(
+                      Icons.notifications_active_outlined,
+                      color: AppTokens.warning,
+                      size: 18,
+                    ),
                     const Spacing.horizontal(8),
                     Expanded(
                       child: Text(
@@ -221,9 +226,11 @@ class ParentDashboardScreen extends ConsumerWidget {
                       const Spacing.vertical(4),
                       Row(
                         children: [
-                          Icon(Icons.arrow_upward_rounded,
-                              color: Colors.white.withValues(alpha: 0.9),
-                              size: 14),
+                          Icon(
+                            Icons.arrow_upward_rounded,
+                            color: Colors.white.withValues(alpha: 0.9),
+                            size: 14,
+                          ),
                           const Spacing.horizontal(4),
                           Text(
                             '\$${dashboardState.addedThisWeek.toInt()} added this week',
@@ -282,8 +289,9 @@ class ParentDashboardScreen extends ConsumerWidget {
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content:
-                            Text('Invite child with family code HAPOFAM-7341'),
+                        content: Text(
+                          'Invite child with family code HAPOFAM-7341',
+                        ),
                       ),
                     );
                   },
@@ -306,8 +314,9 @@ class ParentDashboardScreen extends ConsumerWidget {
                 return Expanded(
                   child: Padding(
                     padding: EdgeInsets.only(
-                        left: i > 0 ? 6.0 : 0,
-                        right: i < children.length - 1 ? 6.0 : 0),
+                      left: i > 0 ? 6.0 : 0,
+                      right: i < children.length - 1 ? 6.0 : 0,
+                    ),
                     child: GestureDetector(
                       onTap: () => ref
                           .read(parentDashboardProvider.notifier)
@@ -330,8 +339,10 @@ class ParentDashboardScreen extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                Text(c.avatar,
-                                    style: const TextStyle(fontSize: 22)),
+                                Text(
+                                  c.avatar,
+                                  style: const TextStyle(fontSize: 22),
+                                ),
                                 const SizedBox(width: 8),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -372,8 +383,9 @@ class ParentDashboardScreen extends ConsumerWidget {
                                 backgroundColor: isDark
                                     ? AppTokens.darkMuted
                                     : AppTokens.lightMuted,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(c.color),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  c.color,
+                                ),
                                 minHeight: 4,
                               ),
                             ),
@@ -412,7 +424,9 @@ class ParentDashboardScreen extends ConsumerWidget {
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppTokens.accent.withValues(alpha: 0.15),
                           borderRadius: AppTokens.borderRadiusFull,
@@ -420,8 +434,11 @@ class ParentDashboardScreen extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.shield_outlined,
-                                color: AppTokens.accent, size: 12),
+                            const Icon(
+                              Icons.shield_outlined,
+                              color: AppTokens.accent,
+                              size: 12,
+                            ),
                             const Spacing.horizontal(4),
                             Text(
                               'Protected',
@@ -464,8 +481,9 @@ class ParentDashboardScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: (child.spent / child.limit).clamp(0.0, 1.0),
-                      backgroundColor:
-                          isDark ? AppTokens.darkMuted : AppTokens.lightMuted,
+                      backgroundColor: isDark
+                          ? AppTokens.darkMuted
+                          : AppTokens.lightMuted,
                       valueColor: AlwaysStoppedAnimation<Color>(child.color),
                       minHeight: 6,
                     ),
@@ -515,7 +533,9 @@ class ParentDashboardScreen extends ConsumerWidget {
                       ])
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
                           decoration: BoxDecoration(
                             color: AppTokens.primary.withValues(alpha: 0.12),
                             borderRadius: AppTokens.borderRadiusFull,
@@ -531,7 +551,9 @@ class ParentDashboardScreen extends ConsumerWidget {
                         ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: isDark
                               ? AppTokens.darkMuted
@@ -581,8 +603,9 @@ class ParentDashboardScreen extends ConsumerWidget {
                         width: 80,
                         height: 80,
                         child: CustomPaint(
-                          painter:
-                              DonutChartPainter(categories: spendCategories),
+                          painter: DonutChartPainter(
+                            categories: spendCategories,
+                          ),
                         ),
                       ),
                       const Spacing.horizontal(20),
@@ -590,8 +613,9 @@ class ParentDashboardScreen extends ConsumerWidget {
                         child: Column(
                           children: spendCategories.map((c) {
                             return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 3.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 3.0,
+                              ),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -673,8 +697,10 @@ class ParentDashboardScreen extends ConsumerWidget {
               itemBuilder: (context, index) {
                 final t = recentTxns[index];
                 return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: !t.approved
                         ? AppTokens.warning.withValues(alpha: 0.08)
@@ -697,8 +723,10 @@ class ParentDashboardScreen extends ConsumerWidget {
                           borderRadius: AppTokens.borderRadiusMd,
                         ),
                         child: Center(
-                          child:
-                              Text(t.cat, style: const TextStyle(fontSize: 18)),
+                          child: Text(
+                            t.cat,
+                            style: const TextStyle(fontSize: 18),
+                          ),
                         ),
                       ),
                       const Spacing.horizontal(12),
@@ -735,8 +763,8 @@ class ParentDashboardScreen extends ConsumerWidget {
                               color: t.amount > 0
                                   ? AppTokens.accent
                                   : (!t.approved
-                                      ? AppTokens.warning
-                                      : foregroundColor),
+                                        ? AppTokens.warning
+                                        : foregroundColor),
                             ),
                           ),
                           if (!t.approved)

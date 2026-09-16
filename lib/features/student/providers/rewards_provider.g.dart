@@ -15,15 +15,15 @@ final rewardsProvider = RewardsProvider._();
 final class RewardsProvider
     extends $AsyncNotifierProvider<Rewards, RewardModel> {
   RewardsProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'rewardsProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'rewardsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$rewardsHash();
@@ -41,11 +41,14 @@ abstract class _$Rewards extends $AsyncNotifier<RewardModel> {
   @override
   WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<RewardModel>, RewardModel>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<AsyncValue<RewardModel>, RewardModel>,
-        AsyncValue<RewardModel>,
-        Object?,
-        Object?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<RewardModel>, RewardModel>,
+              AsyncValue<RewardModel>,
+              Object?,
+              Object?
+            >;
     return element.handleCreate(ref, build);
   }
 }
@@ -54,17 +57,18 @@ abstract class _$Rewards extends $AsyncNotifier<RewardModel> {
 final earnedAchievementsCountProvider = EarnedAchievementsCountProvider._();
 
 final class EarnedAchievementsCountProvider
-    extends $FunctionalProvider<int, int, int> with $Provider<int> {
+    extends $FunctionalProvider<int, int, int>
+    with $Provider<int> {
   EarnedAchievementsCountProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'earnedAchievementsCountProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'earnedAchievementsCountProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$earnedAchievementsCountHash();

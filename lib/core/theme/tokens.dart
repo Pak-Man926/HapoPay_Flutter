@@ -153,8 +153,9 @@ class AppTokens {
   static final BorderRadius borderRadiusLg = BorderRadius.circular(radiusLg);
   static final BorderRadius borderRadiusXl = BorderRadius.circular(radiusXl);
   static final BorderRadius borderRadius3xl = BorderRadius.circular(radius3xl);
-  static final BorderRadius borderRadiusFull =
-      BorderRadius.circular(radiusFull);
+  static final BorderRadius borderRadiusFull = BorderRadius.circular(
+    radiusFull,
+  );
 
   // ---------------------------------------------------------------------------
   // Typography Helpers (Outfit & DM Mono)

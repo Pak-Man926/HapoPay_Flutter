@@ -77,10 +77,12 @@ class RewardsBannerCard extends ConsumerWidget {
     required String desc,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
 
     return Row(
       children: [
@@ -112,8 +114,10 @@ class RewardsBannerCard extends ConsumerWidget {
                   ),
                   const SizedBox(width: 6),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: tierColor.withValues(alpha: 0.15),
                       borderRadius: AppTokens.borderRadiusFull,
@@ -132,10 +136,7 @@ class RewardsBannerCard extends ConsumerWidget {
               const SizedBox(height: 2),
               Text(
                 desc,
-                style: GoogleFonts.outfit(
-                  fontSize: 12,
-                  color: mutedForeground,
-                ),
+                style: GoogleFonts.outfit(fontSize: 12, color: mutedForeground),
               ),
             ],
           ),

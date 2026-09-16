@@ -34,8 +34,10 @@ class AltAuthOption extends StatelessWidget {
           onTap: onTap,
           borderRadius: AppTokens.borderRadiusLg,
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 14.0,
+            ),
             child: Row(
               children: [
                 Text(emoji, style: const TextStyle(fontSize: 20)),

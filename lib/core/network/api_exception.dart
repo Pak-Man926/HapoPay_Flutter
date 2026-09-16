@@ -68,7 +68,5 @@ final class ServerException extends ApiException {
 
 /// An unexpected or unclassified error that does not map to a specific case.
 final class UnknownException extends ApiException {
-  const UnknownException({
-    super.message = 'An unexpected error occurred.',
-  });
+  const UnknownException({super.message = 'An unexpected error occurred.'});
 }

@@ -15,9 +15,9 @@ class RegisterRequestDto {
   final UserRole role;
 
   Map<String, dynamic> toJson() => {
-        'email': email,
-        'password': password,
-        'full_name': fullName,
-        'role': role.name,
-      };
+    'email': email,
+    'password': password,
+    'full_name': fullName,
+    'role': role.name,
+  };
 }

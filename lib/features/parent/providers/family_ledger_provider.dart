@@ -156,5 +156,5 @@ class FamilyLedgerNotifier extends Notifier<FamilyLedgerState> {
 
 final familyLedgerProvider =
     NotifierProvider<FamilyLedgerNotifier, FamilyLedgerState>(
-  FamilyLedgerNotifier.new,
-);
+      FamilyLedgerNotifier.new,
+    );

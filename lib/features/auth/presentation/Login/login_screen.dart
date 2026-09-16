@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hapopay/core/constants/constants.dart';
 import 'package:hapopay/features/auth/presentation/Login/widgets/role_tab.dart';
 import 'package:hapopay/features/auth/presentation/Login/widgets/social_button.dart';
+import 'package:hapopay/shared/providers/app_shell_provider.dart';
 
 import '../../../../core/theme/tokens.dart';
 import '../../../../shared/widgets/app_primary_button.dart';
@@ -37,19 +38,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    final success = await ref.read(loginStateProvider.notifier).login(
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
+    // -------------------------------------------------------------------------
+    // API Authentication (Commented out for UI review & testing)
+    // -------------------------------------------------------------------------
+    // final success = await ref.read(loginStateProvider.notifier).login(
+    //       email: _emailController.text,
+    //       password: _passwordController.text,
+    //     );
+    //
+    // if (!mounted) return;
+    //
+    // if (success) {
+    //   final authState = ref.read(authProvider);
+    //   if (authState.isAuthenticated) {
+    //     context.go(authState.user?.isParent == true ? '/parent' : '/student');
+    //   }
+    // }
 
-    if (!mounted) return;
-
-    if (success) {
-      final authState = ref.read(authProvider);
-      if (authState.isAuthenticated) {
-        context.go(authState.user?.isParent == true ? '/parent' : '/student');
-      }
-    }
+    // Direct UI testing navigation based on selected role:
+    final selectedRole = ref.read(loginStateProvider).selectedRole;
+    ref.read(appRoleProvider.notifier).setRole(selectedRole);
+    context.go(selectedRole == UserRole.parent ? '/parent' : '/student');
   }
 
   @override
@@ -58,16 +67,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final loginState = ref.watch(loginStateProvider);
     final isLoading = loginState.isLoading;
 
-    final backgroundColor =
-        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final backgroundColor = isDark
+        ? AppTokens.darkBackground
+        : AppTokens.lightBackground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
     final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
     final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
-    final secondaryBg =
-        isDark ? AppTokens.darkSecondary : AppTokens.lightSecondary;
+    final secondaryBg = isDark
+        ? AppTokens.darkSecondary
+        : AppTokens.lightSecondary;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -97,16 +110,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
           SafeArea(
             child: SingleChildScrollView(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 16.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Top Row: Theme Toggle
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: ThemeToggle(),
-                  ),
+                  Align(alignment: Alignment.topRight, child: ThemeToggle()),
 
                   const Spacing.vertical(12),
 
@@ -226,7 +238,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                  'Password reset instructions sent to email.'),
+                                'Password reset instructions sent to email.',
+                              ),
                               duration: Duration(seconds: 2),
                             ),
                           );
@@ -283,7 +296,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const Spacing.vertical(14),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 10),
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: AppTokens.warning.withValues(alpha: 0.12),
                         borderRadius: AppTokens.borderRadiusMd,
@@ -294,8 +309,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.error_outline_rounded,
-                              color: AppTokens.warning, size: 18),
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            color: AppTokens.warning,
+                            size: 18,
+                          ),
                           const Spacing.horizontal(8),
                           Expanded(
                             child: Text(

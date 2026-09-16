@@ -51,8 +51,9 @@ class MockInterceptor extends Interceptor {
     final tier = RewardsCatalog.tierForPoints(newTotal);
     _rewardsData!['total_points'] = newTotal;
     _rewardsData!['tier'] = tier.name;
-    _rewardsData!['next_milestone_points'] =
-        RewardsCatalog.nextMilestonePoints(newTotal);
+    _rewardsData!['next_milestone_points'] = RewardsCatalog.nextMilestonePoints(
+      newTotal,
+    );
   }
 
   @override
@@ -61,14 +62,16 @@ class MockInterceptor extends Interceptor {
 
     // 1. JWT Refresh
     if (path.contains('/accounts/token/refresh/')) {
-      handler.resolve(Response(
-        requestOptions: options,
-        statusCode: 200,
-        data: {
-          'access': 'mock_new_access_token',
-          'refresh': 'mock_new_refresh_token',
-        },
-      ));
+      handler.resolve(
+        Response(
+          requestOptions: options,
+          statusCode: 200,
+          data: {
+            'access': 'mock_new_access_token',
+            'refresh': 'mock_new_refresh_token',
+          },
+        ),
+      );
       return;
     }
 
@@ -84,17 +87,19 @@ class MockInterceptor extends Interceptor {
         'role': isParent ? 'parent' : 'student',
         'avatar_url': null,
       };
-      handler.resolve(Response(
-        requestOptions: options,
-        statusCode: 200,
-        data: {
-          'access': isParent
-              ? 'mock_access_token_parent'
-              : 'mock_access_token_student',
-          'refresh': 'mock_refresh_token',
-          'user': _currentUser,
-        },
-      ));
+      handler.resolve(
+        Response(
+          requestOptions: options,
+          statusCode: 200,
+          data: {
+            'access': isParent
+                ? 'mock_access_token_parent'
+                : 'mock_access_token_student',
+            'refresh': 'mock_refresh_token',
+            'user': _currentUser,
+          },
+        ),
+      );
       return;
     }
 
@@ -112,15 +117,17 @@ class MockInterceptor extends Interceptor {
         'role': role,
         'avatar_url': null,
       };
-      handler.resolve(Response(
-        requestOptions: options,
-        statusCode: 200,
-        data: {
-          'access': 'mock_access_token_$role',
-          'refresh': 'mock_refresh_token',
-          'user': _currentUser,
-        },
-      ));
+      handler.resolve(
+        Response(
+          requestOptions: options,
+          statusCode: 200,
+          data: {
+            'access': 'mock_access_token_$role',
+            'refresh': 'mock_refresh_token',
+            'user': _currentUser,
+          },
+        ),
+      );
       return;
     }
 
@@ -128,11 +135,13 @@ class MockInterceptor extends Interceptor {
     if (path.contains('/accounts/logout/')) {
       _currentUser = null;
       _rewardsData = null;
-      handler.resolve(Response(
-        requestOptions: options,
-        statusCode: 200,
-        data: {'detail': 'Successfully logged out.'},
-      ));
+      handler.resolve(
+        Response(
+          requestOptions: options,
+          statusCode: 200,
+          data: {'detail': 'Successfully logged out.'},
+        ),
+      );
       return;
     }
 
@@ -149,11 +158,9 @@ class MockInterceptor extends Interceptor {
           'avatar_url': null,
         };
       }
-      handler.resolve(Response(
-        requestOptions: options,
-        statusCode: 200,
-        data: _currentUser,
-      ));
+      handler.resolve(
+        Response(requestOptions: options, statusCode: 200, data: _currentUser),
+      );
       return;
     }
 
@@ -182,11 +189,9 @@ class MockInterceptor extends Interceptor {
         }
       }
 
-      handler.resolve(Response(
-        requestOptions: options,
-        statusCode: 200,
-        data: _rewardsData,
-      ));
+      handler.resolve(
+        Response(requestOptions: options, statusCode: 200, data: _rewardsData),
+      );
       return;
     }
 
@@ -197,11 +202,9 @@ class MockInterceptor extends Interceptor {
       final studentId = match?.group(1) ?? 'demo';
       _initRewards(studentId);
 
-      handler.resolve(Response(
-        requestOptions: options,
-        statusCode: 200,
-        data: _rewardsData,
-      ));
+      handler.resolve(
+        Response(requestOptions: options, statusCode: 200, data: _rewardsData),
+      );
       return;
     }
 
@@ -219,11 +222,9 @@ class MockInterceptor extends Interceptor {
         }
       }
 
-      handler.resolve(Response(
-        requestOptions: options,
-        statusCode: 200,
-        data: _accountData,
-      ));
+      handler.resolve(
+        Response(requestOptions: options, statusCode: 200, data: _accountData),
+      );
       return;
     }
 
@@ -243,15 +244,17 @@ class MockInterceptor extends Interceptor {
         try {
           qrData = Uri.splitQueryString(qrPayload);
         } catch (e) {
-          handler.reject(DioException(
-            requestOptions: options,
-            type: DioExceptionType.badResponse,
-            response: Response(
+          handler.reject(
+            DioException(
               requestOptions: options,
-              statusCode: 400,
-              data: {'detail': 'Invalid QR payload format.'},
+              type: DioExceptionType.badResponse,
+              response: Response(
+                requestOptions: options,
+                statusCode: 400,
+                data: {'detail': 'Invalid QR payload format.'},
+              ),
             ),
-          ));
+          );
           return;
         }
       }
@@ -261,15 +264,17 @@ class MockInterceptor extends Interceptor {
           qrData['description']?.toString() ?? 'QR Merchant Payment';
 
       if (amount <= 0) {
-        handler.reject(DioException(
-          requestOptions: options,
-          type: DioExceptionType.badResponse,
-          response: Response(
+        handler.reject(
+          DioException(
             requestOptions: options,
-            statusCode: 400,
-            data: {'detail': 'Payment amount must be greater than zero.'},
+            type: DioExceptionType.badResponse,
+            response: Response(
+              requestOptions: options,
+              statusCode: 400,
+              data: {'detail': 'Payment amount must be greater than zero.'},
+            ),
           ),
-        ));
+        );
         return;
       }
 
@@ -278,43 +283,50 @@ class MockInterceptor extends Interceptor {
       final todaySpent = _accountData!['today_spent'] as double;
 
       if (amount > currentBalance) {
-        handler.reject(DioException(
-          requestOptions: options,
-          type: DioExceptionType.badResponse,
-          response: Response(
+        handler.reject(
+          DioException(
             requestOptions: options,
-            statusCode: 400,
-            data: {'detail': 'Transaction declined: Insufficient funds.'},
+            type: DioExceptionType.badResponse,
+            response: Response(
+              requestOptions: options,
+              statusCode: 400,
+              data: {'detail': 'Transaction declined: Insufficient funds.'},
+            ),
           ),
-        ));
+        );
         return;
       }
 
       if (dailyLimit == 0.0) {
-        handler.reject(DioException(
-          requestOptions: options,
-          type: DioExceptionType.badResponse,
-          response: Response(
+        handler.reject(
+          DioException(
             requestOptions: options,
-            statusCode: 400,
-            data: {'detail': 'Transaction declined: Card is locked.'},
+            type: DioExceptionType.badResponse,
+            response: Response(
+              requestOptions: options,
+              statusCode: 400,
+              data: {'detail': 'Transaction declined: Card is locked.'},
+            ),
           ),
-        ));
+        );
         return;
       }
 
       if (todaySpent + amount > dailyLimit) {
-        handler.reject(DioException(
-          requestOptions: options,
-          type: DioExceptionType.badResponse,
-          response: Response(
+        handler.reject(
+          DioException(
             requestOptions: options,
-            statusCode: 400,
-            data: {
-              'detail': 'Transaction declined: Daily spending limit exceeded.'
-            },
+            type: DioExceptionType.badResponse,
+            response: Response(
+              requestOptions: options,
+              statusCode: 400,
+              data: {
+                'detail':
+                    'Transaction declined: Daily spending limit exceeded.',
+              },
+            ),
           ),
-        ));
+        );
         return;
       }
 
@@ -330,11 +342,9 @@ class MockInterceptor extends Interceptor {
         'type': 'debit',
       });
 
-      handler.resolve(Response(
-        requestOptions: options,
-        statusCode: 200,
-        data: _accountData,
-      ));
+      handler.resolve(
+        Response(requestOptions: options, statusCode: 200, data: _accountData),
+      );
       return;
     }
 

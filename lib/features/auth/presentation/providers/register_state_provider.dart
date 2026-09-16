@@ -126,30 +126,33 @@ class RegisterScreenNotifier extends Notifier<RegisterScreenState> {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
-      await ref.read(authProvider.notifier).register(
-            email: email.trim(),
-            password: password,
-            fullName: fullName.trim(),
-            role: state.selectedRole,
-          );
+      // -----------------------------------------------------------------------
+      // API Registration (Commented out for UI testing)
+      // -----------------------------------------------------------------------
+      // await ref.read(authProvider.notifier).register(
+      //       email: email.trim(),
+      //       password: password,
+      //       fullName: fullName.trim(),
+      //       role: state.selectedRole,
+      //     );
+      //
+      // final authState = ref.read(authProvider);
+      //
+      // if (authState.isAuthenticated) {
+      //   state = state.copyWith(isLoading: false, clearError: true);
+      //   return true;
+      // } else {
+      //   state = state.copyWith(
+      //     isLoading: false,
+      //     errorMessage: authState.errorMessage ?? 'Registration failed.',
+      //   );
+      //   return false;
+      // }
 
-      final authState = ref.read(authProvider);
-
-      if (authState.isAuthenticated) {
-        state = state.copyWith(isLoading: false, clearError: true);
-        return true;
-      } else {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: authState.errorMessage ?? 'Registration failed.',
-        );
-        return false;
-      }
+      state = state.copyWith(isLoading: false, clearError: true);
+      return true;
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
       return false;
     }
   }
@@ -157,5 +160,5 @@ class RegisterScreenNotifier extends Notifier<RegisterScreenState> {
 
 final registerStateProvider =
     NotifierProvider<RegisterScreenNotifier, RegisterScreenState>(
-  RegisterScreenNotifier.new,
-);
+      RegisterScreenNotifier.new,
+    );

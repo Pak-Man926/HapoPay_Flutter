@@ -24,10 +24,7 @@ class StudentAccountRepository {
   }) async {
     final response = await _dio.post(
       '/payments/process/',
-      data: {
-        'student_id': studentId,
-        'qr_payload': qrPayload,
-      },
+      data: {'student_id': studentId, 'qr_payload': qrPayload},
     );
     return StudentAccountModel.fromJson(response.data as Map<String, dynamic>);
   }

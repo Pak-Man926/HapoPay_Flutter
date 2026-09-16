@@ -60,10 +60,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
     result.when(
       success: (session) {
-        state = AuthState(
-          status: AuthStatus.authenticated,
-          user: session.user,
-        );
+        state = AuthState(status: AuthStatus.authenticated, user: session.user);
       },
       failure: (error) {
         state = AuthState(
@@ -94,10 +91,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
     result.when(
       success: (session) {
-        state = AuthState(
-          status: AuthStatus.authenticated,
-          user: session.user,
-        );
+        state = AuthState(status: AuthStatus.authenticated, user: session.user);
       },
       failure: (error) {
         state = AuthState(

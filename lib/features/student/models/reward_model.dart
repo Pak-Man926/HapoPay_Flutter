@@ -105,16 +105,16 @@ class AchievementModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'description': description,
-        'earned': earned,
-        'claimed': claimed,
-        'icon': icon,
-        'points': points,
-        if (progress != null) 'progress': progress,
-        if (goal != null) 'goal': goal,
-      };
+    'id': id,
+    'name': name,
+    'description': description,
+    'earned': earned,
+    'claimed': claimed,
+    'icon': icon,
+    'points': points,
+    if (progress != null) 'progress': progress,
+    if (goal != null) 'goal': goal,
+  };
 
   AchievementModel copyWith({
     String? id,
@@ -165,10 +165,10 @@ class MilestoneModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'tier': tier.name,
-        'min_points': minPoints,
-        if (maxPoints != null) 'max_points': maxPoints,
-      };
+    'tier': tier.name,
+    'min_points': minPoints,
+    if (maxPoints != null) 'max_points': maxPoints,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -200,8 +200,9 @@ class RewardModel {
 
   /// Progress fraction (0.0–1.0) within the current milestone band.
   double get tierProgressFraction {
-    final currentMilestone =
-        milestones.where((m) => m.tier == tier).firstOrNull;
+    final currentMilestone = milestones
+        .where((m) => m.tier == tier)
+        .firstOrNull;
     if (currentMilestone == null) return 0.0;
     final min = currentMilestone.minPoints;
     final max = currentMilestone.maxPoints;
@@ -230,15 +231,15 @@ class RewardModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'student_id': studentId,
-        'total_points': totalPoints,
-        'tier': tier.name,
-        'achievements': achievements.map((a) => a.toJson()).toList(),
-        'milestones': milestones.map((m) => m.toJson()).toList(),
-        if (nextMilestonePoints != null)
-          'next_milestone_points': nextMilestonePoints,
-        'streak_days': streakDays,
-      };
+    'student_id': studentId,
+    'total_points': totalPoints,
+    'tier': tier.name,
+    'achievements': achievements.map((a) => a.toJson()).toList(),
+    'milestones': milestones.map((m) => m.toJson()).toList(),
+    if (nextMilestonePoints != null)
+      'next_milestone_points': nextMilestonePoints,
+    'streak_days': streakDays,
+  };
 
   RewardModel copyWith({
     String? studentId,

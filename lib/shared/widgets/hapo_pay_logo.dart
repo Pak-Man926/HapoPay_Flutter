@@ -26,9 +26,7 @@ class HapoPayLogo extends StatelessWidget {
     final emblem = SizedBox(
       width: size,
       height: size,
-      child: CustomPaint(
-        painter: _HapoPayLogoPainter(),
-      ),
+      child: CustomPaint(painter: _HapoPayLogoPainter()),
     );
 
     if (!showText) {
@@ -36,15 +34,18 @@ class HapoPayLogo extends StatelessWidget {
     }
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryTextColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedColor =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final primaryTextColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedColor = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
 
     final textWidget = Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment:
-          isHorizontal ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+      crossAxisAlignment: isHorizontal
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
       children: [
         if (subtitle != null && isHorizontal)
           Text(
@@ -57,7 +58,8 @@ class HapoPayLogo extends StatelessWidget {
           ),
         Text(
           'HapoPay',
-          style: textStyle ??
+          style:
+              textStyle ??
               GoogleFonts.outfit(
                 fontSize: (size * 0.42).clamp(16, 28),
                 fontWeight: FontWeight.w800,

@@ -14,11 +14,7 @@ class PayQrState {
     this.countdown = 60,
   });
 
-  PayQrState copyWith({
-    PayStep? step,
-    bool? bioDone,
-    int? countdown,
-  }) {
+  PayQrState copyWith({PayStep? step, bool? bioDone, int? countdown}) {
     return PayQrState(
       step: step ?? this.step,
       bioDone: bioDone ?? this.bioDone,

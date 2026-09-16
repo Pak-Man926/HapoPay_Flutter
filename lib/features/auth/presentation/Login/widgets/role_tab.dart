@@ -22,10 +22,12 @@ class RoleTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final activeBg = isDark ? AppTokens.darkCard : AppTokens.lightCard;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
 
     return Expanded(
       child: GestureDetector(

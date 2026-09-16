@@ -5,10 +5,7 @@ class MyQrState {
   final double amount;
   final String description;
 
-  const MyQrState({
-    this.amount = 0.0,
-    this.description = '',
-  });
+  const MyQrState({this.amount = 0.0, this.description = ''});
 
   String generatePayload(String studentId, String studentName) {
     final payload = {
@@ -21,10 +18,7 @@ class MyQrState {
     return jsonEncode(payload);
   }
 
-  MyQrState copyWith({
-    double? amount,
-    String? description,
-  }) {
+  MyQrState copyWith({double? amount, String? description}) {
     return MyQrState(
       amount: amount ?? this.amount,
       description: description ?? this.description,

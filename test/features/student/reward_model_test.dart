@@ -31,18 +31,19 @@ void main() {
     test('catalog has redesigned achievement ids', () {
       final ids = RewardsCatalog.achievements.map((a) => a.id).toSet();
       expect(
-          ids,
-          containsAll([
-            'first_pay',
-            'qr_rookie',
-            'qr_pro',
-            'campus_champ',
-            'budget_3',
-            'week_warrior',
-            'month_master',
-            'smart_spender',
-            'big_buffer',
-          ]));
+        ids,
+        containsAll([
+          'first_pay',
+          'qr_rookie',
+          'qr_pro',
+          'campus_champ',
+          'budget_3',
+          'week_warrior',
+          'month_master',
+          'smart_spender',
+          'big_buffer',
+        ]),
+      );
       expect(ids.contains('social_star'), isFalse);
     });
   });
@@ -55,8 +56,10 @@ void main() {
       expect(demo.totalPoints, 220);
       expect(demo.streakDays, 5);
       expect(demo.nextMilestonePoints, 500);
-      expect(demo.achievements.where((a) => a.earned && !a.claimed).length,
-          greaterThanOrEqualTo(1));
+      expect(
+        demo.achievements.where((a) => a.earned && !a.claimed).length,
+        greaterThanOrEqualTo(1),
+      );
     });
 
     test('JSON round-trip preserves seed', () {

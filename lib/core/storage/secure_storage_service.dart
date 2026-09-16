@@ -2,22 +2,24 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageService {
   const SecureStorageService()
-      : _storage = const FlutterSecureStorage(
-          aOptions: AndroidOptions(),
-          iOptions: IOSOptions(
-            accessibility: KeychainAccessibility.first_unlock_this_device,
-            // Explicitly disable iCloud Keychain sync for session tokens.
-            synchronizable: false,
-          ),
-        );
+    : _storage = const FlutterSecureStorage(
+        aOptions: AndroidOptions(),
+        iOptions: IOSOptions(
+          accessibility: KeychainAccessibility.first_unlock_this_device,
+          // Explicitly disable iCloud Keychain sync for session tokens.
+          synchronizable: false,
+        ),
+      );
 
   final FlutterSecureStorage _storage;
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _biometricEnabledKey = 'biometric_enabled';
 
-  Future<void> saveTokens(
-      {required String access, required String refresh}) async {
+  Future<void> saveTokens({
+    required String access,
+    required String refresh,
+  }) async {
     await _storage.write(key: _accessTokenKey, value: access);
     await _storage.write(key: _refreshTokenKey, value: refresh);
   }

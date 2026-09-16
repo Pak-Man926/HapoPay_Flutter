@@ -20,13 +20,7 @@ class SummaryRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: GoogleFonts.outfit(
-            fontSize: 13,
-            color: mutedColor,
-          ),
-        ),
+        Text(label, style: GoogleFonts.outfit(fontSize: 13, color: mutedColor)),
         Text(
           value.isEmpty ? '—' : value,
           style: GoogleFonts.outfit(

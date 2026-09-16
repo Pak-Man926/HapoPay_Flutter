@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hapopay/core/constants/constants.dart';
+import 'package:logger/logger.dart';
 
 import '../../../core/theme/tokens.dart';
 import '../../../shared/widgets/hapo_pay_logo.dart';
@@ -27,6 +29,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   Timer? _timer;
   bool _hasNavigated = false;
+  final logger = Logger();
 
   @override
   void initState() {
@@ -42,10 +45,7 @@ class _SplashScreenState extends State<SplashScreen>
       curve: Curves.easeOutCubic,
     );
     _scaleAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _entryController,
-        curve: Curves.easeOutBack,
-      ),
+      CurvedAnimation(parent: _entryController, curve: Curves.easeOutBack),
     );
     _entryController.forward();
 
@@ -55,10 +55,7 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
     _floatAnim = Tween<double>(begin: -6.0, end: 6.0).animate(
-      CurvedAnimation(
-        parent: _floatController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _floatController, curve: Curves.easeInOut),
     );
 
     // 3. Bottom pulsing dots sync animation
@@ -75,11 +72,13 @@ class _SplashScreenState extends State<SplashScreen>
     if (_hasNavigated || !mounted) return;
     _hasNavigated = true;
     _timer?.cancel();
+    //logger.i('SplashScreen had been navigated, navigating to next screen.');
 
     if (widget.onFinished != null) {
       widget.onFinished!();
     } else {
       context.go('/login');
+      logger.i('SplashScreen has been completed, navigating to next screen.');
     }
   }
 
@@ -95,12 +94,15 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor =
-        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final backgroundColor = isDark
+        ? AppTokens.darkBackground
+        : AppTokens.lightBackground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
 
     return GestureDetector(
       onTap: _navigateToNext, // Tap anywhere to skip
@@ -119,10 +121,12 @@ class _SplashScreenState extends State<SplashScreen>
                       center: const Alignment(0.0, -0.2),
                       radius: 0.85,
                       colors: [
-                        AppTokens.primary
-                            .withValues(alpha: isDark ? 0.18 : 0.10),
-                        AppTokens.accent
-                            .withValues(alpha: isDark ? 0.10 : 0.05),
+                        AppTokens.primary.withValues(
+                          alpha: isDark ? 0.18 : 0.10,
+                        ),
+                        AppTokens.accent.withValues(
+                          alpha: isDark ? 0.10 : 0.05,
+                        ),
                         Colors.transparent,
                       ],
                     ),
@@ -149,7 +153,7 @@ class _SplashScreenState extends State<SplashScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const HapoPayLogo(size: 92),
-                        const SizedBox(height: 22),
+                        const Spacing.vertical(22),
                         Text(
                           'HapoPay',
                           style: GoogleFonts.outfit(
@@ -159,7 +163,7 @@ class _SplashScreenState extends State<SplashScreen>
                             letterSpacing: -0.5,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const Spacing.vertical(6),
                         Text(
                           'Smart spending for families',
                           style: GoogleFonts.outfit(

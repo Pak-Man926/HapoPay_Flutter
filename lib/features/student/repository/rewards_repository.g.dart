@@ -12,20 +12,24 @@ part of 'rewards_repository.dart';
 @ProviderFor(rewardsRepository)
 final rewardsRepositoryProvider = RewardsRepositoryProvider._();
 
-final class RewardsRepositoryProvider extends $FunctionalProvider<
-    RewardsRepository,
-    RewardsRepository,
-    RewardsRepository> with $Provider<RewardsRepository> {
+final class RewardsRepositoryProvider
+    extends
+        $FunctionalProvider<
+          RewardsRepository,
+          RewardsRepository,
+          RewardsRepository
+        >
+    with $Provider<RewardsRepository> {
   RewardsRepositoryProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'rewardsRepositoryProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'rewardsRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$rewardsRepositoryHash();
@@ -33,8 +37,8 @@ final class RewardsRepositoryProvider extends $FunctionalProvider<
   @$internal
   @override
   $ProviderElement<RewardsRepository> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   RewardsRepository create(Ref ref) {

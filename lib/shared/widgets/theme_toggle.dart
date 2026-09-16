@@ -7,30 +7,27 @@ import '../../core/theme/tokens.dart';
 class ThemeToggle extends ConsumerWidget {
   final double size;
 
-  const ThemeToggle({
-    super.key,
-    this.size = 32,
-  });
+  const ThemeToggle({super.key, this.size = 32});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
-    final isDark = themeMode == ThemeMode.dark ||
+    final isDark =
+        themeMode == ThemeMode.dark ||
         (themeMode == ThemeMode.system &&
             Theme.of(context).brightness == Brightness.dark);
 
-    final secondaryBg =
-        isDark ? AppTokens.darkSecondary : AppTokens.lightSecondary;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final secondaryBg = isDark
+        ? AppTokens.darkSecondary
+        : AppTokens.lightSecondary;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
 
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: secondaryBg,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: secondaryBg, shape: BoxShape.circle),
       child: Material(
         color: Colors.transparent,
         child: InkWell(

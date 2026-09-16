@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hapopay/features/qrcode/presentation/screens/pin_authentication.dart';
 
 import '../../features/auth/presentation/Login/login_screen.dart';
 import '../../features/auth/presentation/Registration/register_screen.dart';
@@ -34,26 +35,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: '/splash',
     refreshListenable: refreshNotifier,
     redirect: (context, state) {
-      final authState = ref.read(authProvider);
-      final location = state.matchedLocation;
-
-      // When on splash screen, let the splash animation finish
-      if (location == '/splash') return null;
-
-      // If user is not authenticated and not on an auth screen, allow login/register
-      if (!authState.isAuthenticated) {
-        if (location == '/login' || location == '/register') {
-          return null;
-        }
-        // If they navigate elsewhere while unauthenticated, redirect to login
-        // (Except during demo / preview routes if needed)
-        return null;
-      }
-
-      // If authenticated and on login / register, redirect to appropriate role dashboard
-      if (location == '/login' || location == '/register') {
-        return authState.user?.isParent == true ? '/parent' : '/student';
-      }
+      // -----------------------------------------------------------------------
+      // Auth Redirection Logic (Commented out for UI review & testing)
+      // -----------------------------------------------------------------------
+      // final authState = ref.read(authProvider);
+      // final location = state.matchedLocation;
+      //
+      // // When on splash screen, let the splash animation finish
+      // if (location == '/splash') return null;
+      //
+      // // If user is not authenticated and not on an auth screen, allow login/register
+      // if (!authState.isAuthenticated) {
+      //   if (location == '/login' || location == '/register') {
+      //     return null;
+      //   }
+      //   return null;
+      // }
+      //
+      // // If authenticated and on login / register, redirect to appropriate role dashboard
+      // if (location == '/login' || location == '/register') {
+      //   return authState.user?.isParent == true ? '/parent' : '/student';
+      // }
 
       return null;
     },
@@ -66,10 +68,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/splash',
         builder: (context, state) => const SplashScreen(),
       ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
@@ -109,6 +108,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'pay-qr',
             builder: (context, state) => const PayQrScreen(),
+            routes: [
+              GoRoute(
+                path: 'pin-auth',
+                builder: (context, state) => PinAuthentication(),
+              ),
+            ],
           ),
           GoRoute(
             path: 'my-qr',

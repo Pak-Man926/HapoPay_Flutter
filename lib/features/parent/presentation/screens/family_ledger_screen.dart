@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hapopay/core/constants/constants.dart';
-import 'package:hapopay/features/parent/presentation/screens/models/transaction_record_model.dart';
 
 import '../../../../core/theme/tokens.dart';
 
@@ -12,25 +11,26 @@ import '../../providers/family_ledger_provider.dart';
 class FamilyLedgerScreen extends ConsumerWidget {
   final bool isEmbeddedInShell;
 
-  const FamilyLedgerScreen({
-    super.key,
-    this.isEmbeddedInShell = false,
-  });
+  const FamilyLedgerScreen({super.key, this.isEmbeddedInShell = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ledgerState = ref.watch(familyLedgerProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor =
-        isDark ? AppTokens.darkBackground : AppTokens.lightBackground;
-    final foregroundColor =
-        isDark ? AppTokens.darkForeground : AppTokens.lightForeground;
-    final mutedForeground =
-        isDark ? AppTokens.darkMutedForeground : AppTokens.lightMutedForeground;
+    final backgroundColor = isDark
+        ? AppTokens.darkBackground
+        : AppTokens.lightBackground;
+    final foregroundColor = isDark
+        ? AppTokens.darkForeground
+        : AppTokens.lightForeground;
+    final mutedForeground = isDark
+        ? AppTokens.darkMutedForeground
+        : AppTokens.lightMutedForeground;
     final cardColor = isDark ? AppTokens.darkCard : AppTokens.lightCard;
     final borderColor = isDark ? AppTokens.darkBorder : AppTokens.lightBorder;
-    final secondaryBg =
-        isDark ? AppTokens.darkSecondary : AppTokens.lightSecondary;
+    final secondaryBg = isDark
+        ? AppTokens.darkSecondary
+        : AppTokens.lightSecondary;
 
     final filterChild = ledgerState.filterChild;
     final filterStatus = ledgerState.filterStatus;
@@ -44,8 +44,11 @@ class FamilyLedgerScreen extends ConsumerWidget {
           ? null
           : AppBar(
               leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded,
-                    color: foregroundColor, size: 20),
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: foregroundColor,
+                  size: 20,
+                ),
                 onPressed: () => context.pop(),
               ),
               title: Text(
@@ -82,8 +85,11 @@ class FamilyLedgerScreen extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.arrow_upward_rounded,
-                                color: AppTokens.accent, size: 16),
+                            const Icon(
+                              Icons.arrow_upward_rounded,
+                              color: AppTokens.accent,
+                              size: 16,
+                            ),
                             const Spacing.horizontal(4),
                             Text(
                               'Money In',
@@ -125,8 +131,11 @@ class FamilyLedgerScreen extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.arrow_downward_rounded,
-                                color: AppTokens.warning, size: 16),
+                            const Icon(
+                              Icons.arrow_downward_rounded,
+                              color: AppTokens.warning,
+                              size: 16,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               'Money Out',
@@ -175,7 +184,9 @@ class FamilyLedgerScreen extends ConsumerWidget {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 6),
+                              horizontal: 14,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: isSelected ? AppTokens.primary : cardColor,
                               borderRadius: AppTokens.borderRadiusFull,
@@ -193,8 +204,9 @@ class FamilyLedgerScreen extends ConsumerWidget {
                                 fontWeight: isSelected
                                     ? FontWeight.w700
                                     : FontWeight.w500,
-                                color:
-                                    isSelected ? Colors.white : mutedForeground,
+                                color: isSelected
+                                    ? Colors.white
+                                    : mutedForeground,
                               ),
                             ),
                           ),
@@ -213,8 +225,9 @@ class FamilyLedgerScreen extends ConsumerWidget {
                     children: ['all', 'approved', 'flagged'].map((status) {
                       final isSelected = filterStatus == status;
                       final isFlagged = status == 'flagged';
-                      final activeColor =
-                          isFlagged ? AppTokens.warning : AppTokens.primary;
+                      final activeColor = isFlagged
+                          ? AppTokens.warning
+                          : AppTokens.primary;
 
                       return Padding(
                         padding: const EdgeInsets.only(right: 8.0),
@@ -225,7 +238,9 @@ class FamilyLedgerScreen extends ConsumerWidget {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 6),
+                              horizontal: 14,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: isSelected ? activeColor : cardColor,
                               borderRadius: AppTokens.borderRadiusFull,
@@ -240,14 +255,15 @@ class FamilyLedgerScreen extends ConsumerWidget {
                               status == 'all'
                                   ? 'All Status'
                                   : status[0].toUpperCase() +
-                                      status.substring(1),
+                                        status.substring(1),
                               style: GoogleFonts.outfit(
                                 fontSize: 12,
                                 fontWeight: isSelected
                                     ? FontWeight.w700
                                     : FontWeight.w500,
-                                color:
-                                    isSelected ? Colors.white : mutedForeground,
+                                color: isSelected
+                                    ? Colors.white
+                                    : mutedForeground,
                               ),
                             ),
                           ),
@@ -305,7 +321,9 @@ class FamilyLedgerScreen extends ConsumerWidget {
 
                     return Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 12),
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: isFlagged
                             ? AppTokens.warning.withValues(alpha: 0.08)
@@ -328,8 +346,10 @@ class FamilyLedgerScreen extends ConsumerWidget {
                               borderRadius: AppTokens.borderRadiusMd,
                             ),
                             child: Center(
-                              child: Text(t.cat,
-                                  style: const TextStyle(fontSize: 18)),
+                              child: Text(
+                                t.cat,
+                                style: const TextStyle(fontSize: 18),
+                              ),
                             ),
                           ),
                           const Spacing.horizontal(12),
@@ -354,12 +374,16 @@ class FamilyLedgerScreen extends ConsumerWidget {
                                       const Spacing.horizontal(6),
                                       Container(
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 6, vertical: 2),
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: AppTokens.warning
-                                              .withValues(alpha: 0.2),
-                                          borderRadius:
-                                              BorderRadius.circular(4),
+                                          color: AppTokens.warning.withValues(
+                                            alpha: 0.2,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                         child: Text(
                                           'Flagged',
@@ -392,8 +416,8 @@ class FamilyLedgerScreen extends ConsumerWidget {
                               color: t.amount > 0
                                   ? AppTokens.accent
                                   : (isFlagged
-                                      ? AppTokens.warning
-                                      : foregroundColor),
+                                        ? AppTokens.warning
+                                        : foregroundColor),
                             ),
                           ),
                         ],

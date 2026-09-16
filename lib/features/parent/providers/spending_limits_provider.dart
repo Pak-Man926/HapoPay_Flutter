@@ -67,10 +67,7 @@ class SpendingLimitsNotifier extends Notifier<SpendingLimitsState> {
       state = state.copyWith(isSaving: false);
       return true;
     } catch (e) {
-      state = state.copyWith(
-        isSaving: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isSaving: false, errorMessage: e.toString());
       return false;
     }
   }
@@ -78,5 +75,5 @@ class SpendingLimitsNotifier extends Notifier<SpendingLimitsState> {
 
 final spendingLimitsProvider =
     NotifierProvider<SpendingLimitsNotifier, SpendingLimitsState>(
-  SpendingLimitsNotifier.new,
-);
+      SpendingLimitsNotifier.new,
+    );

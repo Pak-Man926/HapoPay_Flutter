@@ -27,8 +27,6 @@ class AuthResponseDto {
   }
 
   /// Converts this DTO's token fields to the [AuthTokens] domain value object.
-  AuthTokens toTokensDomain() => AuthTokens(
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      );
+  AuthTokens toTokensDomain() =>
+      AuthTokens(accessToken: accessToken, refreshToken: refreshToken);
 }

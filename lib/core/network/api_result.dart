@@ -34,8 +34,7 @@ final class Success<T> extends ApiResult<T> {
   R when<R>({
     required R Function(T data) success,
     required R Function(ApiException error) failure,
-  }) =>
-      success(data);
+  }) => success(data);
 }
 
 /// Represents a failed operation carrying an [ApiException].
@@ -48,6 +47,5 @@ final class Failure<T> extends ApiResult<T> {
   R when<R>({
     required R Function(T data) success,
     required R Function(ApiException error) failure,
-  }) =>
-      failure(error);
+  }) => failure(error);
 }

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
 import '../config/env_config.dart';
 import '../storage/secure_storage_service.dart';
@@ -58,7 +59,7 @@ class DioClient {
           responseBody: true,
           // Never print Authorization headers; masked at the header level.
           requestHeader: false,
-          logPrint: (object) => debugPrint(object.toString()),
+          logPrint: (object) => Logger().i(object.toString()),
         ),
     ]);
 
@@ -85,6 +86,4 @@ final dioClientProvider = Provider<DioClient>((ref) {
 ///
 /// Repositories that only need [Dio] (not the full [DioClient]) should watch
 /// this provider.
-final dioProvider = Provider<Dio>(
-  (ref) => ref.watch(dioClientProvider).dio,
-);
+final dioProvider = Provider<Dio>((ref) => ref.watch(dioClientProvider).dio);
